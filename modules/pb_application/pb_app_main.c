@@ -20,6 +20,7 @@
 #include <string.h>
 
 #include "hal_board.h"
+#include "hal_wdg.h"
 #include "os_middleware.h"
 #include "os_trace_log.h"
 
@@ -50,6 +51,7 @@
 static void hardware_init()
 {
     hal_board_init();
+    hal_wdg_init();
 
     DEBUG_COM.begin(115200);
 }
@@ -69,6 +71,7 @@ static void pb_monitor_task(void *pvParameters)
 {
     while (1)
     {
+        hal_wdg_feed();
         OS_INFO("pb_monitor_task");
         
         os_scheduler_delay(DELAY_1_S);

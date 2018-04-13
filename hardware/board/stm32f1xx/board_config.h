@@ -24,6 +24,7 @@
 #include "stm32f10x_flash.h"
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_usart.h"
+#include "stm32f10x_iwdg.h"
 
 /******************************************************************************
 * Macros
@@ -34,6 +35,12 @@
 #define BOARD_NVIC_PRIO_GROUP NVIC_PriorityGroup_1
 
 //peripheral
+/*internal wathdog*/
+#define BOARD_IWDG_ENABLE 1 //internal watchdog
+/*external watchdog*/
+#define BOARD_EWDG_ENABLE 1 //external watchdog
+#define BOARD_EXT_WDG_PIN GPIOB, GPIO_Pin_1
+
 /*USART1*/
 #define BOARD_USART1_ENABLE 1   //USART1 for debug
 #define BOARD_IQR_PRIO_USART1 1
