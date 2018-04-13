@@ -25,6 +25,9 @@
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_usart.h"
 #include "stm32f10x_iwdg.h"
+#include "stm32f10x_pwr.h"
+#include "stm32f10x_bkp.h"
+#include "stm32f10x_rtc.h"
 
 /******************************************************************************
 * Macros
@@ -40,6 +43,17 @@
 /*external watchdog*/
 #define BOARD_EWDG_ENABLE 1 //external watchdog
 #define BOARD_EXT_WDG_PIN GPIOB, GPIO_Pin_1
+
+/*bacpup register*/
+#define BOARD_BKP_ENABLE 1
+#define BOARD_BKP_RTC_ADDR BKP_DR1
+#define BOARD_BKP_DEV_CRC_ADDR BKP_DR2
+#define BOARD_BKP_DEV_ADDR BKP_DR3
+
+/*RTC*/
+#define BOARD_RTC_ENABLE 1
+#define BOARD_RTC_BKP_SETFLAG  0x5A5A
+#define BOARD_RTC_DEFAULT  1525104000   //2018-05-01 00:00:00
 
 /*USART1*/
 #define BOARD_USART1_ENABLE 1   //USART1 for debug

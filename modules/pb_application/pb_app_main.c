@@ -21,6 +21,8 @@
 
 #include "hal_board.h"
 #include "hal_wdg.h"
+#include "hal_bkp.h"
+#include "hal_rtc.h"
 #include "os_middleware.h"
 #include "os_trace_log.h"
 
@@ -51,9 +53,15 @@
 static void hardware_init()
 {
     hal_board_init();
-    hal_wdg_init();
-
     DEBUG_COM.begin(115200);
+
+    uint16 fmVer = 0x2000;
+    OS_INFO("ParkBox V%d.%02d.%02d", (fmVer >> 12), ((fmVer >> 4) & 0xFF), (fmVer & 0x000F));
+    OS_INFO("@%s-%s", __DATE__, __TIME__);
+
+    hal_wdg_init();
+    hal_bkp_init();
+    hal_rtc_init();
 }
 
 /******************************************************************************
@@ -72,7 +80,7 @@ static void pb_monitor_task(void *pvParameters)
     while (1)
     {
         hal_wdg_feed();
-        OS_INFO("pb_monitor_task");
+        OS_INFO("pb_monitor_task %u", hal_rtc_get());
         
         os_scheduler_delay(DELAY_1_S);
     }
