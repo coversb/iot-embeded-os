@@ -28,6 +28,7 @@
 #include "stm32f10x_pwr.h"
 #include "stm32f10x_bkp.h"
 #include "stm32f10x_rtc.h"
+#include "stm32f10x_flash.h"
 
 /******************************************************************************
 * Macros

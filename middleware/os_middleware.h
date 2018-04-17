@@ -48,6 +48,7 @@
 #define DELAY_1_S 1000
 
 /*FreeRTOS*/
+#define OS_STACK_1K (1024)
 #define OS_MSG_BLOCK_WAIT portMAX_DELAY
 #define OS_MSG_RECV_FAILED pdFAIL
 #define OS_MSG_QUEUE_TYPE xQueueHandle

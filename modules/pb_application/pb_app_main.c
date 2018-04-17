@@ -23,13 +23,13 @@
 #include "hal_wdg.h"
 #include "hal_bkp.h"
 #include "hal_rtc.h"
-#include "os_middleware.h"
 #include "os_trace_log.h"
+#include "pb_app_config.h"
 
+#include "pb_cfg_proc.h"
 /******************************************************************************
 * Macros
 ******************************************************************************/
-#define DEBUG_COM hwSerial1
 
 /******************************************************************************
 * Variables (Extern, Global and Static)
@@ -53,7 +53,7 @@
 static void hardware_init()
 {
     hal_board_init();
-    DEBUG_COM.begin(115200);
+    PB_DEBUG_COM.begin(115200);
 
     uint16 fmVer = 0x2000;
     OS_INFO("ParkBox V%d.%02d.%02d", (fmVer >> 12), ((fmVer >> 4) & 0xFF), (fmVer & 0x000F));
@@ -99,7 +99,10 @@ static void pb_monitor_task(void *pvParameters)
 ******************************************************************************/
 int main(void)
 {
+    os_trace_log_set_mod(0xFF, 3);
     hardware_init();
+
+    pb_cfg_proc_init();
 
     OS_TASK_TYPE taskHdlr;
     os_task_create(pb_monitor_task, NULL, "PB_MONITOR", 2048, 0, &taskHdlr);
@@ -108,3 +111,4 @@ int main(void)
 
     return 0;
 }
+
