@@ -119,5 +119,8 @@ extern bool os_mutex_try_lock(OS_MUTEX_TYPE *mutex, uint32 timeout);
 extern bool os_mutex_unlock(OS_MUTEX_TYPE *mutex);
 /*OS API functions end*/
 
+extern void os_set_task_init(uint8 idx);
+extern void os_wait_task_init_sync(void);
+
 #endif /* __OS_MIDDLEWARE_H__ */
 

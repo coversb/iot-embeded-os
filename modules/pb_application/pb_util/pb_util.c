@@ -17,6 +17,7 @@
 * Include Files
 ******************************************************************************/
 #include "pb_util.h"
+#include "hal_rtc.h"
 
 /******************************************************************************
 * Macros
@@ -89,5 +90,21 @@ uint16 pb_util_get_crc16(const uint8 *pdata, uint16 len)
     }
 
     return crc16;
+}
+
+/******************************************************************************
+* Function    : pb_util_get_timestamp
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get timestamp
+******************************************************************************/
+uint32 pb_util_get_timestamp(void)
+{
+    return hal_rtc_get();
 }
 

@@ -24,6 +24,7 @@
 #include "basetype.h"
 #include "os_config.h"
 #include "os_middleware.h"
+#include "os_task_define.h"
 #include "os_trace_log.h"
 
 /******************************************************************************
@@ -34,6 +35,7 @@
 /******************************************************************************
 * Variables (Extern, Global and Static)
 ******************************************************************************/
+static uint32 os_task_init_mask = 0;
 
 /******************************************************************************
 * Local Functions
@@ -271,4 +273,67 @@ bool os_mutex_unlock(OS_MUTEX_TYPE *mutex)
     }
     return (bool)os_mutex_give(*mutex);
 }
+
+/******************************************************************************
+* Function    : os_set_task_init
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : set task init flag
+******************************************************************************/
+void os_set_task_init(uint8 idx)
+{
+    BIT_SET(os_task_init_mask, idx);
+}
+
+/******************************************************************************
+* Function    : os_check_task_init_sync
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : check task init flag
+******************************************************************************/
+static bool os_check_task_init(void)
+{
+    bool ret = true;
+    for (uint8 idx = OS_TASK_ITEM_BEGIN; idx < OS_TASK_ITEM_END; ++idx)
+    {
+        if (!BIT_CHECK(os_task_init_mask, idx))
+        {
+            ret = false;
+            break;
+        }
+    }
+
+    return ret;
+}
+
+/******************************************************************************
+* Function    : os_wait_task_init_sync
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void os_wait_task_init_sync(void)
+{
+    while (!os_check_task_init())
+    {
+        os_scheduler_delay(OS_TASK_SYNC_CHECK_INTERVAL);
+    }
+    OS_INFO("OS tasks init ok");
+}
+
 

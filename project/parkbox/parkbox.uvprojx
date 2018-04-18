@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_util</IncludePath>
+              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_io</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -377,6 +377,16 @@
         </TargetArmAds>
       </TargetOption>
       <Groups>
+        <Group>
+          <GroupName>pb_io</GroupName>
+          <Files>
+            <File>
+              <FileName>pb_io_monitor_main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_io\pb_io_monitor_main.c</FilePath>
+            </File>
+          </Files>
+        </Group>
         <Group>
           <GroupName>pb_util</GroupName>
           <Files>
@@ -450,6 +460,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\hardware\hal\hal_flash.c</FilePath>
             </File>
+            <File>
+              <FileName>hal_rcc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hardware\hal\hal_rcc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -469,6 +484,11 @@
               <FileName>os_trace_log.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\middleware\os_trace_log.c</FilePath>
+            </File>
+            <File>
+              <FileName>os_task_define.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\middleware\os_task_define.c</FilePath>
             </File>
           </Files>
         </Group>

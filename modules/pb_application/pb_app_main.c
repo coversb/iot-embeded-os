@@ -24,6 +24,7 @@
 #include "hal_bkp.h"
 #include "hal_rtc.h"
 #include "os_trace_log.h"
+#include "os_task_define.h"
 #include "pb_app_config.h"
 
 #include "pb_cfg_proc.h"
@@ -80,7 +81,6 @@ static void pb_monitor_task(void *pvParameters)
     while (1)
     {
         hal_wdg_feed();
-        OS_INFO("pb_monitor_task %u", hal_rtc_get());
         
         os_scheduler_delay(DELAY_1_S);
     }
@@ -106,6 +106,7 @@ int main(void)
 
     OS_TASK_TYPE taskHdlr;
     os_task_create(pb_monitor_task, NULL, "PB_MONITOR", 2048, 0, &taskHdlr);
+    os_task_create_all();
 
     os_task_scheduler();
 

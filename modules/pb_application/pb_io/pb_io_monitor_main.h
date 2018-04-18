@@ -3,24 +3,23 @@
 *     Copyright (c) 2018 ParkBox Ltd.   
 *        
 *******************************************************************************
-*  file name:          pb_util.h
+*  file name:          pb_io_monitor_main.h
 *  author:              Chen Hao
 *  version:             1.00
-*  file description:   utility functions
+*  file description:   polling input source
 *******************************************************************************
 *  revision history:    date               version                  author
 *
 *  change summary:   2018-4-13      1.00                    Chen Hao
 *
 ******************************************************************************/
-#ifndef __PB_UTIL_H__
-#define __PB_UTIL_H__
+#ifndef __PB_IO_MONITOR_MAIN_H__
+#define __PB_IO_MONITOR_MAIN_H__
 /******************************************************************************
 * Include Files
 ******************************************************************************/
 #include "basetype.h"
 #include "pb_app_config.h"
-#include "pb_app_message.h"
 
 /******************************************************************************
 * Macros
@@ -29,17 +28,37 @@
 /******************************************************************************
 * Enums
 ******************************************************************************/
+typedef enum
+{
+    PB_IO_MONITOR_BEGIN = 0,
+    PB_IO_MONITOR_EMERGENCY = PB_IO_MONITOR_BEGIN,
+    PB_IO_MONITOR_REVERSE,
+    PB_IO_MONITOR_MENU,
+    PB_IO_MONITOR_VOLUME_UP,
+    PB_IO_MONITOR_VOLUME_DOWN,
+    PB_IO_MONITOR_END
+}PB_IO_MONITOR_PINS;
 
 /******************************************************************************
 * Types
+******************************************************************************/
+typedef struct
+{
+    GPIO_TypeDef* GPIOx;
+    uint16 GPIO_Pin;
+    uint8 triggerType;
+    uint8 lastStat;
+    void (*function)(uint8);
+}PB_IO_MONITOR_ITEM;
+
+/******************************************************************************
+* Global Variables
 ******************************************************************************/
 
 /******************************************************************************
 * Global Functions
 ******************************************************************************/
-extern uint16 pb_util_get_crc16(const uint8 *pdata, uint16 len);
+extern void pb_io_monitor_main(void *param);
 
-extern uint32 pb_util_get_timestamp(void);
-
-#endif /* __PB_UTIL_H__ */
+#endif /* __PB_OTA_MAIN_H__ */
 

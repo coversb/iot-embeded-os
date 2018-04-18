@@ -25,8 +25,11 @@
 ******************************************************************************/
 //enable os trace log
 #define OS_TRACE_LOG            1
-#define OS_TRACE_LOG_SIZE   255
+#define OS_TRACE_LOG_SIZE   255 //bytes
 #define OS_TRACE_COM hwSerial1
+
+//tasks init sync
+#define OS_TASK_SYNC_CHECK_INTERVAL 100 //ms
 
 #endif /* __OS_CONFIG_H__ */
 
