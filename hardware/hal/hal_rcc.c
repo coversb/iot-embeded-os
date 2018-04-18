@@ -3,10 +3,10 @@
 *     Open source
 *        
 *******************************************************************************
-*  file name:          hal_bkp.c
+*  file name:          hal_rcc.c
 *  author:              Chen Hao
 *  version:             1.00
-*  file description:   backup register
+*  file description:   rcc hal
 *******************************************************************************
 *  revision history:    date               version                  author
 *
@@ -16,7 +16,6 @@
 /******************************************************************************
 * Include Files
 ******************************************************************************/
-#include "hal_bkp.h"
 #include "hal_rcc.h"
 
 /******************************************************************************
@@ -41,55 +40,21 @@
 * 
 * Description : 
 ******************************************************************************/
-void hal_bkp_init(void)
+void hal_rcc_enable(uint32 rcc)
 {
-    #if ( BOARD_BKP_ENABLE == 1 )
-    /* Enable PWR and BKP clocks */
-    hal_rcc_enable(BOARD_BKP_RCC);
-    #endif /*BOARD_BKP_ENABLE*/
-}
-
-/******************************************************************************
-* Function    : hal_bkp_read
-* 
-* Author      : Chen Hao
-* 
-* Parameters  : 
-* 
-* Return      : 
-* 
-* Description : 
-******************************************************************************/
-uint32 hal_bkp_read(uint32 addr)
-{
-    uint32 data = 0;
-
-    #if ( BOARD_BKP_ENABLE == 1 )
-    PWR_BackupAccessCmd(ENABLE);
-    data = BKP_ReadBackupRegister((uint16)addr);
-    PWR_BackupAccessCmd(DISABLE);
-    #endif /*BOARD_BKP_ENABLE*/
-
-    return data;
-}
-
-/******************************************************************************
-* Function    : hal_bkp_write
-* 
-* Author      : Chen Hao
-* 
-* Parameters  : 
-* 
-* Return      : 
-* 
-* Description : 
-******************************************************************************/
-void hal_bkp_write(uint32 addr, uint32 data)
-{
-    #if ( BOARD_BKP_ENABLE == 1 )
-    PWR_BackupAccessCmd(ENABLE);
-    BKP_WriteBackupRegister((uint16)addr, (uint16)data);
-    PWR_BackupAccessCmd(DISABLE);
-    #endif /*BOARD_BKP_ENABLE*/
+    if (IS_RCC_AHB_PERIPH(rcc))
+    {
+        RCC_AHBPeriphClockCmd(rcc, ENABLE);
+    }
+    else
+    if (IS_RCC_APB1_PERIPH(rcc))
+    {
+        RCC_APB1PeriphClockCmd(rcc, ENABLE);
+    }
+    else
+    if (IS_RCC_APB2_PERIPH(rcc))
+    {
+        RCC_APB2PeriphClockCmd(rcc, ENABLE);
+    }
 }
 

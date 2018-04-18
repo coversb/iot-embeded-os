@@ -17,6 +17,7 @@
 * Include Files
 ******************************************************************************/
 #include "hal_wdg.h"
+#include "hal_rcc.h"
 #include "hal_gpio.h"
 
 /******************************************************************************
@@ -82,7 +83,7 @@ static void hal_iwdg_feed(void)
 ******************************************************************************/
 static void hal_ewdg_init(void)
 {
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+    hal_rcc_enable(BOARD_EXT_WDG_IO_RCC);
     hal_gpio_set_mode(BOARD_EXT_WDG_PIN, GPIO_Mode_Out_PP);
     hal_gpio_set(BOARD_EXT_WDG_PIN, HAL_GPIO_LOW);
 }
