@@ -27,7 +27,6 @@
 #include "os_task_define.h"
 #include "pb_app_config.h"
 
-#include "pb_cfg_proc.h"
 /******************************************************************************
 * Macros
 ******************************************************************************/
@@ -101,8 +100,6 @@ int main(void)
 {
     os_trace_log_set_mod(0xFF, 3);
     hardware_init();
-
-    pb_cfg_proc_init();
 
     OS_TASK_TYPE taskHdlr;
     os_task_create(pb_monitor_task, NULL, "PB_MONITOR", 2048, 0, &taskHdlr);

@@ -70,3 +70,63 @@ void hal_board_nvic_set_irq(uint8 IRQChannel, uint8 PreemptionPriority, uint8 Su
     NVIC_Init(&NVIC_InitStructure);		
 }
 
+/******************************************************************************
+* Function    : hal_board_get_boot_type
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+uint8 hal_board_get_boot_type(void)
+{
+    uint8 pwronType = HAL_PWRON_NORMAL;
+
+    //WWD and IWD rst
+    if ((RCC_GetFlagStatus(RCC_FLAG_WWDGRST) == SET)    
+        || (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) == SET))
+    {
+        pwronType = HAL_PWRON_WDG;
+    }	
+    else
+    //Software rst
+    if (RCC_GetFlagStatus(RCC_FLAG_SFTRST) == SET)
+    {
+        pwronType = HAL_PWRON_SOFTRST;
+    }
+    else
+    if (RCC_GetFlagStatus(RCC_FLAG_PORRST) == SET)
+    {
+        pwronType = HAL_PWRON_NORMAL;
+    }	
+    else
+    //Key rst
+    if(RCC_GetFlagStatus(RCC_FLAG_PINRST) == SET)
+    {
+        pwronType = HAL_PWRON_KEY;
+    }
+
+    RCC_ClearFlag();
+    return pwronType;
+}
+
+/******************************************************************************
+* Function    : hal_board_reset
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void hal_board_reset(void)
+{
+    __disable_irq();
+    NVIC_SystemReset();
+}
+

@@ -36,7 +36,9 @@ const char *TRACE_MOD_NAME[DBG_MOD_END + 1] =
     "OS",
     "HAL",
     "PBCFG",
-    "PBIO MONITOR",
+    "PBFOTA",
+    "PBPROT",
+    "PBIOMONITOR",
     "NULL"
 };
 

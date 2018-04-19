@@ -29,7 +29,7 @@
 /******************************************************************************
 * Variables (Extern, Global and Static)
 ******************************************************************************/
-PB_CFG_CMD g_pb_cfg_cmd;
+static PB_CFG_CMD g_pb_cfg_cmd;
 static PB_CFG_DEV_INFO pb_cfg_devinfo;
 
 /******************************************************************************
@@ -65,6 +65,38 @@ static uint32 pb_cfg_proc_load(uint32 addr, void *pdata, uint32 len)
 static int32 pb_cfg_proc_save(uint32 addr, void *pdata, uint32 len)
 {
     return PB_FLASH_HDLR.write(addr, (uint32*)pdata, len);
+}
+
+/******************************************************************************
+* Function    : pb_cfg_proc_get_dev_type
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+uint8 pb_cfg_proc_get_dev_type(void)
+{
+    return (uint8)pb_util_hex_string_to_int((uint8*)pb_cfg_proc_get_sn(), 2);
+}
+
+/******************************************************************************
+* Function    : pb_cfg_proc_get_hardware_version
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+uint16 pb_cfg_proc_get_hardware_version(void)
+{
+    return (uint16)pb_util_hex_string_to_int((uint8*)pb_cfg_proc_get_sn(), 4);
 }
 
 /******************************************************************************
@@ -341,6 +373,22 @@ static uint8 pb_cfg_proc_cmd_valid_check(uint8 type)
     }
 
     return ret;
+}
+
+/******************************************************************************
+* Function    : pb_cfg_proc_get_cmd
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+PB_CFG_CMD* pb_cfg_proc_get_cmd(void)
+{
+    return &g_pb_cfg_cmd;
 }
 
 /******************************************************************************

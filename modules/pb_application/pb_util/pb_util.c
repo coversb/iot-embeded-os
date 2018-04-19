@@ -1,6 +1,6 @@
 /******************************************************************************
 *        
-*     Copyright (c) 2017 ParkBox Ltd.   
+*     Copyright (c) 2018 ParkBox Ltd.   
 *        
 *******************************************************************************
 *  file name:          pb_util.c
@@ -10,12 +10,16 @@
 *******************************************************************************
 *  revision history:    date               version                  author
 *
-*  change summary:   2017-8-16             1.00                    Chen Hao
+*  change summary:   2018-4-19      1.00                    Chen Hao
 *
 ******************************************************************************/
 /******************************************************************************
 * Include Files
 ******************************************************************************/
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
 #include "pb_util.h"
 #include "hal_rtc.h"
 
@@ -93,6 +97,129 @@ uint16 pb_util_get_crc16(const uint8 *pdata, uint16 len)
 }
 
 /******************************************************************************
+* Function    : pb_util_char_to_int
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : convert hex character to uint8
+******************************************************************************/
+uint8 pb_util_char_to_int(uint8 character)
+{
+    uint8 i = 0;
+
+    if (character >= '0' && character <= '9')
+    {
+        i = character - '0';
+    }
+    else if (character >= 'A' && character <= 'F')
+    {
+        i = character - 'A' + 10;
+    }
+    else if (character >= 'a' && character <= 'f')
+    {
+        i = character - 'a' + 10;
+    }
+
+    return i;
+}
+
+/******************************************************************************
+* Function    : pb_util_hex_string_to_int
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : convert hex string to uint32
+******************************************************************************/
+uint32 pb_util_hex_string_to_int(uint8 *string, uint8 len)
+{
+    uint8 i = 0;
+    uint32 hexSum = 0;
+
+    len = MIN_VALUE(len, 8);
+    for (i = 0; i < len; ++i)
+    {
+        hexSum = hexSum * 16 + pb_util_char_to_int(string[i]);
+    }
+
+    return hexSum;
+}
+
+/******************************************************************************
+* Function    : pb_util_hex_array_to_int
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+uint32 pb_util_hex_array_to_int(uint8 *array, uint8 len)
+{
+    uint8 i = 0;
+    uint32 hexSum = 0;
+
+    len = MIN_VALUE(len, 4);
+    for (i = 0; i < len; ++i)
+    {
+        hexSum = hexSum * 256 + array[i];
+    }
+
+    return hexSum;
+}
+
+/******************************************************************************
+* Function    : pb_util_decimal_string_to_int
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+int32 pb_util_decimal_string_to_int(char* dec, uint32 multiplier)
+{
+    char *tok_p = NULL;
+    int32 integer;
+    uint32 decimal;
+
+    tok_p = strtok(dec, ".");
+    integer = atol(tok_p);
+    tok_p = strtok(NULL, ".");
+    decimal = atol(tok_p);
+
+    return (integer * multiplier + decimal);
+}
+
+/******************************************************************************
+* Function    : pb_util_get_random_num
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+uint32 pb_util_random_num(uint32 div)
+{
+    srand(pb_util_get_timestamp());
+    return (rand() % (div + 1));
+}
+
+/******************************************************************************
 * Function    : pb_util_get_timestamp
 * 
 * Author      : Chen Hao
@@ -107,4 +234,64 @@ uint32 pb_util_get_timestamp(void)
 {
     return hal_rtc_get();
 }
+
+/******************************************************************************
+* Function    : pb_util_set_timestamp
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_util_set_timestamp(uint32 timestamp)
+{
+    hal_rtc_set(timestamp);
+}
+
+/******************************************************************************
+* Function    : pb_util_get_datetime
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_util_get_datetime(char *pdata, uint16 len)
+{
+    time_t t = pb_util_get_timestamp() + PB_DATA_TIME_OFFSET;
+    struct tm *lt;
+    lt = localtime(&t);
+    memset(pdata, 0, len);
+    len = MIN_VALUE(16, len);
+    strftime(pdata, len, "%Y%m%d  %H%M%S", lt);
+}
+
+/******************************************************************************
+* Function    : pb_util_get_time
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_util_get_time(uint8 *hour, uint8 *minute, uint8 *sec)
+{
+    time_t t = pb_util_get_timestamp() + PB_DATA_TIME_OFFSET;
+    struct tm *lt;
+    lt = localtime(&t);
+
+    *hour = lt->tm_hour;
+    *minute = lt->tm_min;
+    *sec = lt->tm_sec;
+}
+
 

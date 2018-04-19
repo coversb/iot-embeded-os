@@ -47,6 +47,11 @@
 #define DELAY_500_MS 500
 #define DELAY_1_S 1000
 
+#define SEC2MSEC (1000)
+#define MIN2MSEC (60000)
+#define DAY2SEC (86400)
+#define MIN2SEC (60)
+
 /*FreeRTOS*/
 #define OS_STACK_1K (1024)
 #define OS_MSG_BLOCK_WAIT portMAX_DELAY
@@ -108,6 +113,7 @@ typedef struct
 /*OS API functions begin*/
 //message
 extern void os_msg_queue_send(OS_MSG_QUEUE_TYPE que, const void * const pdata, uint32 timeWait);
+extern bool os_msg_data_vaild(uint8 *p);
 //timer
 extern void os_tmr_start(OS_TMR_TYPE tmrHdlr);
 extern void os_tmr_stop(OS_TMR_TYPE tmrHdlr);

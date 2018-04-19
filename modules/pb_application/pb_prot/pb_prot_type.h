@@ -37,11 +37,12 @@
 //protocol data sources, order by priority
 typedef enum
 {
-    PB_PROT_SRC_UART = 0,
+    PB_PORT_SRC_BEGIN = 0,
+    PB_PROT_SRC_UART = PB_PORT_SRC_BEGIN,
     PB_PORT_SRC_OTA,
+    PB_PORT_SRC_NUM,
     PB_PORT_SRC_BT,
     PB_PORT_SRC_SMS,
-    PB_PORT_SRC_NUM,
     PB_PORT_SRC_UNKNWON
 }PB_PROT_SRC_ID;
 
@@ -86,7 +87,7 @@ typedef enum
 typedef enum
 {
     /*KEEP SAME WITH PB_PROT_CMD_TYPE*/    
-    PB_PROT_MSG_ACK_GEN = 0xFF, //0xFF General acknowledgement
+    PB_PROT_ACK_GEN = 0xFF, //0xFF General acknowledgement
 }PB_PROT_ACK_TYPE;
 
 typedef enum
@@ -112,9 +113,9 @@ typedef enum
     PB_PROT_RSP_GSM = 0x92, //0x92 GSM info report
     PB_PROT_RSP_DBI = 0x93, //0x93 Device basic info report
     /*debug info*/
-    PB_PROT_MSG_RSP_DBG = 0xE1, //0xE1 Debug info report
+    PB_PROT_RSP_DBG = 0xE1, //0xE1 Debug info report
     /*firmware over the air*/
-    PB_PROT_MSG_RSP_FOTA = 0xF1,    //0xF1 Firmware over the air
+    PB_PROT_RSP_FOTA = 0xF1,    //0xF1 Firmware over the air
     PB_PROT_MSG_RSP_END
 }PB_PROT_MSG_RSP_TYPE;
 
@@ -168,6 +169,8 @@ typedef struct
 /******************************************************************************
 * Global Configuration (CFG[0x01 0x03])
 ******************************************************************************/
+#define PB_CFG_CONTENT_LEN 4
+
 typedef enum
 {
     PB_CFG_EVENT_PNE = 0,
@@ -189,6 +192,7 @@ typedef struct
 /******************************************************************************
 * Time Adjust (TMA[0x01 0x04])
 ******************************************************************************/
+#define PB_TMA_CONTENT_LEN 6
 #define PB_TMA_SIGN_MAX 1
 #define PB_TMA_HOUR_MAX 23
 #define PB_TMA_MINUTE_MAX 59
@@ -207,6 +211,8 @@ typedef struct
 /******************************************************************************
 * Protocol Watchdog (DOG[0x01 0x05])
 ******************************************************************************/
+#define PB_DOG_CONTENT_LEN 5
+
 typedef struct
 {
     uint8 mode;
@@ -220,6 +226,8 @@ typedef struct
 /******************************************************************************
 * Air Conditioner Operation (ACO[0x01 0x06])
 ******************************************************************************/
+#define PB_ACO_CONTENT_LEN 4
+
 typedef enum
 {
     PB_ACO_MODE_OFF = 0,
@@ -240,6 +248,7 @@ typedef struct
 /******************************************************************************
 * Security Configuration (SEC[0x01 0x07])
 ******************************************************************************/
+#define PB_SEC_CONTENT_LEN 33
 #define PB_SEC_KEY_LEN 32
 
 typedef enum
@@ -258,6 +267,15 @@ typedef struct
 /******************************************************************************
 * Output Mode Configuration (OMC[0x01 0x08])
 ******************************************************************************/
+#define PB_OMC_CONTENT_LEN 21
+
+typedef enum
+{
+    PB_OMC_MODE_NORMAL = 0,
+    PB_OMC_MODE_SPECIAL_TIME,
+    PB_OMC_MODE_SPECIAL_TIME_WITH_RSP
+}PB_OMC_MODE_TYPE;
+
 typedef struct
 {
     uint32 idleOutput;
@@ -274,6 +292,8 @@ typedef struct
 /******************************************************************************
 * Air conditioner working config (ACW[0x01 0x09])
 ******************************************************************************/
+#define PB_ACW_CONTENT_LEN 8
+
 typedef struct
 {
     uint8 mode;
@@ -289,6 +309,8 @@ typedef struct
 /******************************************************************************
 * Door Alarm (DOA[0x01 0x31])
 ******************************************************************************/
+#define PB_DOA_CONTENT_LEN 4
+
 typedef struct
 {
     uint8 mode;
@@ -300,6 +322,8 @@ typedef struct
 /******************************************************************************
 * Smoke Alarm (SMA[0x01 0x32])
 ******************************************************************************/
+#define PB_SMA_CONTENT_LEN 4
+
 typedef struct
 {
     uint8 mode;
@@ -311,6 +335,8 @@ typedef struct
 /******************************************************************************
 * Order Update Operation (OUO[0x01 0x81])
 ******************************************************************************/
+#define PB_OUO_CONTENT_LEN(n) (17 * (n) + 1)
+
 typedef enum
 {
     PB_OUO_ACT_ADD_NORMAL = 0,
@@ -331,6 +357,8 @@ typedef struct
 /******************************************************************************
 * Output Operation (OUT[0x01 0x82])
 ******************************************************************************/
+#define PB_OUT_CONTENT_LEN 6
+
 typedef struct
 {
     uint8 pinIdx;
@@ -341,6 +369,8 @@ typedef struct
 /******************************************************************************
 * Mutilmedia Operation (MUO[0x01 0x83])
 ******************************************************************************/
+#define PB_MUO_CONTENT_LEN 2
+
 typedef enum
 {
     PB_MUO_SOUND = 1
@@ -376,6 +406,8 @@ typedef struct
 /******************************************************************************
 * Real Time Operation (RTO[0x01 0x84])
 ******************************************************************************/
+#define PB_RTO_CONTENT_LEN 2
+
 typedef enum
 {
     PB_RTO_INF = 0,
@@ -436,6 +468,12 @@ typedef enum
     PB_FOTA_UPGRADE_ERR = 0x32
 }PB_PROT_RSP_FOTA_STATUS_CODE;
 
+typedef struct 
+{
+    uint8 status;
+    uint8 cnt;
+}PB_PROT_RSP_FOTA_PARAM;
+
 /******************************************************************************
 * Report enums
 ******************************************************************************/
@@ -448,6 +486,21 @@ typedef enum
 
 //User input RSP[0x03 0x21]
 #define PB_UIE_DATA_LEN 40
+typedef struct
+{
+    uint8 type;
+    uint8 data[PB_UIE_DATA_LEN+1];
+}PB_PROT_RSP_UIE_PARAM;
+
+//Person count event[0x03 0x23]
+typedef struct
+{
+    uint8 method;
+    uint8 position;
+    uint8 type;
+    uint8 curNum;
+    uint16 totalNum;
+}PB_PROT_RSP_PCE_PARAM;
 
 //Sensor alamr RSP[0x03 0x31]
 typedef enum
@@ -457,15 +510,34 @@ typedef enum
     PB_SENSOR_ALARM_PCIR = 2
 }PB_PROT_SENSOR_ALARM_TYPE;
 
+typedef struct
+{
+    uint8 alarmType;
+    uint8 alarmLv;
+}PB_PROT_RSP_SAE_PARAM;
+
 //Multi-media event RSP[0x03 0x83]
 typedef enum
 {
     PB_PROT_MUE_MODULE_SOUND = 1
 }PB_PROT_MUE_MODULE_TYPE;
 
-//
+//Device location[0x03 0x91]
 #define PB_LOC_LONG_LEN 11
 #define PB_LOC_LAT_LEN 10
+
+typedef enum
+{
+     PB_PROT_RSP_LOC_LAST_FIX = 0x11
+}PB_PROT_RSP_LOC_FIX_TYPE;
+
+typedef struct
+{
+    uint16 timestamp;
+    uint8 fixType;
+    uint8 longitude[PB_LOC_LONG_LEN+1];
+    uint8 latitude[PB_LOC_LAT_LEN+1];
+}PB_PROT_RSP_LOC_PARAM;
 
 //GSM info RSP[0x03 0x92]
 #define PB_GSM_MODULE_LEN 20
@@ -473,8 +545,19 @@ typedef enum
 #define PB_GSM_IMSI_LEN 15
 #define PB_GSM_ICCID_LEN 20
 
+typedef struct
+{
+    uint8 gsmModule[PB_GSM_MODULE_LEN+1];
+    uint8 imei[PB_GSM_IMEI_LEN+1];
+    uint8 imsi[PB_GSM_IMSI_LEN+1];
+    uint8 iccid[PB_GSM_ICCID_LEN+1];
+}PB_PROT_RSP_GSMINFO_PARAM;
+
 //Debug info RSP[0x03 0xE1]
 #define PB_DBG_MAXSIZE (512 - 4)
+
+//Genernal Server ACK
+#define PB_ACK_GEN_CONTENT_LEN 2
 
 /******************************************************************************
 * Types
@@ -495,7 +578,7 @@ typedef union
     PB_PROT_CMD_SEC_ARG sec;
     PB_PROT_CMD_OMC_ARG omc;
     PB_PROT_CMD_ACW_ARG acw;
-    PB_PROT_CMD_DOA_ARG doo;
+    PB_PROT_CMD_DOA_ARG doa;
     PB_PROT_CMD_SMA_ARG sma;
     PB_PROT_CMD_OUT_ARG out;
     PB_PROT_CMD_MUO_ARG muo;
@@ -537,5 +620,11 @@ typedef struct
     uint16 length;
     uint8 *data;
 }PB_PROT_RSP_PACK_TYPE;
+
+typedef struct
+{
+    uint8 subType;
+    uint8 param[1];
+}PB_PROT_RSP_TYPE;
 
 #endif /* __PB_PROT_TYPE_H__ */

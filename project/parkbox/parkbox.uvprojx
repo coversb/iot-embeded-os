@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_io</IncludePath>
+              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -398,6 +398,46 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>pb_prot</GroupName>
+          <Files>
+            <File>
+              <FileName>pb_prot_assemble.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_prot\pb_prot_assemble.c</FilePath>
+            </File>
+            <File>
+              <FileName>pb_prot_cmd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_prot\pb_prot_cmd.c</FilePath>
+            </File>
+            <File>
+              <FileName>pb_prot_main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_prot\pb_prot_main.c</FilePath>
+            </File>
+            <File>
+              <FileName>pb_prot_parse.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_prot\pb_prot_parse.c</FilePath>
+            </File>
+            <File>
+              <FileName>pb_prot_proc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_prot\pb_prot_proc.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>pb_fota</GroupName>
+          <Files>
+            <File>
+              <FileName>pb_fota.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_fota\pb_fota.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>pb_cfg</GroupName>
           <Files>
             <File>
@@ -409,6 +449,16 @@
               <FileName>pb_cfg_proc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\modules\pb_application\pb_cfg\pb_cfg_proc.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>pb_bl_api</GroupName>
+          <Files>
+            <File>
+              <FileName>AppUpgrade.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_bl_api\AppUpgrade.c</FilePath>
             </File>
           </Files>
         </Group>

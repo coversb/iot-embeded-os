@@ -26,6 +26,7 @@
 #include "pb_app_config.h"
 #include "pb_io_monitor_main.h"
 #include "pb_util.h"
+#include "pb_prot_main.h"
 
 /******************************************************************************
 * Macros
@@ -73,11 +74,8 @@ static void pb_io_monitor_debug_com(void)
 {
     if (PB_DEBUG_COM.available() > 0)
     {
-        /*
-        pb_prot_input_available_set(PBCMD_SRC_UART, true);
+        pb_prot_input_available_set(PB_PROT_SRC_UART, true);
         pb_prot_send_msg_to_prot_mod(PB_MSG_PROT_ANALYSE_DATA);
-        */
-        PB_DEBUG_COM.write(PB_DEBUG_COM.read());
     }
 }
 

@@ -1,61 +1,41 @@
 /******************************************************************************
 *        
-*     Open source
+*     Copyright (c) 2018 ParkBox Ltd.   
 *        
 *******************************************************************************
-*  file name:          os_task_define.h
+*  file name:          pb_prot_assemble.h
 *  author:              Chen Hao
 *  version:             1.00
-*  file description:   RTOS task define type
+*  file description:   assemble protocol message and ack
 *******************************************************************************
 *  revision history:    date               version                  author
 *
-*  change summary:   2018-4-18      1.00                    Chen Hao
+*  change summary:   2018-4-19      1.00                    Chen Hao
 *
 ******************************************************************************/
-#ifndef __OS_TASK_DEFINE_H__
-#define __OS_TASK_DEFINE_H__
+#ifndef __PB_PROT_ASSEMBLE_H__
+#define __PB_PROT_ASSEMBLE_H__
 /******************************************************************************
 * Include Files
 ******************************************************************************/
 #include "basetype.h"
-#include "os_middleware.h"
+#include "pb_prot_type.h"
 
 /******************************************************************************
 * Macros
 ******************************************************************************/
-#define PB_PROT_MSGQUE_SIZE 15
-
-/******************************************************************************
-* Enums
-******************************************************************************/
-typedef enum
-{
-    OS_TASK_ITEM_BEGIN = 0,
-    OS_TASK_ITEM_PB_PROT = OS_TASK_ITEM_BEGIN,
-    OS_TASK_ITEM_PB_IOMONITOR,
-    OS_TASK_ITEM_END
-}OS_TASK_ITEM;
+#define PB_PROT_ASSEMBLE_HEAD_CHECK_LEN 16  //keep same with PB_PROT_PARSE_CMD_HEAD_CHECK_LEN
 
 /******************************************************************************
 * Types
 ******************************************************************************/
-typedef struct
-{
-    void (*function)(void *);
-    void * const param;
-    const char * const name;
-    uint32 stackSize;
-    uint32 priority;
-    void * hdlr;
-}OS_TASK_INFO_TYPE;
 
 /******************************************************************************
 * Global Functions
 ******************************************************************************/
-extern void os_task_create_all(void);
-extern void os_task_print_free_stack(void);
-extern void os_task_print_free_heap(void);
+extern uint16 pb_prot_assemble_ack(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame, 
+                                                                PB_PROT_ACK_PACK_TYPE *ackPack);
+extern uint16 pb_prot_assemble_hbp(PB_PROT_HBP_PACK_TYPE *hbpPack);
+extern uint16 pb_prot_assemble_rsp(PB_PROT_RSP_PACK_TYPE *rspPack);
 
-#endif /* __OS_TASK_DEFINE_H__ */
-
+#endif /*__PB_PROTOCOL_ASSEMBLE_H__*/

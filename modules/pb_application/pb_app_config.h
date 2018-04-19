@@ -51,7 +51,12 @@
 /*Tasks marco define*/
 #define PB_IO_MONITOR_INTERVAL (DELAY_1_MS*10)
 
-#define PB_PROT_NETWORK_BYTE_ORDER  //big endian
+/*Application features*/
+#define PB_PROT_DBG 0
+#define PB_PROT_NETWORK_BYTE_ORDER  1 //big endian
+#define PB_DATA_TIME_OFFSET (8 * 3600) //beijing +8
+#define PB_TMA_AUTO_SET_RANGE 30 //seconds
+#define PB_TMA_AUTO_SET_DEBOUNCE 3 //count
 
 #endif /* __PB_APP_CONFIG_H__ */
 

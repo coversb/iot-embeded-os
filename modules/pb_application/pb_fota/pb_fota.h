@@ -1,79 +1,81 @@
 /******************************************************************************
 *        
-*     Open source
+*     Copyright (c) 2018 ParkBox Ltd.   
 *        
 *******************************************************************************
-*  file name:          os_trace_log.h
+*  file name:          pb_fota.h
 *  author:              Chen Hao
 *  version:             1.00
-*  file description:   trace log
+*  file description:   fota functions
 *******************************************************************************
 *  revision history:    date               version                  author
 *
-*  change summary:   2018-4-11      1.00                    Chen Hao
+*  change summary:   2018-4-19      1.00                    Chen Hao
 *
 ******************************************************************************/
-#ifndef __OS_TRACE_LOG_H__
-#define __OS_TRACE_LOG_H__
+#ifndef __PB_FOTA_H__
+#define __PB_FOTA_H__
 /******************************************************************************
 * Include Files
 ******************************************************************************/
 #include "basetype.h"
-#include "os_config.h"
+#include "pb_prot_type.h"
+#include "AppUpgrade.h"
 
 /******************************************************************************
 * Macros
 ******************************************************************************/
-#if ( OS_TRACE_LOG == 1 )
-//os info
-#define OS_INFO(...) os_trace_info(__VA_ARGS__)
-//os debug log
-#define OS_DBG_ERR(DBG_IDX, ...)  os_trace_debug(DBG_IDX, DBG_ERR, __FILE__, __LINE__, __VA_ARGS__)
-#define OS_DBG_TRACE(DBG_IDX, DBG_LV, ...)  os_trace_debug(DBG_IDX, DBG_LV, __FILE__, __LINE__, __VA_ARGS__)
-#else
-#define OS_INFO(...) 
-#define OS_DBG_ERR(DBG_IDX, ...)  
-#define OS_DBG_TRACE(DBG_IDX, DBG_LV, ...)  
-#endif /*OS_TRACE_LOG*/
 
 /******************************************************************************
 * Enums
 ******************************************************************************/
 typedef enum
 {
-    DBG_MOD_OS,     //0x0001 os log
-    DBG_MOD_HAL,   //0x0002 hal log
-    DBG_MOD_PBCFG,
-    DBG_MOD_PBFOTA,
-    DBG_MOD_PBPROT,
-    DBG_MOD_PBIO_MONITOR,
-    DBG_MOD_END
-}DBG_TRACE_MOD;
+    PB_IMAGE_NORMAL = 0,
+    PB_IMAGE_FOTA_OK = 1,
+    PB_IMAGE_FOTA_ERR_AND_RECOVER = 2,
+    PB_IMAGE_COM_UPDATE = 3
+}PB_IMAGE_CONFIRM_TYPE;
 
-typedef enum
-{
-    DBG_ERR = 0,
-    DBG_WARN,
-    DBG_INFO,
-    DBG_END
-}DBG_TRACE_LEVEL;
-    
 /******************************************************************************
 * Types
 ******************************************************************************/
+typedef Image_ContentTypeDef PB_IMAGE_CONTENT_TYPE;
+
+/*FOTA context definition*/
+typedef struct
+{
+    uint8 retry;
+    uint8 timeout;
+    uint8 protocol;
+    uint8 url[PB_FOTA_URL_LEN + 1];
+    uint16 port;
+    uint8 usrName[PB_FOTA_USR_LEN + 1];
+    uint8 usrPass[PB_FOTA_PASS_LEN + 1];
+    uint8 md5[PB_FOTA_MD5_LEN];
+    uint32 key;
+    uint32 downAddr;
+    uint32 bootAddr;
+    
+    uint8 curRetryCnt;
+    uint32 totalSize;
+}PB_FOTA_CONTEXT;
 
 /******************************************************************************
-* Global Variables 
+* Global Variables
 ******************************************************************************/
-
 
 /******************************************************************************
 * Global Functions
 ******************************************************************************/
-extern void os_trace_log_set_mod(const uint32 mod, const uint32 level);
-extern void os_trace_info(const char *fmt, ...);
-extern void os_trace_debug(const uint8 idx, const uint8 level, const char *file, const uint32 line, const char *fmt, ...);
-extern uint16 os_trace_get_hex_str(uint8 *str, uint16 strLen, uint8 *hex, uint16 hexLen);
+extern void pb_fota_firmware_confirm(void);
+extern int32 pb_fota_request_free_bank(PB_IMAGE_CONTENT_TYPE *pIC);
+extern int32 pb_fota_write_firmware_to_free_bank(PB_IMAGE_CONTENT_TYPE *pIC, uint32 addrOffset, uint8 *pdata, uint16 len);
+extern int32 pb_fota_submit_new_image(PB_IMAGE_CONTENT_TYPE IC);
+extern void pb_fota_get_firmware_info(uint32 *upTimestamp, uint32 *runTimes);
 
-#endif /* __OS_TRACE_LOG_H__ */
+extern uint16 pb_fota_get_firmware_version(void);
+extern uint16 pb_fota_get_bl_version(void);
+
+#endif /* __PB_FOTA_H__ */
 

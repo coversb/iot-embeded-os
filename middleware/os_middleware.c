@@ -68,6 +68,28 @@ void os_msg_queue_send(OS_MSG_QUEUE_TYPE que, const void * const pdata, uint32 t
 }
 
 /******************************************************************************
+* Function    : os_msg_data_vaild
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+bool os_msg_data_vaild(uint8 *p)
+{
+    if (p == NULL)
+    {
+        OS_DBG_ERR(DBG_MOD_OS, "Bad message data");
+        return false;
+    }
+    
+    return true;
+}
+
+/******************************************************************************
 * Function    : os_tmr_start
 * 
 * Author      : Chen Hao

@@ -17,30 +17,14 @@
 * Include Files
 ******************************************************************************/
 #include "os_task_define.h"
+#include "os_trace_log.h"
+#include "pb_prot_main.h"
 #include "pb_io_monitor_main.h"
 
 /******************************************************************************
 * Macros
 ******************************************************************************/
-/*TASK INFO DEFINE begin*/
-//pb_prot_main task
-#define PB_PROT_STACK (OS_STACK_1K*4)   //bytes
-#define PB_PROT_NAME "pb_prot"
-#define PB_PROT_PRIO (tskIDLE_PRIORITY+3)
-#define PB_PROT_MSGQUE_SIZE 15
 
-//pb_input_monitor_main task
-#define PB_IO_MONITOR_STACK (OS_STACK_1K*2)   //bytes
-#define PB_IO_MONITOR_NAME "pb_input_monitor"
-#define PB_IO_MONITOR_PRIO (tskIDLE_PRIORITY+2)
-#define PB_IO_MONITOR_POLL_INTERVAL (DELAY_1_MS*10)
-#define PB_IO_MONITOR_EVENT_INTERVAL DELAY_1_S
-
-//monitor task
-#define PB_MONITOR_STACK (OS_STACK_1K*2)   //bytes
-#define PB_MONITOR_NAME "pb_monitor"
-#define PB_MONITOR_PRIO (tskIDLE_PRIORITY)
-/*TASK INFO DEFINE end*/
 /******************************************************************************
 * Variables (Extern, Global and Static)
 ******************************************************************************/
@@ -49,14 +33,28 @@
 */
 static OS_TASK_INFO_TYPE os_task_info[OS_TASK_ITEM_END] = 
 {
-    /*task main functino, parameter, task name, stack size, priority, task handler*/
+    /*task main functino,   parameter, task name,     stack size,      priority,            task handler*/
     {
-        pb_io_monitor_main, NULL, "pbIoMonitor", (OS_STACK_1K*2), (tskIDLE_PRIORITY+2), NULL
+        pb_prot_main,       NULL,      "pbProt",      (OS_STACK_1K*4), (tskIDLE_PRIORITY+3), NULL
+    },
+    {
+        pb_io_monitor_main, NULL,      "pbIoMonitor", (OS_STACK_1K*2), (tskIDLE_PRIORITY+2), NULL
     }
 };
 
 /******************************************************************************
 * Local Functions
+******************************************************************************/
+/******************************************************************************
+* Function    : os_task_create_all
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : create all task defined in os_task_info
 ******************************************************************************/
 void os_task_create_all(void)
 {
@@ -67,7 +65,44 @@ void os_task_create_all(void)
                                 os_task_info[idx].name,
                                 os_task_info[idx].stackSize,
                                 os_task_info[idx].priority,
-                                os_task_info[idx].hdlr);
+                                &os_task_info[idx].hdlr);
     }
+}
+
+/******************************************************************************
+* Function    : os_task_print_free_stack
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void os_task_print_free_stack(void)
+{
+    for (uint8 idx = OS_TASK_ITEM_BEGIN; idx < OS_TASK_ITEM_END; ++idx)
+    {
+        uint32 freeStack;
+        freeStack = os_task_free_stack(os_task_info[idx].hdlr);
+        OS_INFO("%s FREE[%d]", os_task_info[idx].name, freeStack*4);
+    }
+}
+
+/******************************************************************************
+* Function    : os_task_print_free_heap
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void os_task_print_free_heap(void)
+{
+    OS_INFO("SYS HEAP FREE[%d]", os_sys_free_heap());
 }
 

@@ -281,12 +281,16 @@ typedef struct
 /******************************************************************************
 * Global Functions
 ******************************************************************************/
+extern uint8 pb_cfg_proc_get_dev_type(void);
+extern uint16 pb_cfg_proc_get_hardware_version(void);
 extern const uint8* pb_cfg_proc_get_sn(void);
 extern void pb_cfg_proc_set_sn(uint8 *sn);
 extern const uint8* pb_cfg_proc_get_uid(void);
 extern void pb_cfg_proc_set_uid(uint8 *uid);
 extern const uint8* pb_cfg_proc_get_mac(void);
 extern void pb_cfg_proc_set_mac(uint8 *mac);
+
+extern PB_CFG_CMD* pb_cfg_proc_get_cmd(void);
 extern bool pb_cfg_proc_save_cmd(uint8 type, void *arg, uint32 size);
 extern void pb_cfg_proc_reset_all_cmd(void);
 extern void pb_cfg_proc_init(void);
