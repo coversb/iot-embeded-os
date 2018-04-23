@@ -27,6 +27,8 @@
 #include "os_task_define.h"
 #include "pb_app_config.h"
 
+#include "pb_gui_main.h"
+
 /******************************************************************************
 * Macros
 ******************************************************************************/
@@ -86,6 +88,8 @@ static void pb_monitor_task(void *pvParameters)
         //pooling in 1s, to check send que
         pb_ota_try_to_send_data();
         pb_ota_try_to_recv_data();
+
+        pb_gui_send_act_req(PB_GUI_ACT_UPDATE);
 
     }
 }

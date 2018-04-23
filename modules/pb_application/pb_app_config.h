@@ -23,6 +23,7 @@
 #include "os_middleware.h"
 #include "hal_flash.h"
 #include "hal_usart.h"
+#include "hal_sw_i2c.h"
 
 /******************************************************************************
 * Macros
@@ -48,6 +49,9 @@
 /*2G Modem com*/
 #define MODEM_2G_COM hwSerial3
 #define MODEM_2G_COM_BAUDRATE 115200
+
+/*OLED I2C*/
+#define OLED_I2C swI2C1 
 
 /*Password keyboard*/
 #define PB_KEYBOARD hwSerial5

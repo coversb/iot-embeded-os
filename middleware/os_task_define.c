@@ -21,6 +21,7 @@
 #include "pb_prot_main.h"
 #include "pb_ota_main.h"
 #include "pb_io_monitor_main.h"
+#include "pb_gui_main.h"
 
 /******************************************************************************
 * Macros
@@ -44,6 +45,10 @@ static OS_TASK_INFO_TYPE os_task_info[OS_TASK_ITEM_END] =
     {
         pb_io_monitor_main, NULL,      "pbIOMonitor", (OS_STACK_1K*2), (tskIDLE_PRIORITY+2), NULL
     },
+    {
+        pb_gui_main,        NULL,      "pbGUI",       (OS_STACK_1K),   (tskIDLE_PRIORITY+1), NULL
+    },
+
 };
 
 /******************************************************************************

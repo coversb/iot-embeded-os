@@ -49,6 +49,7 @@ typedef enum
     DBG_MOD_PBPROT,
     DBG_MOD_PBOTA,
     DBG_MOD_PBIO_MONITOR,
+    DBG_MOD_PBGUI,
     DBG_MOD_END
 }DBG_TRACE_MOD;
 

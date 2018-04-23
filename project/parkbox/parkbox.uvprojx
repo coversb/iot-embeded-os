@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\pb_application\pb_crypto</IncludePath>
+              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\pb_application\pb_crypto;..\..\modules\pb_application\pb_gui;..\..\modules\drivers\screen\oled</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -414,6 +414,16 @@
               <FileName>pb_crypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\modules\pb_application\pb_crypto\pb_crypto.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>pb_gui</GroupName>
+          <Files>
+            <File>
+              <FileName>pb_gui_main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_gui\pb_gui_main.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -530,6 +540,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\modules\drivers\gsm\m26\m26.c</FilePath>
             </File>
+            <File>
+              <FileName>font.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\drivers\screen\oled\font.c</FilePath>
+            </File>
+            <File>
+              <FileName>sh1106.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\drivers\screen\oled\sh1106.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -574,6 +594,11 @@
               <FileName>hal_rcc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\hardware\hal\hal_rcc.c</FilePath>
+            </File>
+            <File>
+              <FileName>hal_sw_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hardware\hal\hal_sw_i2c.c</FilePath>
             </File>
           </Files>
         </Group>

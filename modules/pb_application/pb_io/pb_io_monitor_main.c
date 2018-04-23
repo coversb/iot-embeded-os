@@ -27,6 +27,7 @@
 #include "pb_io_monitor_main.h"
 #include "pb_util.h"
 #include "pb_prot_main.h"
+#include "pb_gui_main.h"
 
 /******************************************************************************
 * Macros
@@ -185,21 +186,25 @@ static void pb_io_monitor_action(uint8 type)
         case PB_IO_MONITOR_REVERSE:
         {
             OS_DBG_TRACE(DBG_MOD_PBIO_MONITOR, DBG_INFO, "REVERSE btn triggered");
+            pb_gui_send_act_req(PB_GUI_ACT_REVERSE);
             break;
         }
         case PB_IO_MONITOR_MENU:
         {
             OS_DBG_TRACE(DBG_MOD_PBIO_MONITOR, DBG_INFO, "MENU btn triggered");
+            pb_gui_send_act_req(PB_GUI_ACT_MENU);
             break;
         }
         case PB_IO_MONITOR_VOLUME_UP:
         {
             OS_DBG_TRACE(DBG_MOD_PBIO_MONITOR, DBG_INFO, "VOLUME_UP btn triggered");
+            pb_gui_send_act_req(PB_GUI_ACT_VOLUP);
             break;
         }
         case PB_IO_MONITOR_VOLUME_DOWN:
         {
             OS_DBG_TRACE(DBG_MOD_PBIO_MONITOR, DBG_INFO, "VOLUME_DOWN btn triggered");
+            pb_gui_send_act_req(PB_GUI_ACT_VOLDOWN);
             break;
         }
         default:
