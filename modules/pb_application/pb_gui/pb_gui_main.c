@@ -29,7 +29,7 @@
 #include "sh1106.h"
 #include "pb_util.h"
 #include "pb_cfg_proc.h"
-#include "pb_ota_network.h"
+#include "pb_ota_main.h"
 
 /******************************************************************************
 * Macro

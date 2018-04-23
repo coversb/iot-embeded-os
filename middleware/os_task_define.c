@@ -22,6 +22,7 @@
 #include "pb_ota_main.h"
 #include "pb_io_monitor_main.h"
 #include "pb_gui_main.h"
+#include "pb_function_polling.h"
 
 /******************************************************************************
 * Macros
@@ -48,7 +49,9 @@ static OS_TASK_INFO_TYPE os_task_info[OS_TASK_ITEM_END] =
     {
         pb_gui_main,        NULL,      "pbGUI",       (OS_STACK_1K),   (tskIDLE_PRIORITY+1), NULL
     },
-
+    {
+        pb_function_polling_main,NULL,  "pbFPOLL",     (OS_STACK_1K*2), (tskIDLE_PRIORITY),  NULL
+    },
 };
 
 /******************************************************************************

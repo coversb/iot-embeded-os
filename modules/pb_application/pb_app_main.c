@@ -16,9 +16,6 @@
 /******************************************************************************
 * Include Files
 ******************************************************************************/
-#include <stdio.h>
-#include <string.h>
-
 #include "hal_board.h"
 #include "hal_wdg.h"
 #include "hal_bkp.h"
@@ -26,8 +23,6 @@
 #include "os_trace_log.h"
 #include "os_task_define.h"
 #include "pb_app_config.h"
-
-#include "pb_gui_main.h"
 
 /******************************************************************************
 * Macros
@@ -67,34 +62,6 @@ static void hardware_init()
 }
 
 /******************************************************************************
-* Function    : pb_monitor_task
-*
-* Author      : Chen Hao
-*
-* Parameters  :
-*
-* Return      :
-*
-* Description :
-******************************************************************************/
-static void pb_monitor_task(void *pvParameters)
-{
-    while (1)
-    {
-        hal_wdg_feed();
-        
-        os_scheduler_delay(DELAY_1_S);
-
-        //pooling in 1s, to check send que
-        pb_ota_try_to_send_data();
-        pb_ota_try_to_recv_data();
-
-        pb_gui_send_act_req(PB_GUI_ACT_UPDATE);
-
-    }
-}
-
-/******************************************************************************
 * Function    : main
 *
 * Author      : Chen Hao
@@ -110,10 +77,7 @@ int main(void)
     os_trace_log_set_mod(0xFF, 3);
     hardware_init();
 
-    OS_TASK_TYPE taskHdlr;
-    os_task_create(pb_monitor_task, NULL, "PB_MONITOR", 2048, 0, &taskHdlr);
     os_task_create_all();
-
     os_task_scheduler();
 
     return 0;
