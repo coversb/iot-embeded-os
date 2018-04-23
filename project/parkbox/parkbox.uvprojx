@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota</IncludePath>
+              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\pb_application\pb_crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -398,6 +398,26 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>pb_fota</GroupName>
+          <Files>
+            <File>
+              <FileName>pb_fota.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_fota\pb_fota.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>pb_crypto</GroupName>
+          <Files>
+            <File>
+              <FileName>pb_crypto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_crypto\pb_crypto.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>pb_prot</GroupName>
           <Files>
             <File>
@@ -428,12 +448,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>pb_fota</GroupName>
+          <GroupName>pb_ota</GroupName>
           <Files>
             <File>
-              <FileName>pb_fota.c</FileName>
+              <FileName>pb_ota_main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\modules\pb_application\pb_fota\pb_fota.c</FilePath>
+              <FilePath>..\..\modules\pb_application\pb_ota\pb_ota_main.c</FilePath>
+            </File>
+            <File>
+              <FileName>pb_ota_network.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_ota\pb_ota_network.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -469,6 +494,41 @@
               <FileName>pb_app_main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\modules\pb_application\pb_app_main.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>crypto</GroupName>
+          <Files>
+            <File>
+              <FileName>aes.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\crypto\aes.c</FilePath>
+            </File>
+            <File>
+              <FileName>hmac_sha256.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\crypto\hmac_sha256.c</FilePath>
+            </File>
+            <File>
+              <FileName>md5.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\crypto\md5.c</FilePath>
+            </File>
+            <File>
+              <FileName>sha256.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\crypto\sha256.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>drivers</GroupName>
+          <Files>
+            <File>
+              <FileName>m26.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\drivers\gsm\m26\m26.c</FilePath>
             </File>
           </Files>
         </Group>

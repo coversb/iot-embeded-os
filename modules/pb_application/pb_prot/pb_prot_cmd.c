@@ -28,6 +28,7 @@
 #include "pb_util.h"
 #include "hal_board.h"
 #include "pb_prot_proc.h"
+#include "pb_crypto.h"
 
 /******************************************************************************
 * Macros
@@ -352,7 +353,7 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
         *********************************/
         case PB_PROT_FCT_ENCRYPT:
         {
-            //pb_util_get_encrypt_version();
+            OS_INFO("%s", (char*)pb_crypto_get_version());
             break;
         }
         /********************************

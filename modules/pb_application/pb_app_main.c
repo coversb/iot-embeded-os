@@ -82,6 +82,11 @@ static void pb_monitor_task(void *pvParameters)
         hal_wdg_feed();
         
         os_scheduler_delay(DELAY_1_S);
+
+        //pooling in 1s, to check send que
+        pb_ota_try_to_send_data();
+        pb_ota_try_to_recv_data();
+
     }
 }
 

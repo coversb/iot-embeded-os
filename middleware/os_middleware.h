@@ -128,5 +128,7 @@ extern bool os_mutex_unlock(OS_MUTEX_TYPE *mutex);
 extern void os_set_task_init(uint8 idx);
 extern void os_wait_task_init_sync(void);
 
+extern uint32 os_get_tick_count(void);
+
 #endif /* __OS_MIDDLEWARE_H__ */
 

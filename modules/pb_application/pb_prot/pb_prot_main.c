@@ -27,11 +27,13 @@
 #include "pb_util.h"
 #include "pb_cfg_proc.h"
 #include "pb_fota.h"
+#include "pb_crypto.h"
 #include "pb_prot_cmd.h"
 #include "pb_prot_main.h"
 #include "pb_prot_parse.h"
 #include "pb_prot_assemble.h"
 #include "pb_prot_proc.h"
+#include "pb_ota_main.h"
 
 /******************************************************************************
 * Macros
@@ -330,8 +332,8 @@ static void pb_prot_uart_get(void)
 ******************************************************************************/
 static void pb_prot_ota_get(void)
 {
-    //pb_prot_context.inputLen = pb_ota_get_recv_data(pb_prot_context.inputBuff, PB_PROT_INPUT_BUFFSIZE);
-    //pb_ota_set_recv_copying(false);
+    pb_prot_context.inputLen = pb_ota_get_recv_data(pb_prot_context.inputBuff, PB_PROT_INPUT_BUFFSIZE);
+    pb_ota_set_recv_copying(false);
 }
 
 /******************************************************************************
@@ -437,7 +439,7 @@ static bool pb_prot_rawbuff_get(PB_PROT_RAW_PACKET_TYPE *raw)
 ******************************************************************************/
 static bool pb_prot_send_ack_to_ota(uint8 *data, uint16 len)
 {
-    //if (!pb_ota_send_data_append(data, len))
+    if (!pb_ota_send_data_append(data, len))
     {
         OS_DBG_ERR(DBG_MOD_PBPROT, "OTA ACK append error [%d]", len);
         return false;
@@ -539,7 +541,7 @@ static void pb_prot_send_hbp(void)
         pb_prot_proc_set_sack_cnt(true);
     }
 
-    //if (!pb_ota_send_data_append(hbpPack.data, hbpPack.length))
+    if (!pb_ota_send_data_append(hbpPack.data, hbpPack.length))
     {
         OS_DBG_ERR(DBG_MOD_PBPROT, "HBP append [%d] err", hbpPack.length);
         return;
@@ -574,7 +576,7 @@ static void pb_prot_send_rsp(PB_PROT_RSP_TYPE *rsp)
         return;
     }
 
-    //if (!pb_ota_send_data_append(rspPack.data, rspPack.length))
+    if (!pb_ota_send_data_append(rspPack.data, rspPack.length))
     {
         OS_DBG_ERR(DBG_MOD_PBPROT, "RSP append[%d] err", rspPack.length);
         return;
@@ -800,7 +802,7 @@ static void pb_prot_save_muo_volume_hdlr(PB_MSG_TYPE *pMsg)
 static void pb_prot_function_init(bool pwrOn)
 {
     //set encrypt key
-    //pb_encrypt_set_key(g_prot_cfg.cfg_sec_4com.comKey);
+    pb_crypto_set_key(pb_cfg_proc_get_cmd()->sec.comKey);
 
     if (pwrOn)
     {
@@ -881,12 +883,12 @@ void pb_prot_main(void *pvParameters)
                 }
                 case PB_MSG_PROT_SAVE_MUO_VOLUME_REQ:
                 {
-                    //pb_prot_save_muo_volume_hdlr(p_pb_msg);
+                    pb_prot_save_muo_volume_hdlr(p_pb_msg);
                     break;
                 }
                 case PB_MSG_PROT_SAVE_APC_LASTGOOD_DNS_REQ:
                 {
-                    //pb_prot_proc_save_last_good_dns();
+                    pb_prot_proc_save_last_good_dns();
                     break;
                 }
                 default:

@@ -25,6 +25,7 @@
 #include "pb_prot_parse.h"
 #include "pb_prot_main.h"
 #include "pb_prot_proc.h"
+#include "pb_crypto.h"
 #include "pb_util.h"
 
 /******************************************************************************
@@ -588,7 +589,7 @@ static uint8 pb_prot_parse_check_cmd_content(uint8 id, PB_PROT_PARSED_CONTENT_TY
     uint16 plainLen = 0;
     if (cipherFlag == 0x01)
     {
-        //plainLen = pb_decrypt(cipherBuff, cipherLen, pb_encrypt_get_key(), plainTextBuff);
+        plainLen = pb_decrypt(cipherBuff, cipherLen, pb_crypto_get_key(), plainTextBuff);
     }
     else
     {

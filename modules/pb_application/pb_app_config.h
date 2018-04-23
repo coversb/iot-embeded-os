@@ -45,6 +45,10 @@
 /*Debug com*/
 #define PB_DEBUG_COM OS_TRACE_COM
 
+/*2G Modem com*/
+#define MODEM_2G_COM hwSerial3
+#define MODEM_2G_COM_BAUDRATE 115200
+
 /*Password keyboard*/
 #define PB_KEYBOARD hwSerial5
 
@@ -52,11 +56,23 @@
 #define PB_IO_MONITOR_INTERVAL (DELAY_1_MS*10)
 
 /*Application features*/
+#define PB_DATA_TIME_OFFSET (8 * 3600) //beijing +8
+
+//pb prot
 #define PB_PROT_DBG 0
 #define PB_PROT_NETWORK_BYTE_ORDER  1 //big endian
-#define PB_DATA_TIME_OFFSET (8 * 3600) //beijing +8
+#define PB_PROT_AES 0
+
 #define PB_TMA_AUTO_SET_RANGE 30 //seconds
 #define PB_TMA_AUTO_SET_DEBOUNCE 3 //count
+
+//pb ota
+#define PB_OTA_DBG 1
+#define PB_OTA_NET_SWITCH_RETRY 2
+#define PB_OTA_SERVER_SWITCH_RETRY 3
+
+#define PB_OTA_SEND_MAX_RETRY 10
+#define PB_OTA_SEND_RETRY_EXCEED 50
 
 #endif /* __PB_APP_CONFIG_H__ */
 

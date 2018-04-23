@@ -28,6 +28,8 @@
 #include "pb_prot_main.h"
 #include "pb_prot_type.h"
 #include "pb_prot_assemble.h"
+#include "pb_crypto.h"
+#include "pb_ota_network.h"
 
 /******************************************************************************
 * Variables (Extern, Global and Static)
@@ -405,7 +407,7 @@ static uint16 pb_prot_assemble_rsp_inf(uint8 *buff, uint8 subMsgType)
             break;
         }
     }
-#if 0
+
     /*CSQ RSSI*/
     pbuff += pb_prot_assemble_u8(pbuff, pb_ota_network_get_csq_rssi());
 
@@ -435,7 +437,7 @@ static uint16 pb_prot_assemble_rsp_inf(uint8 *buff, uint8 subMsgType)
 
     /*Backup battery voltage*/
     pbuff += pb_prot_assemble_u16(pbuff, pb_util_get_bak_bat_voltage());
-#endif
+
     return (pbuff - buff);
 }
 
@@ -457,7 +459,7 @@ static uint16 pb_prot_assemble_rsp_pse(uint8 *buff, void *param)
 
     /*Power event type*/
     pbuff += pb_prot_assemble_u8(pbuff, pwrEvent);
-#if 0
+
     /*CSQ RSSI*/
     pbuff += pb_prot_assemble_u8(pbuff, pb_ota_network_get_csq_rssi());
 
@@ -487,7 +489,7 @@ static uint16 pb_prot_assemble_rsp_pse(uint8 *buff, void *param)
 
     /*Backup battery voltage*/
     pbuff += pb_prot_assemble_u16(pbuff, pb_util_get_bak_bat_voltage());
-#endif
+
     return (pbuff - buff);
 }
 
@@ -1356,12 +1358,13 @@ uint16 pb_prot_assemble_rsp(PB_PROT_RSP_PACK_TYPE *rspPack)
     }
 
     //get encrypt data
-    uint16 cipherLen = pCipher - encryptBuff;//pb_encrypt(encryptBuff, pCipher - encryptBuff, pb_encrypt_get_key(), pbuff);
-#ifdef __PB_ENCRYPT__
+    uint16 cipherLen = pb_encrypt(encryptBuff, pCipher - encryptBuff, pb_crypto_get_key(), pbuff);
+    #if (PB_PROT_AES == 1)
     pb_prot_assemble_length(plen, cipherLen|0x4000);
-#else
+    #else
     pb_prot_assemble_length(plen, cipherLen);
-#endif    
+    #endif /*PB_PROT_AES*/
+    
     //get header CRC
     uint16 headCRC = pb_util_get_crc16(rspPack->data, PB_PROT_ASSEMBLE_HEAD_CHECK_LEN);
     pb_prot_assemble_length(pheadCRC, headCRC);
@@ -1435,12 +1438,12 @@ uint16 pb_prot_assemble_ack(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame,
     }
 
     //get encrypt data
-    uint16 cipherLen = pCipher - encryptBuff;//pb_encrypt(encryptBuff, pCipher - encryptBuff, pb_encrypt_get_key(), pbuff);
-#ifdef __PB_ENCRYPT__
+    uint16 cipherLen = pb_encrypt(encryptBuff, pCipher - encryptBuff, pb_crypto_get_key(), pbuff);
+    #if (PB_PROT_AES == 1)
     pb_prot_assemble_length(plen, cipherLen|0x4000);
-#else
+    #else
     pb_prot_assemble_length(plen, cipherLen);
-#endif	
+    #endif /*PB_PROT_AES*/
 
     //get header CRC
     uint16 headCRC = pb_util_get_crc16(ackPack->data, PB_PROT_ASSEMBLE_HEAD_CHECK_LEN);
@@ -1505,12 +1508,13 @@ uint16 pb_prot_assemble_hbp(PB_PROT_HBP_PACK_TYPE *hbpPack)
     pCipher += pb_prot_assemble_message_sub_type(pCipher, PB_PROT_MSG_HBP_SUBTYPE);
 
     //get encrypt data
-    uint16 cipherLen = pCipher - encryptBuff;//pb_encrypt(encryptBuff, pCipher - encryptBuff, pb_encrypt_get_key(), pbuff);
-#ifdef __PB_ENCRYPT__
+    uint16 cipherLen = pb_encrypt(encryptBuff, pCipher - encryptBuff, pb_crypto_get_key(), pbuff);
+    #if (PB_PROT_AES == 1)
     pb_prot_assemble_length(plen, cipherLen|0x4000);
-#else
+    #else
     pb_prot_assemble_length(plen, cipherLen);
-#endif
+    #endif /*PB_PROT_AES*/
+    
     //get header CRC
     uint16 headCRC = pb_util_get_crc16(hbpPack->data, PB_PROT_ASSEMBLE_HEAD_CHECK_LEN);
     pb_prot_assemble_length(pheadCRC, headCRC);

@@ -294,4 +294,131 @@ void pb_util_get_time(uint8 *hour, uint8 *minute, uint8 *sec)
     *sec = lt->tm_sec;
 }
 
+/******************************************************************************
+* Function    : pb_util_get_input_state
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get currnet input pin state (0x00000000 - 0xFFFFFFFF)
+******************************************************************************/
+uint32 pb_util_get_input_state(void)
+{
+    return 0x0000FFFF;
+}
+
+/******************************************************************************
+* Function    : pb_util_get_output_state
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get currnet output pin state (0x00000000 - 0xFFFFFFFF)
+******************************************************************************/
+uint32 pb_util_get_output_state(void)
+{
+    return 0x00000000;
+}
+
+/******************************************************************************
+* Function    : pb_util_get_air_conditioner_state
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get current air conditioner state (0x0000 - 0xFFFF)
+******************************************************************************/
+uint16 pb_util_get_air_conditioner_state(void)
+{
+    return 0x0000;
+}
+
+/******************************************************************************
+* Function    : pb_util_get_smoke_level
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get current smoke sensor value / percentage (0 - 100)
+******************************************************************************/
+uint8 pb_util_get_smoke_level(void)
+{
+    return 0;
+}
+
+/******************************************************************************
+* Function    : pb_util_get_indoor_temperature
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get current indoor temperatuer / ¡æ
+******************************************************************************/
+uint8 pb_util_get_indoor_temperature(void)
+{
+    return 0;
+}
+
+/******************************************************************************
+* Function    : pb_util_get_indoor_humidity
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get current indoor humidity / percentage (0 -100)
+******************************************************************************/
+uint8 pb_util_get_indoor_humidity(void)
+{
+    return 0;
+}
+
+/******************************************************************************
+* Function    : pb_util_get_indoor_pm25
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get current indoor pm2.5 value (0 - 500)
+******************************************************************************/
+uint16 pb_util_get_indoor_pm25(void)
+{
+    return 30;
+}
+
+/******************************************************************************
+* Function    : pb_util_get_bak_bat_voltage
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get current backup battery voltage / mV
+******************************************************************************/
+uint16 pb_util_get_bak_bat_voltage(void)
+{
+    return 24*1000;
+}
 

@@ -43,9 +43,11 @@ typedef enum
 {
     DBG_MOD_OS,     //0x0001 os log
     DBG_MOD_HAL,   //0x0002 hal log
+    DBG_MOD_DEV,
     DBG_MOD_PBCFG,
     DBG_MOD_PBFOTA,
     DBG_MOD_PBPROT,
+    DBG_MOD_PBOTA,
     DBG_MOD_PBIO_MONITOR,
     DBG_MOD_END
 }DBG_TRACE_MOD;

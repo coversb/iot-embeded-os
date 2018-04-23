@@ -41,6 +41,22 @@ static uint32 os_task_init_mask = 0;
 * Local Functions
 ******************************************************************************/
 /******************************************************************************
+* Function    : os_get_tick_count
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : return system boot up ms count
+******************************************************************************/
+uint32 os_get_tick_count(void)
+{
+    return xTaskGetTickCount();
+}
+
+/******************************************************************************
 * Function    : os_msg_queue_send
 * 
 * Author      : Chen Hao
@@ -355,7 +371,5 @@ void os_wait_task_init_sync(void)
     {
         os_scheduler_delay(OS_TASK_SYNC_CHECK_INTERVAL);
     }
-    OS_INFO("OS tasks init ok");
 }
-
 

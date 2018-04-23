@@ -51,5 +51,14 @@ extern void pb_util_set_timestamp(uint32 timestamp);
 extern void pb_util_get_datetime(char *pdata, uint16 len);
 extern void pb_util_get_time(uint8 *hour, uint8 *minute, uint8 *sec);
 
+extern uint32 pb_util_get_input_state(void);
+extern uint32 pb_util_get_output_state(void);
+extern uint16 pb_util_get_air_conditioner_state(void);
+extern uint8 pb_util_get_smoke_level(void);
+extern uint8 pb_util_get_indoor_temperature(void);
+extern uint8 pb_util_get_indoor_humidity(void);
+extern uint16 pb_util_get_indoor_pm25(void);
+extern uint16 pb_util_get_bak_bat_voltage(void);
+
 #endif /* __PB_UTIL_H__ */
 
