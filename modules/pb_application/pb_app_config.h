@@ -24,6 +24,7 @@
 #include "hal_flash.h"
 #include "hal_usart.h"
 #include "hal_sw_i2c.h"
+#include "hal_tim.h"
 
 /******************************************************************************
 * Macros
@@ -61,6 +62,9 @@
 
 /*Application features*/
 #define PB_DATA_TIME_OFFSET (8 * 3600) //beijing +8
+
+//rgb box task
+#define RGBBOX_PWM tim2
 
 //pb prot
 #define PB_PROT_DBG 0

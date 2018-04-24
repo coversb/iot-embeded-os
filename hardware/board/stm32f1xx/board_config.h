@@ -29,6 +29,7 @@
 #include "stm32f10x_bkp.h"
 #include "stm32f10x_rtc.h"
 #include "stm32f10x_flash.h"
+#include "stm32f10x_tim.h"
 
 /******************************************************************************
 * Macros
@@ -107,6 +108,24 @@
 #define BOARD_SW_I2C1_RCC RCC_APB2Periph_GPIOB
 #define BOARD_SW_I2C1_SCL GPIOB, GPIO_Pin_6
 #define BOARD_SW_I2C1_SDA GPIOB, GPIO_Pin_7
+
+/*TIM*/
+#define BOARD_TIM2_ENABLE 1
+#define BOARD_TIM2_RCC RCC_APB1Periph_TIM2
+#define BOARD_TIM2_COUNTER 48
+#define BOARD_IQR_PRIO_TIM2 1
+#define BOARD_IQR_SUB_PRIO_TIM2 2
+
+#define BOARD_TIM3_PWM_ENABLE 1
+#define BOARD_TIM3_RCC RCC_APB1Periph_TIM3
+#define BOARD_TIM3_CH2_RCC RCC_APB2Periph_GPIOA
+#define BOARD_TIM3_CH2 GPIOA, GPIO_Pin_7
+
+/*RGB LED*/
+#define BOARD_RGBLED_RCC RCC_APB2Periph_GPIOF
+#define BOARD_RGBLED_R GPIOF, GPIO_Pin_11
+#define BOARD_RGBLED_G GPIOF, GPIO_Pin_12
+#define BOARD_RGBLED_B GPIOF, GPIO_Pin_13
 
 /*On-board key*/
 #define BOARD_KEY_RCC RCC_APB2Periph_GPIOG

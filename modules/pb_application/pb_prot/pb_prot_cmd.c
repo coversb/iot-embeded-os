@@ -29,6 +29,7 @@
 #include "hal_board.h"
 #include "pb_prot_proc.h"
 #include "pb_crypto.h"
+#include "rgb_led_task.h"
 
 /******************************************************************************
 * Macros
@@ -216,19 +217,19 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
         case PB_PROT_FCT_RED_BLINK:
         {
             OS_INFO("RED BLINK");
-            //pb_io_send_rgbbox_msg(PB_IO_RGBBOX_BLINK_RED);
+            rgbled_send_act_req(RGBLED_BLINK_RED);
             break;
         }
         case PB_PROT_FCT_GREEN_BLINK:
         {
             OS_INFO("GREEN BLINK");
-            //pb_io_send_rgbbox_msg(PB_IO_RGBBOX_BLINK_GREEN);
+            rgbled_send_act_req(RGBLED_BLINK_GREEN);
             break;
         }
         case PB_PROT_FCT_WHITE_BLINK:
         {
             OS_INFO("WHITE BLINK");
-            //pb_io_send_rgbbox_msg(PB_IO_RGBBOX_BLINK_WHITE);
+            rgbled_send_act_req(RGBLED_BLINK_WHITE);
             break;
         }
         /********************************

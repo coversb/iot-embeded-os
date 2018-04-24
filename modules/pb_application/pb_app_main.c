@@ -59,6 +59,7 @@ static void hardware_init()
     hal_wdg_init();
     hal_bkp_init();
     hal_rtc_init();
+    RGBBOX_PWM.init();
 }
 
 /******************************************************************************
@@ -74,7 +75,7 @@ static void hardware_init()
 ******************************************************************************/
 int main(void)
 {
-    os_trace_log_set_mod(0xFF, 3);
+    //os_trace_log_set_mod(0xFF, 3);
     hardware_init();
 
     os_task_create_all();
