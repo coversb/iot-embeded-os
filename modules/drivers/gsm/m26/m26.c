@@ -41,7 +41,8 @@
 #define M26_GPRS_ATTACH_TIMEOUT (30*DELAY_1_S)   // 30 seconds
 #define M26_SOCK_OPEN_TIMEOUT (10*DELAY_1_S) // 10 seconds
 #define M26_RECV_TIMEOUT (DELAY_1_S)    // 1 second
-#define M26_SEND_TIMEOUT (DELAY_1_S)    // 1 second
+#define M26_SEND_WAIT_RDY_TIMEOUT (DELAY_1_S) // 1 second
+#define M26_SEND_TIMEOUT (DELAY_1_S*10)    // 1 second
 
 #define M26_GSM_INFO_DEFAULT "UNKNOWN"
 
@@ -129,6 +130,7 @@ static uint16 m26_at_cmd(const char *at, char *rsp, uint16 rspMaxLen)
         }
 
         M26_COM->println((char*)at);
+        os_scheduler_delay(DELAY_100_MS);
         sendTime = os_get_tick_count();
         OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "AT[%s]", at);
     }
@@ -158,6 +160,70 @@ wait:
 err:
     os_mutex_unlock(&M26_MUTEX);
 
+    return offset;
+}
+
+/******************************************************************************
+* Function    : m26_at_cmd_without_lock
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : send at command and get respond
+******************************************************************************/
+static uint16 m26_at_cmd_without_lock(const char *at, char *rsp, uint16 rspMaxLen)
+{
+    uint32 sendTime = 0;
+    uint16 offset = 0;
+    uint8 readByte;
+
+    if (at != NULL)
+    {
+        while (M26_COM->available())
+        {
+            M26_COM->read();
+        }
+
+        M26_COM->println((char*)at);
+        os_scheduler_delay(DELAY_100_MS);
+        sendTime = os_get_tick_count();
+        OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "AT[%s]", at);
+    }
+
+wait:
+    while (!M26_COM->available())
+    {
+        os_scheduler_delay(DELAY_50_MS);
+        if (m26_check_timeout(sendTime, M26_ATCMD_TIMEOUT))
+        {
+            offset = 0;
+            goto err;
+        }
+    }
+
+    while (M26_COM->available() > 0 && (offset + 1) < rspMaxLen)
+    {
+        readByte = M26_COM->read();
+        if (readByte == '\n')
+        {
+            rsp[offset++] = '\0';
+            break;
+        }
+        
+        rsp[offset++] = readByte;
+    }
+
+    if (strlen((char*)rsp) < 4)//filter: \r\n OK 
+    {
+        offset = 0;
+        memset(rsp, 0, rspMaxLen);
+        goto wait;
+    }
+
+err:
     return offset;
 }
 
@@ -519,7 +585,7 @@ static bool m26_wait_send_rdy(uint32 sendTime)
 
     do
     {
-        if (m26_check_timeout(sendTime, M26_SEND_TIMEOUT))
+        if (m26_check_timeout(sendTime, M26_SEND_WAIT_RDY_TIMEOUT))
         {
             OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "Send timeout");
             return false;
@@ -562,7 +628,7 @@ static bool m26_wait_send_rdy(uint32 sendTime)
 * 
 * Description : 
 ******************************************************************************/
-static uint16 m26_check_send_ok(uint32 sendTime)
+static bool m26_check_send_ok(uint32 sendTime)
 {
     char buff[M26_RSP_MAX_LEN + 1] = {0};
     uint16 offset = 0;
@@ -600,6 +666,59 @@ err:
 }
 
 /******************************************************************************
+* Function    : m26_wait_sack
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static bool m26_wait_sack(uint32 sendTime)
+{
+    char buff[M26_RSP_MAX_LEN + 1] = {0};
+    bool ret = false;
+
+    do
+    {
+        if (m26_check_timeout(sendTime, M26_SEND_TIMEOUT))
+        {
+            goto err;
+        }
+
+        memset(buff, 0, sizeof(buff));
+        m26_at_cmd_without_lock("AT+QISACK", buff, M26_RSP_MAX_LEN);
+        OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "%s", buff);
+
+        //+QISACK: 660, 622, 38
+        // sent, acked, nAcked
+        char *pNAck = NULL;
+        uint32 nAck = 0;
+        
+        if (NULL != strstr(buff, "+QISACK: "))
+        {
+            if (NULL != (pNAck = (strrchr(buff, ','))))//find last ','
+            {
+                pNAck+= 2; //skip ' ,'
+                nAck = atoi(pNAck);
+                OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "nAck %d", nAck);
+
+                if (nAck == 0)
+                {
+                    ret = true;
+                    break;
+                }
+            }
+        }
+    }while (1);
+    
+err:
+    return ret;
+}
+
+/******************************************************************************
 * Function    : m26_net_send
 * 
 * Author      : Chen Hao
@@ -633,7 +752,10 @@ static uint16 m26_net_send(const uint8 *pdata, const uint16 size)
 
         if (m26_check_send_ok(sendTime))
         {
-            realSend = size;
+            if (m26_wait_sack(sendTime))
+            {
+                realSend = size;
+            }
         }
     }
     os_mutex_unlock(&M26_MUTEX);
