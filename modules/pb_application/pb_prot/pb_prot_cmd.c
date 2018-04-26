@@ -42,6 +42,43 @@
 /******************************************************************************
 * Local Functions
 ******************************************************************************/
+#if (PB_UNIT_TEST == 1)
+static void unit_test_ac(void)
+{
+    OS_INFO("AC UNIT TEST BEGIN...");
+    AC_REMOTE_CTRL.close();
+
+    for (uint8 mode = 1; mode < AC_MODE_NUM; ++mode)
+    {
+        
+        for (uint8 wind = 0; wind < AC_SPEED_NUM; ++wind)
+        {
+            for (uint8 temp = 17; temp <= 30; ++temp)
+            {
+                AC_REMOTE_CTRL.set((AC_MODE_TYPE)mode, (AC_SPEED_TYPE)wind, temp);
+                OS_INFO("AC mode[%d], wind[%d], temperature[%d]", mode, wind, temp);
+
+                os_scheduler_delay(DELAY_100_MS*4);
+                //this mode can't set temp
+                if (AC_MODE_WIND == mode)
+                {
+                    break;
+                }
+            }
+            //those mode can't set wind level
+            if (AC_MODE_DRY == mode || AC_MODE_AUTO == mode || AC_MODE_WIND == mode)
+            {
+                break;
+            }
+        }
+    }
+    AC_REMOTE_CTRL.close();
+
+    OS_INFO("AC UNIT TEST END...");
+}
+
+#endif /*PB_UNIT_TEST*/
+
 /******************************************************************************
 * Function    : pb_prot_cmd_find_param
 *
@@ -426,6 +463,19 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
             hal_board_reset();
             break;
         }
+        /********************************
+        * UNIT TEST
+        *********************************/
+        #if (PB_UNIT_TEST == 1)
+        /********************************
+        * AC TEST
+        *********************************/
+        case PB_PROT_FCT_AC_TEST:
+        {
+            unit_test_ac();
+            break;
+        }
+        #endif /*PB_UNIT_TEST*/
         default:break;
     }
 }

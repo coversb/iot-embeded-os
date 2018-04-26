@@ -69,72 +69,75 @@ static DEV_TYPE_IR_CONTROL *IR = NULL;
 */
 static void ac_set(AC_MODE_TYPE mode, AC_SPEED_TYPE speed, uint8 temperature)
 {
-    uint16 temp1, temp2, temp;
+    uint8 spdByte;
+    uint8 tempByte;
+    uint8 modeByte;
+    uint8 temperatureModeByte;
     IR_KEY_TYPE key;
 
     key.protocol = IR_NEC;
+    //address
     key.keyData[0] = 0xb24d;
 
     switch(speed)
     {
-        case AC_SPEED_HIGH: temp1 = 3; break;
-        case AC_SPEED_MIDDLE: temp1 = 5; break;
-        case AC_SPEED_LOW: temp1 = 9; break;
+        case AC_SPEED_HIGH: spdByte = 3; break;
+        case AC_SPEED_MIDDLE: spdByte = 5; break;
+        case AC_SPEED_LOW: spdByte = 9; break;
         case AC_SPEED_AUTO:
         {
             if (mode == AC_MODE_AUTO || mode == AC_MODE_DRY)
             {
-                temp1 = 1;
+                spdByte = 1;
             }
             else
             {
-                temp1 = 0xb;
+                spdByte = 0xb;
             }
             break;
         }
-        default: temp1 = 5; break;
+        default: spdByte = 5; break;
     }
     
-    temp1 = temp1 << 4 | 0xf;
+    spdByte = spdByte << 4 | 0xf;
     if (mode == AC_MODE_WIND)
     {
-        temp1 = 0xbf;
+        spdByte = 0xbf;
     }
-    temp2 = ~temp1;
-    key.keyData[1] = temp1 << 8 | temp2 & 0xFF;
+    key.keyData[1] = (spdByte << 8) | ((~spdByte) & 0xFF);
 
     temperature = MIN_VALUE(temperature, AC_TEMPERATURE_MAX);
     temperature = MAX_VALUE(temperature, AC_TEMPERATURE_MIN);
     
     switch(temperature)
     {
-        case 30: temp1 = 0xb; break;
-        case 29: temp1 = 0xa; break;
-        case 28: temp1 = 0x8; break;
-        case 27: temp1 = 0x9; break;
-        case 26: temp1 = 0xd; break;
-        case 25: temp1 = 0xc; break;
-        case 24: temp1 = 0x4; break;
-        case 23: temp1 = 0x5; break;
-        case 22: temp1 = 0x7; break;
-        case 21: temp1 = 0x6; break;
-        case 20: temp1 = 0x2; break;
-        case 19: temp1 = 0x3; break;
-        case 18: temp1 = 0x1; break;
-        case 17: temp1 = 0x0; break;
-        default: temp1 = 0x2; break; // 20
+        case 30: tempByte = 0xb; break;
+        case 29: tempByte = 0xa; break;
+        case 28: tempByte = 0x8; break;
+        case 27: tempByte = 0x9; break;
+        case 26: tempByte = 0xd; break;
+        case 25: tempByte = 0xc; break;
+        case 24: tempByte = 0x4; break;
+        case 23: tempByte = 0x5; break;
+        case 22: tempByte = 0x7; break;
+        case 21: tempByte = 0x6; break;
+        case 20: tempByte = 0x2; break;
+        case 19: tempByte = 0x3; break;
+        case 18: tempByte = 0x1; break;
+        case 17: tempByte = 0x0; break;
+        default: tempByte = 0x2; break; // 20
     }
     switch(mode)
     {
-        case AC_MODE_COLD: temp2 = 0x0; break;
-        case AC_MODE_HOT: temp2 = 0xc; break;
-        case AC_MODE_AUTO: temp2 = 0x8; break;
-        case AC_MODE_DRY: temp2 = 0x4; break;
-        case AC_MODE_WIND: temp1 = 0xe; temp2 = 0x4; break;
-        default: temp2 = 0x8; break;    // auto mode
+        case AC_MODE_COLD: modeByte = 0x0; break;
+        case AC_MODE_HOT: modeByte = 0xc; break;
+        case AC_MODE_AUTO: modeByte = 0x8; break;
+        case AC_MODE_DRY: modeByte = 0x4; break;
+        case AC_MODE_WIND: tempByte = 0xe; modeByte = 0x4; break;
+        default: modeByte = 0x8; break;    // auto mode
     }
-    temp = temp1 << 4 | temp2;
-    key.keyData[2] = temp << 8 | ((~temp) & 0xff);
+    temperatureModeByte = tempByte << 4 | modeByte;
+    key.keyData[2] = (temperatureModeByte << 8) | ((~temperatureModeByte) & 0xff);
     key.keyData[3] = 0;
 
     IR->transmit(&key);

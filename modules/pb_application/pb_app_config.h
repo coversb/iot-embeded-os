@@ -70,6 +70,9 @@
 //ac control
 #define AC_REMOTE_CTRL acCtrl
 
+//unit test
+#define PB_UNIT_TEST 1
+
 //pb prot
 #define PB_PROT_DBG 0
 #define PB_PROT_NETWORK_BYTE_ORDER  1 //big endian
