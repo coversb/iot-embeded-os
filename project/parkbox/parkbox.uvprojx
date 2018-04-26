@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\pb_application\pb_crypto;..\..\modules\pb_application\pb_gui;..\..\modules\drivers\screen\oled;..\..\modules\drivers\rgbLed</IncludePath>
+              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\pb_application\pb_crypto;..\..\modules\pb_application\pb_gui;..\..\modules\drivers\screen\oled;..\..\modules\drivers\rgbLed;..\..\modules\drivers\ir</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -559,6 +559,16 @@
               <FileName>rgb_led_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\modules\drivers\rgbLed\rgb_led_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>ir_remote_control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\drivers\ir\ir_remote_control.c</FilePath>
+            </File>
+            <File>
+              <FileName>ac_control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\drivers\ir\ac_control.c</FilePath>
             </File>
           </Files>
         </Group>

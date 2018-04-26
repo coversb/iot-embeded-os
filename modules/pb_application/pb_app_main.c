@@ -60,6 +60,7 @@ static void hardware_init()
     hal_bkp_init();
     hal_rtc_init();
     RGBBOX_PWM.init();
+    AC_REMOTE_CTRL.init(&devIRCtrl);
 }
 
 /******************************************************************************

@@ -447,8 +447,8 @@ static void pb_prot_cmd_ac(uint32 mode, char *para)
     {
         case 0:
         {
+            AC_REMOTE_CTRL.close();
             OS_INFO("AC CLOSE");
-            //pb_dev_ac_close();
             break;
         }
         default:
@@ -457,8 +457,8 @@ static void pb_prot_cmd_ac(uint32 mode, char *para)
             uint8 temp;
             if (pb_prot_cmd_find_double_param(para, &wind, &temp))
             {
+                AC_REMOTE_CTRL.set((AC_MODE_TYPE)mode, (AC_SPEED_TYPE)wind, temp);
                 OS_INFO("AC mode[%d], wind[%d], temperature[%d]", mode, wind, temp);
-                //pb_dev_ac_key((PB_DEV_AC_AIRSPEED_TYPE)((cmd / 1000) % 10), (uint8)((cmd / 10) % 100), (PB_DEV_AC_MODE_TYPE)(cmd % 10));
             }
             break;
         }

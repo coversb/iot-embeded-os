@@ -25,6 +25,7 @@
 #include "hal_usart.h"
 #include "hal_sw_i2c.h"
 #include "hal_tim.h"
+#include "ac_control.h"
 
 /******************************************************************************
 * Macros
@@ -65,6 +66,9 @@
 
 //rgb box task
 #define RGBBOX_PWM tim2
+
+//ac control
+#define AC_REMOTE_CTRL acCtrl
 
 //pb prot
 #define PB_PROT_DBG 0
