@@ -866,10 +866,16 @@ static void pb_ota_net_send(PB_MSG_TYPE *pMsg)
         {
             pb_ota_context.send_retry_cnt++;
             OS_DBG_TRACE(DBG_MOD_PBOTA, DBG_WARN, "SEND [%d]retry %d", devType, pb_ota_context.send_retry_cnt);
+            #if 0
             if ((pb_ota_context.send_retry_cnt > PB_OTA_SEND_MAX_RETRY
                 && (!pb_ota_network_check_net_stat(devType)))
                 //something wrong in net device, maybe ram full, also need restart
                 || pb_ota_context.send_retry_cnt > PB_OTA_SEND_RETRY_EXCEED)
+            #else
+            if ((pb_ota_context.send_retry_cnt >= PB_OTA_SEND_MAX_RETRY)
+                || (!pb_ota_network_check_net_stat(devType)))
+            #endif
+
             {
                 pb_ota_net_stat_set(devType, PB_OTA_NET_CLOSE);
                 pb_ota_send_dev_msg_to_ota_mod(devType, PB_MSG_OTA_NET_CLOSE);
