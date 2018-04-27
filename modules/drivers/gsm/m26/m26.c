@@ -744,6 +744,7 @@ static uint16 m26_net_send(const uint8 *pdata, const uint16 size)
     }
 
     M26_COM->println(sendCmd);
+    os_scheduler_delay(DELAY_50_MS);
     sendTime = os_get_tick_count();
     
     if (m26_wait_send_rdy(sendTime))
@@ -860,6 +861,8 @@ static uint16 m26_net_recv(uint8 *pdata, const uint16 max)
     os_mutex_lock(&M26_MUTEX);
 
     M26_COM->println(M26_AT_CMD_RECV);
+    os_scheduler_delay(DELAY_50_MS);
+
     sendTime = os_get_tick_count();
     
     recvLen = m26_wait_recv_data(sendTime);
