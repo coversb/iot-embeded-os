@@ -763,32 +763,6 @@ static void pb_prot_analyse_data(void)
 }
 
 /******************************************************************************
-* Function    : pb_prot_save_muo_volume_hdlr
-*
-* Author      : Chen Hao
-*
-* Parameters  :
-*
-* Return      :
-*
-* Description :
-******************************************************************************/
-static void pb_prot_save_muo_volume_hdlr(PB_MSG_TYPE *pMsg)
-{
-    /*
-    OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, "Save volume hdlr");
-
-    if (!pb_util_msgdata_vaild(pMsg->pMsgData))
-    {
-        return;
-    }
-
-    uint8 volume = *(pMsg->pMsgData);
-    pb_prot_proc_save_audio_volume(volume);
-    */
-}
-
-/******************************************************************************
 * Function    : pb_prot_function_init
 *
 * Author      : Chen Hao
@@ -879,11 +853,6 @@ void pb_prot_main(void *pvParameters)
                 case PB_MSG_PROT_SEND_RSP:
                 {
                     pb_prot_send_rsp_hdlr(p_pb_msg);
-                    break;
-                }
-                case PB_MSG_PROT_SAVE_MUO_VOLUME_REQ:
-                {
-                    pb_prot_save_muo_volume_hdlr(p_pb_msg);
                     break;
                 }
                 case PB_MSG_PROT_SAVE_APC_LASTGOOD_DNS_REQ:

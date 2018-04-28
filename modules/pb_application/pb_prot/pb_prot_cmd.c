@@ -30,6 +30,7 @@
 #include "pb_prot_proc.h"
 #include "pb_crypto.h"
 #include "rgb_led_task.h"
+#include "pb_multimedia.h"
 
 /******************************************************************************
 * Macros
@@ -341,7 +342,7 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
         *********************************/
         case PB_PROT_FCT_AUDIO_CHECK:
         {
-            bool ret = false;//pb_dev_kt603_available();
+            bool ret = pb_multimedia_audio_available();
             OS_INFO("Audio is %s", (ret == true) ? "available" : "unavailable");
             break;
         }
@@ -350,7 +351,7 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
             uint8 volume;
             if (pb_prot_cmd_find_single_param(para, &volume))
             {
-                //pb_io_send_audio_msg(PB_DEV_KT603_CTRL_VOLUME, volume);
+                pb_multimedia_send_audio_msg(PB_MM_SET_VOL, volume);
                 OS_INFO("Audio volume[%d]", volume);
             }
             break;
@@ -360,11 +361,8 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
             uint8 cmd;
             if (pb_prot_cmd_find_single_param(para, &cmd))
             {
-                if (cmd != 0)
-                {
-                    //pb_io_send_audio_msg(cmd, 0);
-                    OS_INFO("Audio cmd[%d]", cmd);
-                }
+                pb_multimedia_send_audio_msg(cmd, 0);
+                OS_INFO("Audio cmd[%d]", cmd);
             }
             break;
         }

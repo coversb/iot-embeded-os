@@ -26,6 +26,7 @@
 #include "hal_sw_i2c.h"
 #include "hal_tim.h"
 #include "ac_control.h"
+#include "kt603.h"
 
 /******************************************************************************
 * Macros
@@ -72,6 +73,12 @@
 
 //unit test
 #define PB_UNIT_TEST 1
+
+//autdio 
+#define AUDIO_COM hwSerial2
+#define AUDIO_COM_BAUDRATE 9600
+#define AUDIO_MIN_VOL KT603_MIN_VOL
+#define AUDIO_MAX_VOL KT603_MAX_VOL
 
 //pb prot
 #define PB_PROT_DBG 0

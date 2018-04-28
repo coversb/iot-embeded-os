@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\pb_application\pb_crypto;..\..\modules\pb_application\pb_gui;..\..\modules\drivers\screen\oled;..\..\modules\drivers\rgbLed;..\..\modules\drivers\ir</IncludePath>
+              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_crypto;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_gui;..\..\modules\pb_application\pb_multimedia;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\drivers\screen\oled;..\..\modules\drivers\rgbLed;..\..\modules\drivers\ir;..\..\modules\drivers\audio\kt603</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -419,6 +419,16 @@
               <FileName>pb_crypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\modules\pb_application\pb_crypto\pb_crypto.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>pb_multimedia</GroupName>
+          <Files>
+            <File>
+              <FileName>pb_multimedia.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_multimedia\pb_multimedia.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -569,6 +579,16 @@
               <FileName>ac_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\modules\drivers\ir\ac_control.c</FilePath>
+            </File>
+            <File>
+              <FileName>kt603.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\drivers\audio\kt603\kt603.c</FilePath>
+            </File>
+            <File>
+              <FileName>pam8610.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\drivers\audio\kt603\pam8610.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -27,6 +27,7 @@
 #include "pb_gui_main.h"
 #include "pb_ota_main.h"
 #include "pb_prot_proc.h"
+#include "pb_multimedia.h"
 
 /******************************************************************************
 * Macros
@@ -64,7 +65,6 @@ void pb_function_polling_main(void *param)
         {
             recordTime = curTime;
             #if 0
-            pb_kt603_tick_msg();
             //check smoke alarm
             pb_io_smoke_alarm_check();
             //check door alarm
@@ -98,6 +98,9 @@ void pb_function_polling_main(void *param)
             //pb_dev_pc_monitor();
             //update temperature and humidity
             //pb_io_update_temperature_and_humidity();
+
+            //monitor bgm play status
+            pb_multimedia_send_monitor_req();
         }
 
         os_scheduler_delay(DELAY_500_MS);

@@ -30,6 +30,7 @@
 #include "pb_util.h"
 #include "pb_cfg_proc.h"
 #include "pb_ota_main.h"
+#include "pb_multimedia.h"
 
 /******************************************************************************
 * Macro
@@ -204,7 +205,7 @@ static void pb_gui_show_volume(bool update)
     devSH1106.show(DEFAULT_COL, TITLE_ROW, temp, pb_gui_context.reverse);
 
     memset(temp, 0x00, sizeof(temp));
-    sprintf(temp, "    VAL = %d   ", pb_cfg_proc_get_cmd()->muo.volume);
+    sprintf(temp, "    VAL = %d   ", pb_multimedia_get_audio_volume());
     devSH1106.show(DEFAULT_COL, VOLUME_ROW, temp, pb_gui_context.reverse);
 }
 
@@ -296,12 +297,7 @@ static void pb_gui_act_hdlr(PB_MSG_TYPE *pMsg)
         {
             if (pb_gui_context.cursor == PB_GUI_MENU_VOLUME)
             {
-                PB_CFG_MUO *cfgMuo = &(pb_cfg_proc_get_cmd()->muo);
-
-                if (cfgMuo->volume > 0)
-                {
-                    cfgMuo->volume -= 1;
-                }
+                pb_multimedia_send_audio_msg(PB_MM_VOL_DOWN, 0);
                 pb_gui_show_page(true);
             }
             break;
@@ -310,12 +306,7 @@ static void pb_gui_act_hdlr(PB_MSG_TYPE *pMsg)
         {
             if (pb_gui_context.cursor == PB_GUI_MENU_VOLUME)
             {
-                PB_CFG_MUO *cfgMuo = &(pb_cfg_proc_get_cmd()->muo);
-
-                if (cfgMuo->volume < 30)
-                {
-                    cfgMuo->volume += 1;
-                }
+                pb_multimedia_send_audio_msg(PB_MM_VOL_UP, 0);
                 pb_gui_show_page(true);
             }
             break;

@@ -43,7 +43,6 @@ typedef enum
 * Global Functions
 ******************************************************************************/
 extern void pb_prot_proc_cmd_exec(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame);
-extern bool pb_prot_proc_save_audio_volume(uint8 volume);
 extern void pb_prot_proc_save_last_good_dns(void);
 extern void pb_prot_proc_watchdog_check(void);
 extern void pb_prot_proc_hbp_send_check(void);

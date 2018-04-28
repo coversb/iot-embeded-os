@@ -22,6 +22,7 @@
 #include "pb_ota_main.h"
 #include "pb_io_monitor_main.h"
 #include "pb_gui_main.h"
+#include "pb_multimedia.h"
 #include "pb_function_polling.h"
 #include "rgb_led_task.h"
 
@@ -39,16 +40,19 @@ static OS_TASK_INFO_TYPE os_task_info[OS_TASK_ITEM_END] =
 {
     /*task main functino,   parameter, task name,     stack size,      priority,            task handler*/
     {
-        pb_prot_main,       NULL,      "pbPROT",      (OS_STACK_1K*4), (tskIDLE_PRIORITY+3), NULL
+        pb_prot_main,       NULL,      "pbPROT",      (OS_STACK_1K*4), (tskIDLE_PRIORITY+4), NULL
     },
     {
-        pb_ota_main,        NULL,      "pbOTA",       (OS_STACK_1K*4), (tskIDLE_PRIORITY+2), NULL
+        pb_ota_main,        NULL,      "pbOTA",       (OS_STACK_1K*4), (tskIDLE_PRIORITY+3), NULL
     },
     {
         pb_io_monitor_main, NULL,      "pbIOMonitor", (OS_STACK_1K*2), (tskIDLE_PRIORITY+2), NULL
     },
     {
         pb_gui_main,        NULL,      "pbGUI",       (OS_STACK_1K),   (tskIDLE_PRIORITY+1), NULL
+    },
+    {
+        pb_multimedia_main,        NULL,      "pbMM",       (OS_STACK_1K*2),   (tskIDLE_PRIORITY+2), NULL
     },
     {
         pb_function_polling_main,NULL,  "pbFPOLL",     (OS_STACK_1K*2), (tskIDLE_PRIORITY),  NULL

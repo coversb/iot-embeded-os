@@ -1,66 +1,78 @@
 /******************************************************************************
-*        
-*     Open source
-*        
+*
+*     Copyright (c) 2018 ParkBox Ltd.
+*
 *******************************************************************************
-*  file name:          os_task_define.h
+*  file name:          pb_multimedia.h
 *  author:              Chen Hao
 *  version:             1.00
-*  file description:   RTOS task define type
+*  file description:   multimedia operations
 *******************************************************************************
 *  revision history:    date               version                  author
 *
-*  change summary:   2018-4-18      1.00                    Chen Hao
+*  change summary:   2018-4-28      1.00                    Chen Hao
 *
 ******************************************************************************/
-#ifndef __OS_TASK_DEFINE_H__
-#define __OS_TASK_DEFINE_H__
+#ifndef __PB_MULTIMEDIA_H__
+#define __PB_MULTIMEDIA_H__
 /******************************************************************************
 * Include Files
 ******************************************************************************/
 #include "basetype.h"
-#include "os_middleware.h"
 
 /******************************************************************************
 * Macros
 ******************************************************************************/
-#define PB_PROT_MSGQUE_SIZE 15
 
 /******************************************************************************
 * Enums
 ******************************************************************************/
 typedef enum
 {
-    OS_TASK_ITEM_BEGIN = 0,
-    OS_TASK_ITEM_PB_PROT = OS_TASK_ITEM_BEGIN,
-    OS_TASK_ITEM_PB_OTA,
-    OS_TASK_ITEM_PB_IOMONITOR,
-    OS_TASK_ITEM_PB_GUI,
-    OS_TASK_ITEM_PB_MULTIMEDIA,
-    OS_TASK_ITEM_PB_FUNCPOLLING,
-    OS_TASK_ITEM_RGBLED,
-    OS_TASK_ITEM_END
-}OS_TASK_ITEM;
+    PB_MM_MUTE_OFF = 0,
+    PB_MM_MUTE_ON,
+    PB_MM_SET_VOL,
+    PB_MM_VOL_UP,
+    PB_MM_VOL_DOWN, // 4
+    PB_MM_STOP,
+    PB_MM_PAUSE,
+    PB_MM_PLAY,
+    PB_MM_PLAY_WELCOME, //8
+    PB_MM_PLAY_ORDER_OVER,
+    PB_MM_PLAY_SMOKE_ALARM,
+    PB_MM_PLAY_BGM // 11
+}PB_MULTIMEDIA_ACT_TYPE;
 
 /******************************************************************************
 * Types
 ******************************************************************************/
 typedef struct
 {
-    void (*function)(void *);
-    void * const param;
-    const char * const name;
-    uint32 stackSize;
-    uint32 priority;
-    void * hdlr;
-}OS_TASK_INFO_TYPE;
+    uint8 cmd;
+    uint8 param;
+} PB_MULTIMEDIA_MSG_PARA_TYPE;
+
+typedef struct
+{
+    uint16 fileNum;
+    uint16 lastPalyingIdx;
+    bool playing;
+    uint32 lastStartTime;
+    uint32 lastCheckTime;
+}AUDIO_BGM_MANAGE;
+
+/******************************************************************************
+* Global Variables
+******************************************************************************/
 
 /******************************************************************************
 * Global Functions
 ******************************************************************************/
-extern void os_task_create_all(void);
-extern void os_task_print_free_stack(void);
-extern void os_task_print_free_heap(void);
+extern void pb_multimedia_main(void *param);
+extern bool pb_multimedia_audio_available(void);
+extern uint8 pb_multimedia_get_audio_volume(void);
+extern void pb_multimedia_send_monitor_req(void);
+extern void pb_multimedia_send_audio_msg(uint8 cmd, uint8 param);
 
-#endif /* __OS_TASK_DEFINE_H__ */
+#endif /* __PB_MULTIMEDIA_H__ */
 

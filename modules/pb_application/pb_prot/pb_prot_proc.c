@@ -28,6 +28,7 @@
 #include "pb_fota.h"
 #include "pb_cfg_default.h"
 #include "pb_prot_main.h"
+#include "pb_multimedia.h"
 
 /******************************************************************************
 * Macros
@@ -1215,7 +1216,7 @@ static void pb_prot_proc_cmd_exec_muo(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
     {
         case PB_MUO_ACT_STOP:
         {
-            //pb_io_send_audio_msg(PB_DEV_KT603_CTRL_STOP, 0);
+            pb_multimedia_send_audio_msg(PB_MM_STOP, 0);
             break;
         }
         case PB_MUO_ACT_PLAY:
@@ -1225,22 +1226,22 @@ static void pb_prot_proc_cmd_exec_muo(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
             {
                 case PB_MUO_FILE_WELCOME:
                 {
-                    //audioCmd = PB_DEV_KT603_CTRL_WELCOME;
+                    audioCmd = PB_MM_PLAY_WELCOME;
                     break;
                 }
                 case PB_MUO_FILE_OVER:
                 {
-                    //audioCmd = PB_DEV_KT603_CTRL_ORDER_OVER;
+                    audioCmd = PB_MM_PLAY_ORDER_OVER;
                     break;
                 }
                 case PB_MUO_FILE_SMOKE_ALARM:
                 {
-                    //audioCmd = PB_DEV_KT603_CTRL_SMOKE_ALARM;
+                    audioCmd = PB_MM_PLAY_SMOKE_ALARM;
                     break;
                 }
                 case PB_MUO_FILE_BGM:
                 {
-                    //audioCmd = PB_DEV_KT603_CTRL_BGM;
+                    audioCmd = PB_MM_PLAY_BGM;
                     break;
                 }
                 default: break;
@@ -1248,35 +1249,23 @@ static void pb_prot_proc_cmd_exec_muo(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
             
             if (audioCmd != 0xFF)
             {
-                //pb_io_send_audio_msg(audioCmd, 0);
+                pb_multimedia_send_audio_msg(audioCmd, 0);
             }
             break;
         }
         case PB_MUO_ACT_VOL_DOWN:
         {
-            if (cfgMuo->volume > 0)
-            {
-                cfgMuo->volume -= 1;
-            }
-            else
-            {
-                cfgMuo->volume = 0;
-            }
-            //pb_util_set_audio_volume(cfgMuo->volume);
+            pb_multimedia_send_audio_msg(PB_MM_VOL_DOWN, 0);
             break;
         }
         case PB_MUO_ACT_VOL_UP:
         {
-            cfgMuo->volume = MIN_VALUE(cfgMuo->volume + 1, 30);
-            //pb_util_set_audio_volume(cfgMuo->volume);
+            pb_multimedia_send_audio_msg(PB_MM_VOL_UP, 0);
             break;
         }
         case PB_MUO_ACT_SET_VOL:
         {
-            if (pb_prot_proc_save_audio_volume(argMuo->volume))
-            {
-                //pb_io_send_audio_msg(PB_DEV_KT603_CTRL_VOLUME, g_prot_cfg.cfg_muo.volume);
-            }
+            pb_multimedia_send_audio_msg(PB_MM_SET_VOL, argMuo->volume);
             break;
         }
         case PB_MUO_ACT_AUTO_BGM_OFF:
@@ -1313,32 +1302,6 @@ static void pb_prot_proc_cmd_exec_muo(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
     }
 
     OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, "execute multimedia cmd");
-}
-
-/******************************************************************************
-* Function    : pb_prot_proc_save_audio_volume
-*
-* Author      : Chen Hao
-*
-* Parameters  :
-*
-* Return      :
-*
-* Description :
-******************************************************************************/
-bool pb_prot_proc_save_audio_volume(uint8 volume)
-{
-    PB_CFG_MUO *cfgMuo = &(pb_cfg_proc_get_cmd()->muo);
-
-    if (cfgMuo->volume != volume)
-    {
-        cfgMuo->volume = volume;
-        pb_cfg_proc_save_cmd(PB_PROT_CMD_MUO, cfgMuo, sizeof(PB_CFG_MUO));
-        OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, "Save volume[%d]", volume);
-        return true;
-    }
-
-    return false;
 }
 
 /******************************************************************************

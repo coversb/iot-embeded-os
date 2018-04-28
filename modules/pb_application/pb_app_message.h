@@ -26,6 +26,7 @@
 #define PB_PROT_MSGQUE_SIZE 15
 #define PB_OTA_MSGQUE_SIZE 10
 #define PB_GUI_MSGQUE_SIZE 5
+#define PB_MM_MSGQUE_SIZE 10
 
 /******************************************************************************
 * Enums
@@ -38,7 +39,6 @@ typedef enum
     PB_MSG_PROT_ANALYSE_DATA,
     PB_MSG_PROT_SEND_HBP,
     PB_MSG_PROT_SEND_RSP,
-    PB_MSG_PROT_SAVE_MUO_VOLUME_REQ,
     PB_MSG_PROT_SAVE_APC_LASTGOOD_DNS_REQ,
     /*pb_prot_main msg end*/
     /*pb_ota_main msg begin*/
@@ -55,7 +55,6 @@ typedef enum
     /*pb_ota_main msg end*/
     /*pb_io_main msg begine*/
     PB_MSG_IO_USR_ACCESS_CHECK,
-    PB_MSG_IO_AUDIO_CTRL_REQ,
     PB_MSG_IO_DOOR_SW_REQ,
     PB_MSG_IO_DEVICEBOX_SW_REQ,
     PB_MSG_IO_EQUIPMENT_SW_REQ,
@@ -70,6 +69,11 @@ typedef enum
     /*pb_gui_main msg begine*/
     PB_MSG_GUI_MENU_ACTION_REQ,
     /*pb_gui_main msg end*/
+    /*pb_multimedia msg begine*/
+    PB_MSG_MM_AUDIO_CTRL_REQ,
+    PB_MSG_MM_AUDIO_MONITOR_REQ,
+    /*pb_multimedia msg end*/
+
     PB_MESSAGE_NUM    
 }PB_QUEUE_MSG_ID_TYPE;
 

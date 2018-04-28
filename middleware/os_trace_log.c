@@ -42,6 +42,7 @@ const char *TRACE_MOD_NAME[DBG_MOD_END + 1] =
     "PBOTA",
     "PBIOMONITOR",
     "PBGUI",
+    "PBMM"
     "NULL"
 };
 
