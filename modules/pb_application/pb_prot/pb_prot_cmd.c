@@ -683,8 +683,8 @@ bool pb_prot_cmd_parse_ascii(PB_PROT_RAW_PACKET_TYPE *rawPack)
         if (0 != pb_prot_cmd_find_param(pRawData, fct, sizeof(fct)))
         {
             pb_prot_cmd_fct(atoi(fct), fct);
-            return true;
         }
+        return true;
     }
     //+PBAC=
     else
@@ -695,8 +695,8 @@ bool pb_prot_cmd_parse_ascii(PB_PROT_RAW_PACKET_TYPE *rawPack)
         if (0 != pb_prot_cmd_find_param(pRawData, ac, sizeof(ac)))
         {
             pb_prot_cmd_ac(atoi(ac), ac);
-            return true;
         }
+        return true;
     }
 
     return false;
