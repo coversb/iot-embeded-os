@@ -29,18 +29,18 @@
 ******************************************************************************/
 typedef enum
 {
-    PB_MM_MUTE_OFF = 0,
-    PB_MM_MUTE_ON,
-    PB_MM_SET_VOL,
-    PB_MM_VOL_UP,
-    PB_MM_VOL_DOWN, // 4
-    PB_MM_STOP,
+    PB_MM_SET_VOL = 0,
+    PB_MM_PLAY_WELCOME = 1,
+    PB_MM_PLAY_ORDER_OVER = 2,
+    PB_MM_PLAY_SMOKE_ALARM = 3,
+    PB_MM_PLAY_BGM = 4,
+    PB_MM_STOP = 6,
     PB_MM_PAUSE,
     PB_MM_PLAY,
-    PB_MM_PLAY_WELCOME, //8
-    PB_MM_PLAY_ORDER_OVER,
-    PB_MM_PLAY_SMOKE_ALARM,
-    PB_MM_PLAY_BGM // 11
+    PB_MM_MUTE_OFF,
+    PB_MM_MUTE_ON,
+    PB_MM_VOL_UP,
+    PB_MM_VOL_DOWN
 }PB_MULTIMEDIA_ACT_TYPE;
 
 /******************************************************************************

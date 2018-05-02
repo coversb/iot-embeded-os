@@ -26,6 +26,7 @@
 #include "pb_cfg_proc.h"
 #include "kt603.h"
 #include "pb_util.h"
+#include "pb_prot_main.h"
 
 /******************************************************************************
 * Macros
@@ -217,6 +218,7 @@ static void pb_multimedia_audio_ctrl_hdlr(PB_MSG_TYPE *pMsg)
     PB_MULTIMEDIA_MSG_PARA_TYPE *pAudioMsg = (PB_MULTIMEDIA_MSG_PARA_TYPE*)pMsg->pMsgData;
     OS_DBG_TRACE(DBG_MOD_PBMM, DBG_INFO, "Audio control[%d,%d]", pAudioMsg->cmd, pAudioMsg->param);
 
+    bool sendMUE = true;    //send multimedia event report [0x03 0x83]
     switch (pAudioMsg->cmd)
     {
         case PB_MM_MUTE_ON:
@@ -282,8 +284,14 @@ static void pb_multimedia_audio_ctrl_hdlr(PB_MSG_TYPE *pMsg)
         }
         default:
         {
+            sendMUE = false;
             break;
         }
+    }
+
+    if (sendMUE)
+    {
+        pb_prot_send_rsp_param_req(PB_PROT_RSP_MUE, &(pAudioMsg->cmd), sizeof(pAudioMsg->cmd));
     }
 }
 
@@ -302,15 +310,9 @@ static void pb_multimedia_monitor_hdlr(void)
 {
     if (bgmManager.playing)
     {
-        uint32 now = pb_util_get_timestamp();
-
-        if (now - bgmManager.lastCheckTime > PB_MM_BGM_CHECK_INTERVAL)
+        if (KT603_STOP == AUDIO.playStatus())
         {
-            bgmManager.lastCheckTime = now;
-            if (KT603_STOP == AUDIO.playStatus())
-            {
-                pb_multimedia_play_bgm();
-            }
+            pb_multimedia_send_audio_msg(PB_MM_PLAY_BGM, 0);
         }
     }
 }
@@ -363,14 +365,18 @@ void pb_multimedia_send_monitor_req(void)
 {
     if (bgmManager.playing)
     {
-        return;
-    }
-    
-    PB_MSG_TYPE msg;
+        uint32 now = pb_util_get_timestamp();
 
-    msg.pMsgData = NULL;
-    msg.msgID = PB_MSG_MM_AUDIO_MONITOR_REQ;
-    os_msg_queue_send(pb_multimedia_msg_queue, ( void*)&msg, 0);
+        if (now - bgmManager.lastCheckTime > PB_MM_BGM_CHECK_INTERVAL)
+        {
+            bgmManager.lastCheckTime = now;
+
+            PB_MSG_TYPE msg;
+            msg.pMsgData = NULL;
+            msg.msgID = PB_MSG_MM_AUDIO_MONITOR_REQ;
+            os_msg_queue_send(pb_multimedia_msg_queue, ( void*)&msg, 0);
+        }
+    }
 }
 
 /******************************************************************************

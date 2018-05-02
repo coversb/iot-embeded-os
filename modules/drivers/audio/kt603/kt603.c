@@ -33,7 +33,9 @@
 #define KT603_CMDBUF_LEN 8
 #define KT603_RSPBUF_LEN 10
 #define KT603_RESEND_MAX 3
-#define KT603_RSP_WAITCNT 10
+
+#define KT603_RSP_WAITDELAY DELAY_50_MS
+#define KT603_RSP_WAITCNT 20
 
 /*KT603 protocol*/
 #define KT603_CMD_HEADER 0x7E
@@ -154,12 +156,12 @@ static bool kt603_recv_rsp(uint8 *cmd, uint16 *dat)
     uint16 timeout = 0;
 
 wait:
-    while (timeout < KT603_RSP_WAITCNT)// 10 * 50ms = 500 ms time out
+    while (timeout < KT603_RSP_WAITCNT)// 20 * 50ms = 1 s time out
     {
         timeout++;
         if (!KT603_COM->available())
         {
-            os_scheduler_delay(DELAY_50_MS);//wait for respond
+            os_scheduler_delay(KT603_RSP_WAITDELAY);//wait for respond
         }
         else
         {
