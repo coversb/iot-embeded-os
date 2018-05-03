@@ -36,6 +36,7 @@ typedef struct
 {
     bool (*init)(HAL_USART_TYPE *com, const uint32 baudrate);
     bool (*reset)(void);
+    bool (*available)(void);
     bool (*config)(const char *apn, const char *user, const char *pass);
     bool (*connect)(const char *domain, const uint16 port);
     bool(*disconnect)(void);

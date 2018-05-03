@@ -208,7 +208,7 @@ bool pb_ota_network_available(uint8 devType)
     {
         case PB_OTA_NET_DEV_GPRS:
         {
-            ret = true;
+            ret = devM26.available();
             break;
         }
         case PB_OTA_NET_DEV_ETH:

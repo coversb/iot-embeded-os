@@ -1068,7 +1068,7 @@ static bool m26_check_gprs(uint32 timeout)
 static bool m26_config(const char *apn, const char *user, const char *pass)
 {
     bool ret = false;
-
+/*
     m26_at_cmd_check_rsp("ATE0", M26_RSP_OK);
     m26_at_cmd_check_rsp("AT+CFUN=1", M26_RSP_OK);
 
@@ -1078,7 +1078,7 @@ static bool m26_config(const char *apn, const char *user, const char *pass)
         OS_INFO("SIM CARD NOT INSERTED");
         goto err;
     }
-
+*/
     //SIM card stat check
     if (!m26_at_cmd_wait_rsp(M26_AT_CMD_SIM_STAT, M26_RSP_SIM_RDY, M26_SIM_BUSY_TIMEOUT))
     {
@@ -1157,6 +1157,32 @@ err:
 }
 
 /******************************************************************************
+* Function    : m26_sim_available
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : check sim card is inserted
+******************************************************************************/
+static bool m26_sim_available(void)
+{
+    m26_at_cmd_check_rsp("ATE0", M26_RSP_OK);
+    m26_at_cmd_check_rsp("AT+CFUN=1", M26_RSP_OK);
+
+    //SIM card stat check
+    if (m26_at_cmd_check_rsp(M26_AT_CMD_SIM_STAT, M26_RSP_SIM_NOTINSERT))
+    {
+        OS_INFO("SIM CARD NOT INSERTED");
+        return false;
+    }
+
+    return true;
+}
+
+/******************************************************************************
 * Function    : m26_hw_reset
 * 
 * Author      : Chen Hao
@@ -1225,6 +1251,7 @@ const DEV_TYPE_M26 devM26 =
 {
     m26_hw_init,
     m26_hw_reset,
+    m26_sim_available,
     m26_config,
     m26_net_connect,
     m26_net_disconnect,
