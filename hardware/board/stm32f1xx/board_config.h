@@ -30,6 +30,7 @@
 #include "stm32f10x_rtc.h"
 #include "stm32f10x_flash.h"
 #include "stm32f10x_tim.h"
+#include "stm32f10x_spi.h"
 
 /******************************************************************************
 * Macros
@@ -115,6 +116,18 @@
 #define BOARD_SW_I2C1_RCC RCC_APB2Periph_GPIOB
 #define BOARD_SW_I2C1_SCL GPIOB, GPIO_Pin_6
 #define BOARD_SW_I2C1_SDA GPIOB, GPIO_Pin_7
+
+/*SPI2*/
+#define BOARD_SPI2_ENABLE 1
+#define BOARD_SPI2_RCC RCC_APB1Periph_SPI2
+#define BOARD_SPI2_IO_RCC RCC_APB2Periph_GPIOB|RCC_APB2Periph_GPIOG|RCC_APB2Periph_AFIO
+#define BOARD_SPI2_CLK GPIOB, GPIO_Pin_13
+#define BOARD_SPI2_MISO GPIOB, GPIO_Pin_14
+#define BOARD_SPI2_MOSI GPIOB, GPIO_Pin_15
+#define BOARD_SPI2_CS_W5500 GPIOG, GPIO_Pin_15
+//w5500
+#define BOARD_W5500_IO_RCC RCC_APB2Periph_GPIOG
+#define BOARD_W5500_RST GPIOG, GPIO_Pin_14
 
 /*TIM*/
 #define BOARD_TIM2_ENABLE 1
