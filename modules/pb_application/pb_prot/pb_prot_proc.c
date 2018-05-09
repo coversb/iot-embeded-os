@@ -337,23 +337,6 @@ void pb_prot_proc_update_rtc(uint32 timestamp)
 }
 
 /******************************************************************************
-* Function    : pb_prot_proc_save_last_good_dns
-*
-* Author      : Chen Hao
-*
-* Parameters  :
-*
-* Return      :
-*
-* Description :
-******************************************************************************/
-void pb_prot_proc_save_last_good_dns(void)
-{
-    pb_cfg_proc_save_cmd(PB_PROT_CMD_APC, &(pb_cfg_proc_get_cmd()->apc), sizeof(PB_CFG_APC));
-    OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, "Save APC for last good DNS");
-}
-
-/******************************************************************************
 * Function    : pb_prot_proc_send_dbi
 *
 * Author      : Chen Hao

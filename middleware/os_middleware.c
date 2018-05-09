@@ -57,6 +57,22 @@ uint32 os_get_tick_count(void)
 }
 
 /******************************************************************************
+* Function    : os_get_second_count
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+uint32 os_get_second_count(void)
+{
+    return  xTaskGetTickCount() / 1000;
+}
+
+/******************************************************************************
 * Function    : os_msg_queue_send
 * 
 * Author      : Chen Hao

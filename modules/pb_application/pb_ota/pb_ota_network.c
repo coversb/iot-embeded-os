@@ -20,12 +20,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "m26.h"
 #include "os_middleware.h"
 #include "os_trace_log.h"
 #include "pb_app_config.h"
 #include "pb_ota_network.h"
 #include "pb_cfg_proc.h"
+#include "m26.h"
+#include "w5500.h"
 
 /******************************************************************************
 * Macros
@@ -142,12 +143,12 @@ void pb_ota_network_hw_init(uint8 devType)
     {
         case PB_OTA_NET_DEV_GPRS:
         {
-            devM26.init((HAL_USART_TYPE *)&MODEM_2G_COM, MODEM_2G_COM_BAUDRATE);
+            devM26.init((HAL_USART_TYPE*)&MODEM_2G_COM, MODEM_2G_COM_BAUDRATE);
             break;
         }
         case PB_OTA_NET_DEV_ETH:
         {
-            //pb_dev_w5500_hw_init();
+            devW5500.init((HAL_SPI_TYPE*)&ETH_COM);
             break;
         }
         default:
@@ -179,7 +180,7 @@ void pb_ota_network_hw_reset(uint8 devType)
         }
         case PB_OTA_NET_DEV_ETH:
         {
-            //pb_dev_w5500_hw_reset();
+            devW5500.reset();
             break;
         }
         default:
@@ -213,7 +214,7 @@ bool pb_ota_network_available(uint8 devType)
         }
         case PB_OTA_NET_DEV_ETH:
         {
-            //ret = pb_dev_w5500_cable_link();
+            ret = devW5500.available();
             break;
         }
         default:
@@ -249,7 +250,7 @@ bool pb_ota_network_check_net_stat(uint8 devType)
         }
         case PB_OTA_NET_DEV_ETH:
         {
-            //ret = pb_dev_w5500_net_check_stat();
+            ret = devW5500.isConnected();
             break;
         }
         default:
@@ -286,7 +287,7 @@ bool pb_ota_network_config(uint8 devType)
         }
         case PB_OTA_NET_DEV_ETH:
         {
-            //ret = pb_dev_w5500_net_config();
+            ret = devW5500.config();
             break;
         }
         default:
@@ -322,7 +323,7 @@ bool pb_ota_network_connect(uint8 devType, const char *domainName, uint16 port)
         }
         case PB_OTA_NET_DEV_ETH:
         {
-            //ret = pb_dev_w5500_net_connect(domainName, port);
+            ret = devW5500.connect(domainName, port);
             break;
         }
         default:
@@ -356,7 +357,7 @@ void pb_ota_network_disconnect(uint8 devType)
         }
         case PB_OTA_NET_DEV_ETH:
         {
-            //pb_dev_w5500_net_disconnect();
+            devW5500.disconnect();
             break;
         }
         default:
@@ -379,18 +380,18 @@ void pb_ota_network_disconnect(uint8 devType)
 ******************************************************************************/
 uint16 pb_ota_network_send(uint8 devType, uint8 *data, uint16 size)
 {
-    uint16 len = 0;
+    uint16 realSend = 0;
 
     switch (devType)
     {
         case PB_OTA_NET_DEV_GPRS:
         {
-            len = devM26.send(data, size);
+            realSend = devM26.send(data, size);
             break;
         }
         case PB_OTA_NET_DEV_ETH:
         {
-            //ret = pb_dev_w5500_net_send(data, len);
+            realSend = devW5500.send(data, size);
             break;
         }
         default:
@@ -399,7 +400,7 @@ uint16 pb_ota_network_send(uint8 devType, uint8 *data, uint16 size)
         }
     }
 
-    return len;
+    return realSend;
 }
 
 /******************************************************************************
@@ -415,18 +416,18 @@ uint16 pb_ota_network_send(uint8 devType, uint8 *data, uint16 size)
 ******************************************************************************/
 uint16 pb_ota_network_recv(uint8 devType, uint8 *data, uint16 maxLen)
 {
-    uint16 len = 0;
+    uint16 realRead = 0;
 
     switch (devType)
     {
         case PB_OTA_NET_DEV_GPRS:
         {
-            len = devM26.recv(data, maxLen);
+            realRead = devM26.recv(data, maxLen);
             break;
         }
         case PB_OTA_NET_DEV_ETH:
         {
-            //len = pb_dev_w5500_net_recv(data, maxLen);
+            realRead = devW5500.recv(data, maxLen);
             break;
         }
         default:
@@ -435,7 +436,7 @@ uint16 pb_ota_network_recv(uint8 devType, uint8 *data, uint16 maxLen)
         }
     }
 
-    return len;
+    return realRead;
 }
 
 /******************************************************************************

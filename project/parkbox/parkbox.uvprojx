@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_crypto;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_gui;..\..\modules\pb_application\pb_multimedia;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\drivers\screen\oled;..\..\modules\drivers\rgbLed;..\..\modules\drivers\ir;..\..\modules\drivers\audio\kt603</IncludePath>
+              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_crypto;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_gui;..\..\modules\pb_application\pb_multimedia;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\drivers\screen\oled;..\..\modules\drivers\rgbLed;..\..\modules\drivers\ir;..\..\modules\drivers\audio\kt603;..\..\modules\drivers\eth;..\..\modules\network_util</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -523,6 +523,21 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>network_util</GroupName>
+          <Files>
+            <File>
+              <FileName>dhcp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\network_util\dhcp.c</FilePath>
+            </File>
+            <File>
+              <FileName>dns.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\network_util\dns.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>crypto</GroupName>
           <Files>
             <File>
@@ -590,6 +605,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\modules\drivers\audio\kt603\pam8610.c</FilePath>
             </File>
+            <File>
+              <FileName>w5500.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\drivers\eth\w5500.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -644,6 +664,11 @@
               <FileName>hal_tim.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\hardware\hal\hal_tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>hal_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hardware\hal\hal_spi.c</FilePath>
             </File>
           </Files>
         </Group>

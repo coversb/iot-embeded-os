@@ -39,7 +39,6 @@ typedef enum
     PB_MSG_PROT_ANALYSE_DATA,
     PB_MSG_PROT_SEND_HBP,
     PB_MSG_PROT_SEND_RSP,
-    PB_MSG_PROT_SAVE_APC_LASTGOOD_DNS_REQ,
     /*pb_prot_main msg end*/
     /*pb_ota_main msg begin*/
     PB_MSG_OTA_NET_DEV_RESET,

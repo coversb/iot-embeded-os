@@ -855,11 +855,6 @@ void pb_prot_main(void *pvParameters)
                     pb_prot_send_rsp_hdlr(p_pb_msg);
                     break;
                 }
-                case PB_MSG_PROT_SAVE_APC_LASTGOOD_DNS_REQ:
-                {
-                    pb_prot_proc_save_last_good_dns();
-                    break;
-                }
                 default:
                 {
                     OS_DBG_ERR(DBG_MOD_PBPROT, "Bad msg %d", p_pb_msg->msgID);
