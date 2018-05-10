@@ -20,6 +20,7 @@
 ******************************************************************************/
 #include "basetype.h"
 #include "hal_spi.h"
+#include "ftp.h"
 
 /******************************************************************************
 * Macros
@@ -285,6 +286,7 @@ typedef struct
     uint16 (*recv)(uint8 *pdata, const uint16 max);
     uint16 (*send)(const uint8 *pdata, const uint16 size);
     bool (*isConnected)(void);
+    const FTP_CLIENT *ftp;
 }DEV_TYPE_W5500;
 
 /******************************************************************************

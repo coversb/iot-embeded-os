@@ -422,3 +422,30 @@ uint16 pb_util_get_bak_bat_voltage(void)
     return 24*1000;
 }
 
+/******************************************************************************
+* Function    : pb_util_check_is_ip
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : check str is ip or domain name
+******************************************************************************/
+bool pb_util_check_is_ip(const char *str, uint16 len)
+{
+    bool ret = true;
+    for (uint16 idx = 0; idx < len; ++idx)
+    {
+        if (str[idx] == '.') continue;
+        if (str[idx] < '0' || str[idx] > '9')
+        {
+            ret = false;
+            break;
+        }
+    }
+
+    return ret;
+}
+

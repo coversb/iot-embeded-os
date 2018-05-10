@@ -16,6 +16,8 @@
 /******************************************************************************
 * Include Files
 ******************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "board_config.h"
 #include "hal_rcc.h"
@@ -49,6 +51,22 @@
 #define SOCKET_RXREG(s) ((uint8)(s * 0x20 + 0x18))
 #define SOCKET_TXREG(s) ((uint8)(s * 0x20 + 0x10))
 
+/******************************************************************************
+* FTP
+******************************************************************************/
+#define SOCKET_FTPC SOCKET2
+#define SOCKET_FTPD SOCKET3
+
+#define FTPC_LOCAL_PORT 20000
+#define FTPD_LOCAL_PORT 30000
+#define FTP_CMD_LEN 128
+
+#define FTP_WAIT DELAY_50_MS
+#define FTP_RSP_TIMEOUT (5*DELAY_1_S)
+
+#define FTP_GETDATA_DELAY DELAY_500_MS
+#define FTP_GETDATA_TIMEOUT (3*DELAY_500_MS)
+
 //#define __ETH_DEBUG__
 /******************************************************************************
 * Variables (Extern, Global and Static)
@@ -61,6 +79,12 @@ static const uint8 DEF_DNS_SERVER[4] = {114, 114, 114, 114};
 //dhcp client context
 static DHCP_CLIENT w5500_dhcp_client;
 static DNS_CLIENT w5500_dns_client;
+
+//ftp
+static bool bFtpcOpen = false;
+static bool bFtpdOpen = false;
+static uint16 ftpcLocalPort = 0;
+static uint16 ftpdLocalPort = 0;
 
 /******************************************************************************
 * Local Functions
@@ -1565,6 +1589,489 @@ static bool w5500_hw_init(HAL_SPI_TYPE *spi)
     return true;
 }
 
+/*M26 FTP begin*/
+/******************************************************************************
+* Function    : w5500_socket_rsp
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get socket respond
+******************************************************************************/
+static bool w5500_socket_rsp(SOCKET s, char *rsp, uint16 maxSize)
+{
+    bool ret = false;
+
+    uint32 startTime = os_get_tick_count();
+    while (0 == w5500_socket_recv(s, (uint8*)rsp, maxSize))
+    {
+        os_scheduler_delay(FTP_WAIT);
+        if (w5500_check_timeout(startTime, FTP_RSP_TIMEOUT))
+        {
+            OS_DBG_ERR(DBG_MOD_DEV, "w5500 wait rsp timeout");
+            goto err;
+        }
+    }
+    ret = true;
+
+err:
+    return ret;
+}
+
+/******************************************************************************
+* Function    : w5500_socket_check_rsp
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static bool w5500_socket_check_rsp(SOCKET s, const char *rsp)
+{
+    bool ret = false;
+    char recv[FTP_CMD_LEN + 1] = {0};
+
+    if (!w5500_socket_rsp(s, recv, FTP_CMD_LEN))
+    {
+        goto err;
+    }
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "RSP[%s]", recv);
+    if (NULL != strstr(recv, rsp))
+    {
+        ret = true;
+    }
+
+err:
+    return ret;
+}
+
+/******************************************************************************
+* Function    : w5500_ftp_disconnect
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : disconnect and close ftp socket
+******************************************************************************/
+static bool w5500_ftp_disconnect(void)
+{
+    if (bFtpdOpen)
+    {
+        //disconnect 
+        w5500_disconnect(SOCKET_FTPD);
+        //close
+        w5500_close(SOCKET_FTPD);
+        bFtpdOpen = false;
+        OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "FTP data disconnect OK");
+    }
+
+    if (bFtpcOpen)
+    {
+        //send rest command
+        w5500_socket_send(SOCKET_FTPC, FTP_REST_CMD, strlen(FTP_REST_CMD));
+        w5500_socket_check_rsp(SOCKET_FTPC, FTP_CONNECT_OK);
+        //disconnect 
+        w5500_disconnect(SOCKET_FTPC);
+        //close
+        w5500_close(SOCKET_FTPC);
+        bFtpcOpen = false;
+        OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "FTP ctrl disconnect OK");
+    }
+
+    return true;
+}
+
+/******************************************************************************
+* Function    : w5500_ftp_connect
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : connect to ftp server
+******************************************************************************/
+static bool w5500_ftp_connect(const char* server, const uint16 port, const char *user, const char *password)
+{
+    bool ret = false;
+    uint8 ipAddr[4] = {0};
+    char cmd[FTP_CMD_LEN + 1] = {0};
+    uint16 sendLen = 0;
+
+    //get ftp server's ip
+    if (pb_util_check_is_ip(server, strlen(server)))
+    {
+        int32 tmpIP[4];
+        sscanf(server, "%d.%d.%d.%d", &tmpIP[0], &tmpIP[1], &tmpIP[2], &tmpIP[3]);
+        ipAddr[0] = tmpIP[0];
+        ipAddr[1] = tmpIP[1];
+        ipAddr[2] = tmpIP[2];
+        ipAddr[3] = tmpIP[3];
+    }
+    else
+    {
+        if (!w5500_dns((char*)server, ipAddr))
+        {
+            OS_DBG_ERR(DBG_MOD_DEV, "W5500 ftp dns parse err");
+            goto err;
+        }
+    }
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "Get FOTA server %d.%d.%d.%d", ipAddr[0], ipAddr[1], ipAddr[2], ipAddr[3]);
+
+    //init ftp socket
+    w5500_socket_set_buffsize(SOCKET_FTPC);
+
+    //get a radom local port for ftp control
+    if (0 == ftpcLocalPort)
+    {
+        ftpcLocalPort = w5500_random_port(FTPC_LOCAL_PORT);
+    }
+    else
+    {
+        ftpcLocalPort++;
+    }
+
+    //create socket
+    if (!w5500_socket(SOCKET_FTPC, SOCK_STREAM, ftpcLocalPort))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "FTPC socket create err");
+        goto err;
+    }
+
+    //connect to server
+    if (!w5500_connect(SOCKET_FTPC, ipAddr, port))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "FTPC connect err");
+        goto err;
+    }
+    //check ftp connect respond
+    if (!w5500_socket_check_rsp(SOCKET_FTPC, FTP_CONNECT_OK))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "FTPC rsp err");
+        goto err;
+    }
+    bFtpcOpen = true;
+
+    //set ftp username
+    sendLen = snprintf(cmd, FTP_CMD_LEN, "USER %s\r\n", user);
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "CMD[%S]", cmd);
+    w5500_socket_send(SOCKET_FTPC, (uint8*)cmd, sendLen);
+    if (!w5500_socket_check_rsp(SOCKET_FTPC, FTP_USERNAME_OK))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "FTPC user err");
+        goto err;
+    }
+
+    //set ftp password
+    sendLen = snprintf(cmd, FTP_CMD_LEN, "PASS %s\r\n", password);
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "CMD[%S]", cmd);
+    w5500_socket_send(SOCKET_FTPC, (uint8*)cmd, sendLen);
+    if (!w5500_socket_check_rsp(SOCKET_FTPC, FTP_LOGIN_OK))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "FTPC pass err");
+        goto err;
+    }
+    ret = true;
+
+err:
+    if (!ret)
+    {
+        w5500_ftp_disconnect();
+    }
+    
+    return ret;
+}
+
+/******************************************************************************
+* Function    : w5500_ftp_set_path
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : set server path
+******************************************************************************/
+static bool w5500_ftp_set_path(const char *path)
+{
+    bool ret = false;
+    char cmd[FTP_CMD_LEN + 1] = {0};
+    uint16 sendLen = 0;
+
+    //set ftp server path
+    sendLen = snprintf(cmd, FTP_CMD_LEN, "CWD %s\r\n", path);
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "CMD[%S]", cmd);
+    w5500_socket_send(SOCKET_FTPC, (uint8*)cmd, sendLen);
+    if (!w5500_socket_check_rsp(SOCKET_FTPC, FTP_REQ_DIR_OK))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "FTPC set path err");
+        goto err;
+    }
+    ret = true;
+
+err:
+    return ret;
+}
+
+/******************************************************************************
+* Function    : w5500_ftp_get_pasv
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static bool w5500_ftp_get_pasv(uint8 *ip, uint16 *port)
+{
+    bool ret = false;
+    char rsp[FTP_CMD_LEN + 1] = {0};
+
+    char dataPort[64+1] = {0};
+    char *pStart = NULL;
+    char *pStop = NULL;
+    uint16 dataLen = 0;
+
+    int32 pasvPort[2];
+    int32 tmpIP[4];
+
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "CMD[%S]", FTP_PASV_CMD);
+    w5500_socket_send(SOCKET_FTPC, (uint8*)FTP_PASV_CMD, strlen(FTP_PASV_CMD));
+
+    if (!w5500_socket_rsp(SOCKET_FTPC, rsp, FTP_CMD_LEN))
+    {
+        goto err;
+    }
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "RSP[%s]", rsp);
+
+    if (NULL == strstr(rsp, FTP_PASV_OK))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "Enter PASV err");
+        goto err;
+    }
+
+    if (NULL == (pStart = strstr(rsp, "(")))
+    {
+        goto err;
+    }
+    if (NULL == (pStop = strstr(rsp, ")")))
+    {
+        goto err;
+    }
+
+    dataLen = (pStop - pStart) + 1;
+    dataLen = MIN_VALUE(dataLen, 64);
+    memcpy(dataPort, pStart, dataLen);
+    dataPort[dataLen] = '\0';
+
+    sscanf(dataPort, "(%d,%d,%d,%d,%d,%d)", 
+             &tmpIP[0], &tmpIP[1], &tmpIP[2], &tmpIP[3], 
+             &pasvPort[0], &pasvPort[1]);
+
+    ip[0] = tmpIP[0];
+    ip[1] = tmpIP[1];
+    ip[2] = tmpIP[2];
+    ip[3] = tmpIP[3];
+    (*port) = (pasvPort[0] << 8) + pasvPort[1];
+    if (*port == 0)
+    {
+        goto err;
+    }
+    ret = true;
+
+err:
+    return ret;
+}
+
+/******************************************************************************
+* Function    : w5500_ftp_set_mode
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : set binary mode / passive mode, connect to data port
+******************************************************************************/
+static bool w5500_ftp_set_mode(void)
+{
+    bool ret = false;
+    char cmd[FTP_CMD_LEN + 1] = {0};
+    uint16 sendLen = 0;
+
+    uint8 dataIP[4] = {0};
+    uint16 dataPort = 0;
+
+    //set ftp type binary mode
+    sendLen = snprintf(cmd, FTP_CMD_LEN, "TYPE I\r\n");
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "CMD[%S]", cmd);
+    w5500_socket_send(SOCKET_FTPC, (uint8*)cmd, sendLen);
+    if (!w5500_socket_check_rsp(SOCKET_FTPC, FTP_TYPE_I_OK))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "FTPC set binary err");
+        goto err;
+    }
+
+    //enter ftp PASV mode to get data port
+    if (!w5500_ftp_get_pasv(dataIP, &dataPort))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "FTP get data server err");
+        goto err;
+    }
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "FTPD[%d.%d.%d.%d:%d]",
+                            dataIP[0], dataIP[1], dataIP[2], dataIP[3], dataPort);
+
+    /*connect to data server port to get file*/
+    w5500_socket_set_buffsize(SOCKET_FTPD);
+    //get a radom local port for ftp data
+    if (0 == ftpdLocalPort)
+    {
+        ftpdLocalPort = w5500_random_port(FTPD_LOCAL_PORT);
+    }
+    else
+    {
+        ftpdLocalPort++;
+    }
+    
+    //create socket
+    if (!w5500_socket(SOCKET_FTPD, SOCK_STREAM, ftpdLocalPort))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "FTPD socket create err");
+        goto err;
+    }
+
+    //connect to data server
+    if (!w5500_connect(SOCKET_FTPD, dataIP, dataPort))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "FTPD connect err");
+        goto err;
+    }
+    bFtpdOpen = true;
+    ret = true;
+
+err:
+    return ret;
+}
+
+/******************************************************************************
+* Function    : w5500_ftp_get_file_size
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get firmware file size
+******************************************************************************/
+static uint32 w5500_ftp_get_file_size(const char *fname, const uint32 timeout)
+{
+    uint32 fileSize = 0;
+    char cmd[FTP_CMD_LEN + 1] = {0};
+    uint16 sendLen = 0;
+    char rsp[FTP_CMD_LEN + 1] = {0};
+
+    char dataSize[FTP_CMD_LEN + 1] = {0};
+    char *pStart = NULL;
+    char *pStop = NULL;
+    uint16 dataLen = 0;
+
+    int32 dwnSize = -1;
+
+    //start to download file
+    sendLen = snprintf(cmd, FTP_CMD_LEN, "RETR %s\r\n", fname);
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "CMD[%S]", cmd);
+    w5500_socket_send(SOCKET_FTPC, (uint8*)cmd, sendLen);
+    if (!w5500_socket_rsp(SOCKET_FTPC, rsp, FTP_CMD_LEN))
+    {
+        goto err;
+    }
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "RSP[%s]", rsp);
+
+    if (NULL == strstr(rsp, FTP_OPENING_FILE_OK))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "start download err");
+        goto err;
+    }
+
+    if (NULL == (pStart = strstr(rsp, "(")))
+    {
+        goto err;
+    }
+    if (NULL == (pStop = strstr(rsp, ")")))
+    {
+        goto err;
+    }
+
+    dataLen = (pStop - pStart) + 1;
+    dataLen = MIN_VALUE(dataLen, FTP_CMD_LEN);
+    memcpy(dataSize, pStart, dataLen);
+    dataSize[dataLen] = '\0';
+
+    sscanf(dataSize, "(%d bytes)", &dwnSize);
+    fileSize = MAX_VALUE(dwnSize, 0);
+    
+err:
+    return fileSize;
+}
+
+/******************************************************************************
+* Function    : w5500_ftp_get_file_data
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get firmware data
+******************************************************************************/
+static uint32 w5500_ftp_get_file_data(uint8 *pdata, const uint32 maxSize)
+{
+    uint32 recvLen = 0;
+    uint32 startTime = os_get_tick_count();
+
+    while (0 == (recvLen = w5500_socket_recv(SOCKET_FTPD, pdata, maxSize)))
+    {
+        OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "Wait data");
+        //Added some delay before try to read w5500 rx buff
+        os_scheduler_delay(FTP_GETDATA_DELAY);
+        if (w5500_check_timeout(startTime, FTP_GETDATA_TIMEOUT))
+        {
+            OS_DBG_ERR(DBG_MOD_DEV, "Wait data timeout");
+            break;
+        }
+    }
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "DATA[%d]", recvLen);
+
+    return recvLen;
+}
+
+/*M26 FTP end*/
+
+const FTP_CLIENT ftpW5500 = {
+    w5500_ftp_connect,
+    w5500_ftp_disconnect,
+    w5500_ftp_set_path,
+    w5500_ftp_set_mode,
+    w5500_ftp_get_file_size,
+    w5500_ftp_get_file_data
+};
+
 const DEV_TYPE_W5500 devW5500 = 
 {
     w5500_hw_init,
@@ -1575,6 +2082,7 @@ const DEV_TYPE_W5500 devW5500 =
     w5500_net_disconnect,
     w5500_net_recv,
     w5500_net_send,
-    w5500_net_check_stat
+    w5500_net_check_stat,
+    &ftpW5500
 };
 

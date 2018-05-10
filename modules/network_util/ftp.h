@@ -23,6 +23,17 @@
 /******************************************************************************
 * Macros
 ******************************************************************************/
+#define FTP_CONNECT_OK "220"
+#define FTP_USERNAME_OK "331"
+#define FTP_LOGIN_OK "230"
+#define FTP_REQ_DIR_OK "250"
+#define FTP_TYPE_I_OK "200"
+#define FTP_PASV_OK "227"
+#define FTP_OPENING_FILE_OK "150"
+#define FTP_GET_FILE_OK "226"
+#define FTP_RSET_OK "350"
+#define FTP_REST_CMD "REST 0\r\n"
+#define FTP_PASV_CMD "PASV\r\n"
 
 /******************************************************************************
 * Enum

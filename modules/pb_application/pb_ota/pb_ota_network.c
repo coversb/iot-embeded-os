@@ -463,7 +463,7 @@ void *pb_ota_network_get_ftp_client(uint8 devType)
         }
         case PB_OTA_NET_DEV_ETH:
         {
-            //ftpClient = devW5500.ftp;
+            ftpClient = (void*)devW5500.ftp;
             break;
         }
         default:

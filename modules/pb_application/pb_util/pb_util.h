@@ -60,5 +60,6 @@ extern uint8 pb_util_get_indoor_humidity(void);
 extern uint16 pb_util_get_indoor_pm25(void);
 extern uint16 pb_util_get_bak_bat_voltage(void);
 
+extern bool pb_util_check_is_ip(const char *str, uint16 len);
 #endif /* __PB_UTIL_H__ */
 
