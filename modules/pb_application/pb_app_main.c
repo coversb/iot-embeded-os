@@ -76,7 +76,7 @@ static void hardware_init()
 ******************************************************************************/
 int main(void)
 {
-    os_trace_log_set_mod(0x0c, 3);
+    os_trace_log_set_mod(0x2c, 3);
     hardware_init();
 
     os_task_create_all();

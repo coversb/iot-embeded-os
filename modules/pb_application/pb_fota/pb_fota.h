@@ -68,12 +68,12 @@ typedef struct
 /******************************************************************************
 * Global Functions
 ******************************************************************************/
-extern void pb_fota_firmware_confirm(void);
-extern int32 pb_fota_request_free_bank(PB_IMAGE_CONTENT_TYPE *pIC);
-extern int32 pb_fota_write_firmware_to_free_bank(PB_IMAGE_CONTENT_TYPE *pIC, uint32 addrOffset, uint8 *pdata, uint16 len);
-extern int32 pb_fota_submit_new_image(PB_IMAGE_CONTENT_TYPE IC);
-extern void pb_fota_get_firmware_info(uint32 *upTimestamp, uint32 *runTimes);
+extern void pb_fota_main(void *parameters);
+extern void pb_fota_send_msg_to_fota_mod(uint8 msgID);
+extern void pb_fota_set_param(PB_PROT_CMD_FOTA_ARG *param);
+extern bool pb_fota_upgrading(void);
 
+extern void pb_fota_get_firmware_info(uint32 *upTimestamp, uint32 *runTimes);
 extern uint16 pb_fota_get_firmware_version(void);
 extern uint16 pb_fota_get_bl_version(void);
 

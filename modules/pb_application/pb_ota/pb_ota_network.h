@@ -37,11 +37,6 @@ typedef enum
     PB_OTA_NET_DEV_NUM
 }PB_OTA_NET_DEV_TYPE;
 
-typedef enum
-{
-    PB_FOTA_FTP = 0
-}PB_OTA_NET_FOTA_PROT_TYPE;
-
 /******************************************************************************
 * Types
 ******************************************************************************/
@@ -68,6 +63,7 @@ extern bool pb_ota_network_connect(uint8 devType, const char *domainName, uint16
 extern void pb_ota_network_disconnect(uint8 devType);
 extern uint16 pb_ota_network_send(uint8 devType, uint8 *data, uint16 size);
 extern uint16 pb_ota_network_recv(uint8 devType, uint8 *data, uint16 maxLen);
+extern void *pb_ota_network_get_ftp_client(uint8 devType);
 
 extern void pb_ota_network_update_csq(uint8 devType);
 extern uint8 pb_ota_network_get_csq_rssi(void);

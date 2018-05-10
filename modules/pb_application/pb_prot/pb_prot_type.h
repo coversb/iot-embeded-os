@@ -453,6 +453,11 @@ typedef struct
     uint32 bootAddr;
 }PB_PROT_CMD_FOTA_ARG;
 
+typedef enum
+{
+    PB_FOTA_FTP = 0
+}PB_PROT_CMD_FOTA_PROT;
+
 //FOTA RSP[0x03 0xF1]
 typedef enum
 {

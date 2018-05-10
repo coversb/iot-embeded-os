@@ -829,8 +829,6 @@ void pb_prot_main(void *pvParameters)
     PB_MSG_TYPE pb_msg;
     PB_MSG_TYPE *p_pb_msg = &pb_msg;
     memset(p_pb_msg, 0, sizeof(PB_MSG_TYPE));
-    //confirm image
-    pb_fota_firmware_confirm();
 
     while (1)
     {

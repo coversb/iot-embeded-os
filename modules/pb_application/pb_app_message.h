@@ -25,6 +25,7 @@
 ******************************************************************************/
 #define PB_PROT_MSGQUE_SIZE 15
 #define PB_OTA_MSGQUE_SIZE 10
+#define PB_FOTA_MSGQUE_SIZE 10
 #define PB_GUI_MSGQUE_SIZE 5
 #define PB_MM_MSGQUE_SIZE 10
 
@@ -47,11 +48,13 @@ typedef enum
     PB_MSG_OTA_NET_CLOSE,
     PB_MSG_OTA_NET_SEND,
     PB_MSG_OTA_NET_RECV,
-    PB_MSG_OTA_NET_FIRMWARE_UPGRADE_REQ,
-    PB_MSG_OTA_NET_START_UPGRADE_REQ,
     PB_MSG_OTA_CELL_LOCATION_REQ,
     PB_MSG_OTA_GSMINFO_REQ,
     /*pb_ota_main msg end*/
+    /*pb_fota_main msg begin*/
+    PB_MSG_FOTA_FIRMWARE_UPGRADE_REQ,
+    PB_MSG_FOTA_START_UPGRADE_REQ,
+    /*pb_fota_main msg end*/
     /*pb_io_main msg begine*/
     PB_MSG_IO_USR_ACCESS_CHECK,
     PB_MSG_IO_DOOR_SW_REQ,

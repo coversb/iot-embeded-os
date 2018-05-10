@@ -29,6 +29,7 @@
 #include "pb_cfg_default.h"
 #include "pb_prot_main.h"
 #include "pb_multimedia.h"
+#include "pb_ota_main.h"
 
 /******************************************************************************
 * Macros
@@ -173,7 +174,7 @@ void pb_prot_proc_watchdog_check(void)
             }
             //send power off RSP
             pb_prot_send_rsp_req(PB_PROT_RSP_PFE);
-            //pb_ota_need_set_reboot(true);
+            pb_ota_need_set_reboot(true);
             bRebooting = true;
         }
     }
@@ -1318,7 +1319,7 @@ static void pb_prot_proc_cmd_exec_rto(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
         case PB_RTO_REBOOT:
         {
             pb_prot_send_rsp_req(PB_PROT_RSP_PFE);
-            //pb_ota_need_set_reboot(true);
+            pb_ota_need_set_reboot(true);
             break;
         }
         case PB_RTO_RESET:
@@ -1391,25 +1392,8 @@ static void pb_prot_proc_cmd_exec_fota(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFram
 {
     OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, "execute firmware ota cmd");
 
-    PB_FOTA_CONTEXT fota;
-
-    fota.retry = parsedFrame->arg.fota.retry;
-    fota.timeout = parsedFrame->arg.fota.timeout;
-    fota.protocol = parsedFrame->arg.fota.protocol;
-    memcpy(fota.url, parsedFrame->arg.fota.url, PB_FOTA_URL_LEN + 1);
-    fota.port = parsedFrame->arg.fota.port;
-    memcpy(fota.usrName, parsedFrame->arg.fota.usrName, PB_FOTA_USR_LEN + 1);
-    memcpy(fota.usrPass, parsedFrame->arg.fota.usrPass, PB_FOTA_PASS_LEN + 1);
-    memcpy(fota.md5, parsedFrame->arg.fota.md5, PB_FOTA_MD5_LEN);
-    fota.key = parsedFrame->arg.fota.key;
-    fota.downAddr = parsedFrame->arg.fota.downAddr;
-    fota.bootAddr = parsedFrame->arg.fota.bootAddr;
-
-    fota.curRetryCnt = 0;
-    fota.totalSize = 0;
-
-    //pb_ota_set_fota_config(&fota);
-    //pb_ota_send_msg_to_ota_mod(PB_MSG_OTA_NET_FIRMWARE_UPGRADE_REQ);
+    pb_fota_set_param(&(parsedFrame->arg.fota));
+    pb_fota_send_msg_to_fota_mod(PB_MSG_FOTA_FIRMWARE_UPGRADE_REQ);
 }
 
 /******************************************************************************

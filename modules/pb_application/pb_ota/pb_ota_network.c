@@ -440,6 +440,42 @@ uint16 pb_ota_network_recv(uint8 devType, uint8 *data, uint16 maxLen)
 }
 
 /******************************************************************************
+* Function    : pb_ota_network_get_ftp_client
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void *pb_ota_network_get_ftp_client(uint8 devType)
+{
+    void *ftpClient = NULL;
+    
+    switch (devType)
+    {
+        case PB_OTA_NET_DEV_GPRS:
+        {
+            ftpClient = (void*)devM26.ftp;
+            break;
+        }
+        case PB_OTA_NET_DEV_ETH:
+        {
+            //ftpClient = devW5500.ftp;
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    return ftpClient;
+}
+
+/******************************************************************************
 * Function    : pb_ota_network_update_csq
 * 
 * Author      : Chen Hao

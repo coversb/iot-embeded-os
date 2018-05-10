@@ -263,8 +263,7 @@ uint16 pb_ota_get_recv_data(uint8 *data, uint16 maxLen)
 ******************************************************************************/
 void pb_ota_try_to_send_data(void)
 {
-    if (!pb_ota_net_stat_check(pb_ota_context.act_net_dev, PB_OTA_NET_CONNECTED)
-        || pb_ota_context.b_doing_fota)
+    if (!pb_ota_net_stat_check(pb_ota_context.act_net_dev, PB_OTA_NET_CONNECTED))
     {
         return;
     }
@@ -312,8 +311,7 @@ bool pb_ota_send_data_append(const uint8* data, uint16 len)
 ******************************************************************************/
 void pb_ota_try_to_recv_data(void)
 {
-    if (!pb_ota_net_stat_check(pb_ota_context.act_net_dev, PB_OTA_NET_CONNECTED)
-        || pb_ota_context.b_doing_fota)
+    if (!pb_ota_net_stat_check(pb_ota_context.act_net_dev, PB_OTA_NET_CONNECTED))
     {
         return;
     }
@@ -1001,7 +999,6 @@ static void pb_ota_init(void)
     pb_ota_network_hw_init(PB_OTA_NET_DEV_ETH);
 
     memset(&pb_ota_context, 0, sizeof(pb_ota_context));
-    pb_ota_context.b_doing_fota = false;
     pb_ota_context.need_reboot = false;
     pb_ota_context.act_net_dev = PB_OTA_NET_DEV_ETH;
     pb_ota_context.act_server = PB_OTA_SERVER_MAIN;
@@ -1075,16 +1072,6 @@ void pb_ota_main(void *pvParameters)
                 case PB_MSG_OTA_NET_RECV:
                 {
                     pb_ota_net_recv(p_pb_msg);
-                    break;
-                }
-                case PB_MSG_OTA_NET_FIRMWARE_UPGRADE_REQ:
-                {
-                    //pb_ota_fota_req_hdlr();
-                    break;
-                }
-                case PB_MSG_OTA_NET_START_UPGRADE_REQ:
-                {
-                    //pb_ota_fota_process();
                     break;
                 }
                 case PB_MSG_OTA_CELL_LOCATION_REQ:

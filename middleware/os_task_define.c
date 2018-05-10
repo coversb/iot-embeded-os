@@ -20,6 +20,7 @@
 #include "os_trace_log.h"
 #include "pb_prot_main.h"
 #include "pb_ota_main.h"
+#include "pb_fota.h"
 #include "pb_io_monitor_main.h"
 #include "pb_gui_main.h"
 #include "pb_multimedia.h"
@@ -44,6 +45,9 @@ static OS_TASK_INFO_TYPE os_task_info[OS_TASK_ITEM_END] =
     },
     {
         pb_ota_main,        NULL,      "pbOTA",       (OS_STACK_1K*4), (tskIDLE_PRIORITY+3), NULL
+    },
+    {
+        pb_fota_main,        NULL,      "pbFOTA",       (OS_STACK_1K*4), (tskIDLE_PRIORITY+3), NULL
     },
     {
         pb_io_monitor_main, NULL,      "pbIOMonitor", (OS_STACK_1K*2), (tskIDLE_PRIORITY+2), NULL

@@ -31,6 +31,7 @@
 ******************************************************************************/
 #define M26_RSP_MAX_LEN 128
 #define M26_AT_CMD_MAX_LEN 128
+#define M26_FTP_MAX_SIZE 512000  //500KB
 
 #define M26_ATCMD_TIMEOUT (3*DELAY_1_S)
 #define M26_RSP_MIN_LEN 4
@@ -81,6 +82,7 @@
 static HAL_USART_TYPE *M26_COM = NULL;
 static uint32 M26_COM_BAUDRATE = 115200;
 static OS_MUTEX_TYPE M26_MUTEX = NULL;
+static int32 hBinFile = -1;
 
 /******************************************************************************
 * Local Functions
@@ -1247,6 +1249,457 @@ static bool m26_hw_init(HAL_USART_TYPE *com, const uint32 baudrate)
     return true;
 }
 
+/*M26 FTP begin*/
+/******************************************************************************
+* Function    : m26_ftp_open_file
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : open downloaded firmware, get file handler
+******************************************************************************/
+static int32 m26_ftp_open_file(void)
+{
+    int32 hFile = -1;
+    char rsp[M26_RSP_MAX_LEN+1];
+    uint8 retryCnt = 0;
+
+    do
+    {
+        retryCnt++;
+        memset(rsp, 0, sizeof(rsp));
+
+        //open bin file in m26 RAM
+        m26_at_cmd("AT+QFOPEN=\"RAM:dwl\",2", rsp, M26_RSP_MAX_LEN);
+        OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "QFOPEN[%s]", rsp);
+        
+        char *pFind = NULL;
+        if (NULL != (pFind = strstr(rsp, "+QFOPEN:")))
+        {
+            pFind += strlen("+QFOPEN:");    //skip rsp string to get file hdlr
+            hFile = atoi(pFind);
+            break;
+        }
+
+    } while (retryCnt < 3);
+    
+    return hFile;
+}
+
+/******************************************************************************
+* Function    : m26_ftp_close_file
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : close file by handler
+******************************************************************************/
+static bool m26_ftp_close_file(int32 hFile)
+{
+    bool ret = false;
+    char cmd[M26_AT_CMD_MAX_LEN+1];
+
+    //set ftp server path
+    snprintf(cmd, M26_AT_CMD_MAX_LEN, "AT+QFCLOSE=%d", hFile);
+    if (!m26_at_cmd_wait_rsp(cmd, M26_RSP_OK, M26_CONF_TIMEOUT))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "close file err");
+        goto err;
+    }
+    ret = true;
+
+err:
+    hBinFile = -1;
+    return ret;
+}
+
+/******************************************************************************
+* Function    : m26_ftp_request_file_data
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : send at command to request file data
+******************************************************************************/
+static uint32 m26_ftp_request_file_data(int32 hFile, const uint32 size)
+{
+    uint32 startTime = 0;
+    uint32 totalRead = 0;
+    char cmd[M26_AT_CMD_MAX_LEN+1];
+    char rsp[M26_RSP_MAX_LEN + 1];
+    uint8 readByte;
+    char *pFind = NULL;
+
+    snprintf(cmd, M26_AT_CMD_MAX_LEN, "AT+QFREAD=%d, %d", hFile, size);
+    M26_COM->println(cmd);
+    os_scheduler_delay(DELAY_50_MS);
+
+    startTime = os_get_tick_count();
+    memset(rsp, 0, sizeof(rsp));
+    do
+    {
+        if (m26_check_timeout(startTime, M26_CONF_TIMEOUT))
+        {
+            OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "Wait QFREAD timeout");
+            return 0;
+        }
+
+        if (M26_COM->available() == 0)
+        {
+            os_scheduler_delay(DELAY_1_MS*10);//wait for respond
+            continue;
+        }
+
+        readByte = M26_COM->read();
+        if ((totalRead < strlen("CONNECT "))
+            && (readByte == '\r' || readByte == '\n'))
+        {
+            continue;
+        }
+        rsp[totalRead++] = readByte;
+
+        if (NULL != (pFind = strstr((char*)rsp, "CONNECT "))
+            && (NULL != strstr((char*)rsp, "\n")))
+        {
+            uint8 findOffset = 0;
+            char recvLen[4+1] = {0};
+
+            pFind += strlen("CONNECT ");//skip "CONNECT "
+            while ((findOffset < 4) && (*pFind != '\n'))
+            {
+                recvLen[findOffset] = *pFind++;
+                findOffset++;
+            }
+            recvLen[findOffset] = '\0';
+            
+            return atoi(recvLen);
+        }
+        if (NULL != strstr((char*)rsp, M26_RSP_ERROR))
+        {
+            return 0;
+        }
+
+    }while (totalRead < 128);
+
+    return 0;
+}
+
+/******************************************************************************
+* Function    : m26_ftp_get_file_data
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get firmware data from file
+******************************************************************************/
+static uint32 m26_ftp_get_file_data(uint8 *pdata, const uint32 maxSize)
+{
+    if (hBinFile == -1)
+    {
+        hBinFile = m26_ftp_open_file();
+    }
+
+    uint32 dataLen = 0;
+    uint32 readLen = 0;
+    uint32 startTime =0;
+    
+    dataLen = m26_ftp_request_file_data(hBinFile, maxSize);
+    dataLen = MIN_VALUE(dataLen, maxSize);
+
+    if (dataLen == 0)
+    {
+        while (M26_COM->available())
+        {
+            M26_COM->read();
+        }
+        OS_DBG_ERR(DBG_MOD_DEV, "QFREAD none");
+        goto end;
+    }
+
+    startTime = os_get_tick_count();
+    while (readLen < dataLen)
+    {
+        if (m26_check_timeout(startTime, DELAY_500_MS))
+        {
+            break;
+        }
+        if (M26_COM->available() == 0)
+        {
+            os_scheduler_delay(DELAY_1_MS*5);
+            continue;
+        }
+        startTime = os_get_tick_count();
+        pdata[readLen] = M26_COM->read();
+        readLen++;
+    }
+
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "QFREAD[%d]", readLen);
+
+end:
+    if (0 == readLen)
+    {
+        m26_ftp_close_file(hBinFile);
+    }
+    
+    return readLen;
+}
+
+/******************************************************************************
+* Function    : m26_ftp_connect
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : connect to ftp server
+******************************************************************************/
+static bool m26_ftp_connect(const char* server, const uint16 port, const char *user, const char *password)
+{
+    bool ret = false;
+    char cmd[M26_AT_CMD_MAX_LEN+1];
+
+    //set ftp user
+    snprintf(cmd, M26_AT_CMD_MAX_LEN, "AT+QFTPUSER=\"%s\"", user);
+     if (!m26_at_cmd_wait_rsp(cmd, M26_RSP_OK, M26_CONF_TIMEOUT))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "ftp set user[%s] err", user);
+        goto err;
+    }
+
+    //set ftp password
+    snprintf(cmd, M26_AT_CMD_MAX_LEN, "AT+QFTPPASS=\"%s\"", password);
+     if (!m26_at_cmd_wait_rsp(cmd, M26_RSP_OK, M26_CONF_TIMEOUT))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "ftp set password[%s] err", password);
+        goto err;
+    }
+
+    //open ftp server
+    snprintf(cmd, M26_AT_CMD_MAX_LEN, "AT+QFTPOPEN=\"%s\",%d", server, port);
+     if (!m26_at_cmd_wait_rsp(cmd, M26_RSP_OK, M26_CONF_TIMEOUT))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "ftp open [%s:%d] err", server, port);
+        goto err;
+    }
+     
+    //check ftp server open state
+    //if (!m26_at_cmd_wait_rsp(NULL, "+QFTPOPEN:0", M26_SOCK_OPEN_TIMEOUT))
+    if (!m26_at_cmd_wait_rsp(NULL, ":0", M26_SOCK_OPEN_TIMEOUT))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "Sock open err");
+        goto err;
+    }
+    ret = true;
+
+err:
+    return ret;
+}
+
+/******************************************************************************
+* Function    : m26_ftp_disconnect
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : close ftp
+******************************************************************************/
+static bool m26_ftp_disconnect(void)
+{
+    bool ret = false;
+    //close ftp socket
+    if (!m26_at_cmd_wait_rsp("AT+QFTPCLOSE", M26_RSP_OK, M26_CONF_TIMEOUT))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "ftp close err");
+        goto err;
+    }
+
+    //check ftp server open state
+    //if (!m26_at_cmd_wait_rsp(NULL, "+QFTPCLOSE:0", M26_SOCK_OPEN_TIMEOUT))
+    if (!m26_at_cmd_wait_rsp(NULL, ":0", M26_CONF_TIMEOUT))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "ftp close err");
+        goto err;
+    }
+    ret = true;
+
+err:
+    if (hBinFile != -1)
+    {
+        m26_ftp_close_file(hBinFile);
+    }
+    
+    return ret;
+}
+
+/******************************************************************************
+* Function    : m26_ftp_set_path
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : set ftp server path
+******************************************************************************/
+static bool m26_ftp_set_path(const char *path)
+{
+    bool ret = false;
+    char cmd[M26_AT_CMD_MAX_LEN+1];
+
+    //set ftp server path
+    snprintf(cmd, M26_AT_CMD_MAX_LEN, "AT+QFTPPATH=\"%s\"", path);
+    if (!m26_at_cmd_wait_rsp(cmd, "+QFTPPATH:0", M26_CONF_TIMEOUT))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "ftp set path err");
+        goto err;
+    }
+    ret = true;
+
+err:
+    return ret;
+}
+
+/******************************************************************************
+* Function    : m26_ftp_set_mode
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : set passive mode / binary transfer / local path
+******************************************************************************/
+static bool m26_ftp_set_mode(void)
+{
+    bool ret = false;
+
+    //set ftp passive mode
+    if (!m26_at_cmd_wait_rsp("AT+QFTPCFG=1,1", "+QFTPCFG:0", M26_CONF_TIMEOUT))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "ftp set pasv err");
+        goto err;
+    }
+
+    //set ftp transfer type as binary
+    if (!m26_at_cmd_wait_rsp("AT+QFTPCFG=2,0", "+QFTPCFG:0", M26_CONF_TIMEOUT))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "ftp set binary err");
+        goto err;
+    }
+
+    //set ftp local path
+    if (!m26_at_cmd_wait_rsp("AT+QFTPCFG=4,\"/RAM/dwl\"", "+QFTPCFG:0", M26_CONF_TIMEOUT))
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "ftp set local path err");
+        goto err;
+    }
+    ret = true;
+
+err:
+    return ret;
+}
+
+/******************************************************************************
+* Function    : m26_ftp_get_file_size
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get file size when finish downloading
+******************************************************************************/
+static uint32 m26_ftp_get_file_size(const char *fname, const uint32 timeout)
+{
+    uint32 totalSize = 0;
+    char cmd[M26_AT_CMD_MAX_LEN+1];
+    char rsp[M26_RSP_MAX_LEN+1];
+    char *pFind = NULL;
+    uint32 startTime =0;
+
+    //start to download file
+    snprintf(cmd, M26_AT_CMD_MAX_LEN, "AT+QFTPGET=\"%s\",%d", fname, M26_FTP_MAX_SIZE);
+    m26_at_cmd(cmd, rsp, M26_RSP_MAX_LEN);
+    OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "FTP GET[%s]", rsp);
+
+    if (NULL != strstr(rsp, M26_RSP_ERROR))
+    {
+        goto err;
+    }
+    else
+    if (NULL != strstr(rsp, "+QFTPGET:-"))
+    {
+        goto err;
+    }
+    #if 0
+    else
+    if (NULL != strstr(rsp, M26_RSP_OK))
+    {
+    }
+    #endif
+
+    //wait download finished
+    memset(rsp, 0, sizeof(rsp));
+    startTime = os_get_tick_count();
+    do
+    {
+        m26_at_cmd(NULL, rsp, M26_RSP_MAX_LEN);
+        if (NULL == (pFind = strstr(rsp, "+QFTPGET:")))
+        {
+            OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "FTP download start %u, pass %u", 
+                                    startTime / 1000, (os_get_tick_count() - startTime) / 1000);
+            if (m26_check_timeout(startTime, timeout))
+            {
+                OS_DBG_ERR(DBG_MOD_DEV, "FTP download timeout");
+                break;
+            }
+            os_scheduler_delay(DELAY_1_S);
+        }
+        else
+        {
+            int32 dwnSize = -1;
+            pFind += strlen("+QFTPGET:");    //skip rsp string to get file hdlr
+            dwnSize = atoi(pFind);
+            OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "FTP download size[%d]", dwnSize);
+            totalSize = MAX_VALUE(dwnSize, 0);
+            break;
+        }
+    }while (1);
+
+err:
+    return totalSize;
+}
+/*M26 FTP end*/
+
+const FTP_CLIENT ftpM26 = {
+    m26_ftp_connect,
+    m26_ftp_disconnect,
+    m26_ftp_set_path,
+    m26_ftp_set_mode,
+    m26_ftp_get_file_size,
+    m26_ftp_get_file_data
+};
+
 const DEV_TYPE_M26 devM26 = 
 {
     m26_hw_init,
@@ -1260,6 +1713,7 @@ const DEV_TYPE_M26 devM26 =
     m26_net_check_stat,
     m26_get_csq,
     m26_gsm_info,
-    NULL
+    NULL,
+    &ftpM26
 };
 

@@ -28,6 +28,7 @@
 #include "pb_ota_main.h"
 #include "pb_prot_proc.h"
 #include "pb_multimedia.h"
+#include "pb_fota.h"
 
 /******************************************************************************
 * Macros
@@ -75,11 +76,11 @@ void pb_function_polling_main(void *param)
             // update OLED info
             pb_gui_send_act_req(PB_GUI_ACT_UPDATE);
 
-            #if 0
-            if (pb_ota_doing_fota())
+            if (pb_fota_upgrading())
             {
                 continue;
             }
+            #if 0
             //check output status by config
             pb_io_output_mode_check();
             //check air conditioner switch 

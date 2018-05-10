@@ -56,7 +56,6 @@ typedef struct
 
 typedef struct
 {
-    bool b_doing_fota;
     bool need_reboot;
     uint8 act_net_dev;
     uint8 act_server;
@@ -92,6 +91,7 @@ extern uint8 pb_ota_net_get_stat(void);
 extern void pb_ota_try_to_send_data(void);
 extern void pb_ota_try_to_recv_data(void);
 extern bool pb_ota_network_connected(void);
+extern void pb_ota_need_set_reboot(bool sw);
 
 #endif /* __PB_OTA_MAIN_H__ */
 
