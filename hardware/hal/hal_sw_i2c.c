@@ -31,11 +31,15 @@ static void hal_sw_i2c_delay(void)
     while(delay) { delay--; }
 }
 
+#define WAIT_ACK_MAXCNT 250
+
 #define SCL_HIGH(io, pin) hal_gpio_set(io, pin, HAL_GPIO_HIGH)
 #define SCL_LOW(io, pin) hal_gpio_set(io, pin, HAL_GPIO_LOW)
 #define SDA_HIGH(io, pin) hal_gpio_set(io, pin, HAL_GPIO_HIGH)
 #define SDA_LOW(io, pin) hal_gpio_set(io, pin, HAL_GPIO_LOW)
 #define SDA_VAL(io, pin) hal_gpio_val(io, pin)
+#define SDA_IN(io, pin) hal_gpio_set_mode(io, pin, GPIO_Mode_IN_FLOATING)
+#define SDA_OUT(io, pin) hal_gpio_set_mode(io, pin, GPIO_Mode_Out_OD)
 #define I2C_DELAY() hal_sw_i2c_delay()
 
 /******************************************************************************
@@ -51,24 +55,16 @@ static void hal_sw_i2c_delay(void)
 ******************************************************************************/
 static bool hal_sw_i2c_start(GPIO_TypeDef* sclIo, uint16 sclPin, GPIO_TypeDef* sdaIo, uint16 sdaPin)
 {
+    SDA_OUT(sdaIo, sdaPin);
+
     SDA_HIGH(sdaIo, sdaPin);
-    SCL_HIGH(sclIo, sclPin);
-    
+    SCL_HIGH(sclIo, sclPin);    
     I2C_DELAY();
-    if (!SDA_VAL(sdaIo, sdaPin))
-    {
-        return false;
-    }
     
     SDA_LOW(sdaIo, sdaPin);
     I2C_DELAY();
-    if (SDA_VAL(sdaIo, sdaPin))
-    {
-        return false;
-    }
     
-    SDA_LOW(sdaIo, sdaPin);
-    I2C_DELAY();
+    SCL_LOW(sclIo, sclPin);    
 
     return true;
 }
@@ -86,13 +82,13 @@ static bool hal_sw_i2c_start(GPIO_TypeDef* sclIo, uint16 sclPin, GPIO_TypeDef* s
 ******************************************************************************/
 static void hal_sw_i2c_stop(GPIO_TypeDef* sclIo, uint16 sclPin, GPIO_TypeDef* sdaIo, uint16 sdaPin)
 {
+    SDA_OUT(sdaIo, sdaPin);
+
     SCL_LOW(sclIo, sclPin);
-    I2C_DELAY();
     SDA_LOW(sdaIo, sdaPin);
     I2C_DELAY();
 
     SCL_HIGH(sclIo, sclPin);
-    I2C_DELAY();
     SDA_HIGH(sdaIo, sdaPin);
     I2C_DELAY();
 }
@@ -110,15 +106,16 @@ static void hal_sw_i2c_stop(GPIO_TypeDef* sclIo, uint16 sclPin, GPIO_TypeDef* sd
 ******************************************************************************/
 static void hal_sw_i2c_ack(GPIO_TypeDef* sclIo, uint16 sclPin, GPIO_TypeDef* sdaIo, uint16 sdaPin)
 {
+    SDA_OUT(sdaIo, sdaPin);
+
     SCL_LOW(sclIo, sclPin);
-    I2C_DELAY();
     SDA_LOW(sdaIo, sdaPin);
     I2C_DELAY();
 
     SCL_HIGH(sclIo, sclPin);
     I2C_DELAY();
+
     SCL_LOW(sclIo, sclPin);
-    I2C_DELAY();
 }
 
 /******************************************************************************
@@ -134,15 +131,16 @@ static void hal_sw_i2c_ack(GPIO_TypeDef* sclIo, uint16 sclPin, GPIO_TypeDef* sda
 ******************************************************************************/
 static void hal_sw_i2c_nack(GPIO_TypeDef* sclIo, uint16 sclPin, GPIO_TypeDef* sdaIo, uint16 sdaPin)
 {
+    SDA_OUT(sdaIo, sdaPin);
+
     SCL_LOW(sclIo, sclPin);
-    I2C_DELAY();
     SDA_HIGH(sdaIo, sdaPin);
     I2C_DELAY();
 
     SCL_HIGH(sclIo, sclPin);
     I2C_DELAY();
+    
     SCL_LOW(sclIo, sclPin);
-    I2C_DELAY();
 }
 
 /******************************************************************************
@@ -158,21 +156,26 @@ static void hal_sw_i2c_nack(GPIO_TypeDef* sclIo, uint16 sclPin, GPIO_TypeDef* sd
 ******************************************************************************/
 static bool hal_sw_i2c_wait_ack(GPIO_TypeDef* sclIo, uint16 sclPin, GPIO_TypeDef* sdaIo, uint16 sdaPin)
 {
-    bool ret = false;
-    
-    SCL_LOW(sclIo, sclPin);
-    I2C_DELAY();
+    bool ret = true;
+    uint16 timeoutCnt = 0;
+
+    SDA_OUT(sdaIo, sdaPin);
     SDA_HIGH(sdaIo, sdaPin);
     I2C_DELAY();
-    
+
+    SDA_IN(sdaIo, sdaPin);
     SCL_HIGH(sclIo, sclPin);
     I2C_DELAY();
-    if (!SDA_VAL(sdaIo, sdaPin))
+    
+    while (HAL_GPIO_HIGH == SDA_VAL(sdaIo, sdaPin))
     {
-        ret = true;
+        if (++timeoutCnt > WAIT_ACK_MAXCNT)
+        {
+            ret = false;
+            break;
+        }
     }
     
-    SCL_LOW(sclIo, sclPin);
     return ret;
 }
 
@@ -189,13 +192,12 @@ static bool hal_sw_i2c_wait_ack(GPIO_TypeDef* sclIo, uint16 sclPin, GPIO_TypeDef
 ******************************************************************************/
 static void hal_sw_i2c_send_byte(uint8 byte, GPIO_TypeDef* sclIo, uint16 sclPin, GPIO_TypeDef* sdaIo, uint16 sdaPin)
 {
-    uint8 idx = 8;
-    while (idx--)
+    SDA_OUT(sdaIo, sdaPin);
+
+    SCL_LOW(sclIo, sclPin);
+    for (uint8 idx =0; idx < 8; ++idx)
     {
-        SCL_LOW(sclIo, sclPin);
-        I2C_DELAY();
-        
-        if(byte & 0x80)
+        if ((byte & 0x80) >> 7)
         {
             SDA_HIGH(sdaIo, sdaPin);
         }
@@ -205,10 +207,12 @@ static void hal_sw_i2c_send_byte(uint8 byte, GPIO_TypeDef* sclIo, uint16 sclPin,
         }
         byte <<= 1;
         I2C_DELAY();
+
         SCL_HIGH(sclIo, sclPin);
         I2C_DELAY();
+        SCL_LOW(sclIo, sclPin);
+        I2C_DELAY();
     }
-    SCL_LOW(sclIo, sclPin);
 }
 
 /******************************************************************************
@@ -224,25 +228,19 @@ static void hal_sw_i2c_send_byte(uint8 byte, GPIO_TypeDef* sclIo, uint16 sclPin,
 ******************************************************************************/
 static uint8 hal_sw_i2c_recv_byte(GPIO_TypeDef* sclIo, uint16 sclPin, GPIO_TypeDef* sdaIo, uint16 sdaPin)
 {
-    uint8 idx = 8;
     uint8 byte = 0;
 
-    SDA_HIGH(sdaIo, sdaPin);
-    while (idx--)
+    SDA_IN(sdaIo, sdaPin);
+    for (uint8 idx = 0; idx < 8; ++idx)
     {
-        byte <<= 1;
         SCL_LOW(sclIo, sclPin);
         I2C_DELAY();
         SCL_HIGH(sclIo, sclPin);
+
+        byte = (byte << 1) | SDA_VAL(sdaIo, sdaPin);  
         I2C_DELAY();
-        
-        if (SDA_VAL(sdaIo, sdaPin))
-        {
-            byte |= 0x01;
-        }
     }
-    SCL_LOW(sclIo, sclPin);
-    
+
     return byte;
 }
 
@@ -393,7 +391,6 @@ static bool hal_sw_i2c1_write_byte(uint8 devAddr, uint8 regAddr, uint8 data)
     
     if(!hal_sw_i2c_start(BOARD_SW_I2C1_SCL, BOARD_SW_I2C1_SDA))
     {
-    OS_INFO("start");
         ret = false;
         goto err;
     }
