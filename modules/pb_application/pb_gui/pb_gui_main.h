@@ -57,7 +57,6 @@ typedef struct
 {
     uint8 cursor;
     uint8 lastCursor;
-    bool reverse;
 }PB_GUI_CONTEXT_TYPE;
 
 /******************************************************************************

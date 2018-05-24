@@ -31,8 +31,10 @@
 typedef struct
 {
     bool (*init)(HAL_SW_I2C_TYPE *i2c);
+    void (*reset)(void);
+    void (*reverse)(void);
     void (*clear)(void);
-    void (*show)(uint8 column, uint8 row, char *pdata, bool reverse);
+    void (*show)(uint8 column, uint8 row, char *pdata);
 }DEV_TYPE_SH1106;
 
 /******************************************************************************

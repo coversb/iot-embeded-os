@@ -83,17 +83,17 @@ static void pb_gui_show_version(bool update)
     memset(temp, 0x00, sizeof(temp));
     uint16 fmVer = 0x2000;
     sprintf(temp, "ParkBox V%d.%02d.%02d", (fmVer >> 12), ((fmVer >> 4) & 0xFF), (fmVer & 0x000F));
-    devSH1106.show(DEFAULT_COL, VERSION_ROW, temp, pb_gui_context.reverse);
+    devSH1106.show(DEFAULT_COL, VERSION_ROW, temp);
 
     //SYS date time
     pb_util_get_datetime(temp, sizeof(temp));
-    devSH1106.show(DEFAULT_COL, DATETIME_ROW, temp, pb_gui_context.reverse);
+    devSH1106.show(DEFAULT_COL, DATETIME_ROW, temp);
 
     //sn
     memset(temp, 0x00, sizeof(temp));
     memcpy(temp, pb_cfg_proc_get_sn(), PB_SN_LEN);
     temp[PB_SN_LEN] = '\0';
-    devSH1106.show(DEFAULT_COL, SN_ROW, temp, pb_gui_context.reverse);
+    devSH1106.show(DEFAULT_COL, SN_ROW, temp);
 
     //uid
     memset(temp, 0x00, sizeof(temp));
@@ -101,7 +101,7 @@ static void pb_gui_show_version(bool update)
     sprintf(temp, "%02X%02X%02X%02X%02X%02X%02X%02X",
             pUID[0], pUID[1], pUID[2], pUID[3],
             pUID[4], pUID[5], pUID[6], pUID[7]);
-    devSH1106.show(DEFAULT_COL, UID_ROW, temp, pb_gui_context.reverse);
+    devSH1106.show(DEFAULT_COL, UID_ROW, temp);
 }
 
 /******************************************************************************
@@ -149,7 +149,7 @@ static void pb_gui_show_info(bool update)
     }
     //sprintf(temp, "N:%d,%s", pb_order_get_total_order_num(), serviceStat);
     sprintf(temp, "N:%d,%s", 21, serviceStat);
-    devSH1106.show(DEFAULT_COL, ORDER_INFO_ROW, temp, pb_gui_context.reverse);
+    devSH1106.show(DEFAULT_COL, ORDER_INFO_ROW, temp);
 
     //net status
     memset(temp, 0x00, sizeof(temp));
@@ -169,17 +169,17 @@ static void pb_gui_show_info(bool update)
         default:
             break;
     }
-    devSH1106.show(DEFAULT_COL, NET_INFO_ROW, temp, pb_gui_context.reverse);
+    devSH1106.show(DEFAULT_COL, NET_INFO_ROW, temp);
 
     //input stat
     memset(temp, 0x00, sizeof(temp));
     sprintf(temp, "IN:%08X    ", pb_util_get_input_state());
-    devSH1106.show(DEFAULT_COL, INPUT_STAT_ROW, temp, pb_gui_context.reverse);
+    devSH1106.show(DEFAULT_COL, INPUT_STAT_ROW, temp);
 
     //output stat
     memset(temp, 0x00, sizeof(temp));
     sprintf(temp, "OUT:%08X    ", pb_util_get_output_state());
-    devSH1106.show(DEFAULT_COL, OUTPUT_STAT_ROW, temp, pb_gui_context.reverse);
+    devSH1106.show(DEFAULT_COL, OUTPUT_STAT_ROW, temp);
 }
 
 /******************************************************************************
@@ -202,11 +202,11 @@ static void pb_gui_show_volume(bool update)
 
     char temp[32];
     sprintf(temp, "   Volume Set  ");
-    devSH1106.show(DEFAULT_COL, TITLE_ROW, temp, pb_gui_context.reverse);
+    devSH1106.show(DEFAULT_COL, TITLE_ROW, temp);
 
     memset(temp, 0x00, sizeof(temp));
     sprintf(temp, "    VAL = %d   ", pb_multimedia_get_audio_volume());
-    devSH1106.show(DEFAULT_COL, VOLUME_ROW, temp, pb_gui_context.reverse);
+    devSH1106.show(DEFAULT_COL, VOLUME_ROW, temp);
 }
 
 /******************************************************************************
@@ -289,8 +289,9 @@ static void pb_gui_act_hdlr(PB_MSG_TYPE *pMsg)
         }
         case PB_GUI_ACT_REVERSE:
         {
-            pb_gui_context.reverse = (bool)!pb_gui_context.reverse;
-            pb_gui_show_page(false);
+            devSH1106.clear();
+            devSH1106.reverse();
+            pb_gui_show_page(true);
             break;
         }
         case PB_GUI_ACT_VOLDOWN:
@@ -340,7 +341,6 @@ static void pb_gui_main_init(void)
     memset(&pb_gui_context, 0, sizeof(pb_gui_context));
     pb_gui_context.cursor = 0;
     pb_gui_context.lastCursor = 0;
-    pb_gui_context.reverse = false;
     
     pb_gui_show_version(true);
 }
