@@ -96,9 +96,11 @@ void hal_rtc_init(void)
     if (hal_bkp_read(BOARD_BKP_RTC_ADDR) != BOARD_RTC_BKP_SETFLAG)
     {
         OS_DBG_ERR(DBG_MOD_HAL, "RTC is not configured");
-
-        bool clkInitState = true;
+        
         uint32 lseWait = 0;
+
+        /*Enable RTC and backup register access*/
+        PWR_BackupAccessCmd(ENABLE);
 
         //Enable LSE
         RCC_LSEConfig(RCC_LSE_ON);
@@ -111,13 +113,8 @@ void hal_rtc_init(void)
             if (lseWait >= 0xFFFF)
             {
                 OS_DBG_ERR(DBG_MOD_HAL, "LSE ERR");
-                clkInitState = false;
-                break;
+                return;
             }
-        }
-        if (clkInitState)
-        {
-            hal_bkp_write(BOARD_BKP_RTC_ADDR, BOARD_RTC_BKP_SETFLAG);
         }
 
         //Select LSE as RTC Clock Source
@@ -132,6 +129,8 @@ void hal_rtc_init(void)
 
         OS_DBG_ERR(DBG_MOD_HAL, "RTC set to default");
         hal_rtc_set(BOARD_RTC_DEFAULT);
+
+        hal_bkp_write(BOARD_BKP_RTC_ADDR, BOARD_RTC_BKP_SETFLAG);
     }
     else
     {
