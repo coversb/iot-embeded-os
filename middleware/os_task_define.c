@@ -41,10 +41,10 @@ static OS_TASK_INFO_TYPE os_task_info[OS_TASK_ITEM_END] =
 {
     /*task main functino,   parameter, task name,     stack size,      priority,            task handler*/
     {
-        pb_prot_main,       NULL,      "pbPROT",      (OS_STACK_1K*4), (tskIDLE_PRIORITY+4), NULL
+        pb_prot_main,       NULL,      "pbPROT",      (OS_STACK_1K*4), (tskIDLE_PRIORITY+5), NULL
     },
     {
-        pb_ota_main,        NULL,      "pbOTA",       (OS_STACK_1K*4), (tskIDLE_PRIORITY+3), NULL
+        pb_ota_main,        NULL,      "pbOTA",       (OS_STACK_1K*4), (tskIDLE_PRIORITY+4), NULL
     },
     {
         pb_fota_main,        NULL,      "pbFOTA",       (OS_STACK_1K*4), (tskIDLE_PRIORITY+3), NULL
