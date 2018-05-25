@@ -43,7 +43,8 @@
 #define M26_SOCK_OPEN_TIMEOUT (10*DELAY_1_S) // 10 seconds
 #define M26_RECV_TIMEOUT (DELAY_1_S)    // 1 second
 #define M26_SEND_WAIT_RDY_TIMEOUT (DELAY_1_S) // 1 second
-#define M26_SEND_TIMEOUT (DELAY_1_S*10)    // 1 second
+#define M26_SEND_TIMEOUT (DELAY_1_S*3)    // 3 second
+#define M26_SEND_ACK_TIMEOUT (DELAY_1_S*10)    // 10 second
 
 #define M26_GSM_INFO_DEFAULT "UNKNOWN"
 
@@ -685,7 +686,7 @@ static bool m26_wait_sack(uint32 sendTime)
 
     do
     {
-        if (m26_check_timeout(sendTime, M26_SEND_TIMEOUT))
+        if (m26_check_timeout(sendTime, M26_SEND_ACK_TIMEOUT))
         {
             goto err;
         }
@@ -755,6 +756,7 @@ static uint16 m26_net_send(const uint8 *pdata, const uint16 size)
 
         if (m26_check_send_ok(sendTime))
         {
+            sendTime = os_get_tick_count();
             if (m26_wait_sack(sendTime))
             {
                 realSend = size;
