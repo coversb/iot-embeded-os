@@ -239,6 +239,7 @@ bool pb_ota_network_available(uint8 devType)
 ******************************************************************************/
 bool pb_ota_network_check_net_stat(uint8 devType)
 {
+    static uint8 badNetCnt = 0;
     bool ret = false;
     
     switch (devType)
@@ -257,6 +258,21 @@ bool pb_ota_network_check_net_stat(uint8 devType)
         {
             break;
         }
+    }
+
+    //Added a debounce to filter the wrong state
+    if (ret == false)
+    {
+        badNetCnt++;
+        if (badNetCnt < 2)
+        {
+            ret = true;
+        }
+        OS_DBG_ERR(DBG_MOD_PBOTA, "Bad net filter cnt[%d], ret[%d]", badNetCnt, ret);
+    }
+    else
+    {
+        badNetCnt = 0;
     }
 
     return ret;

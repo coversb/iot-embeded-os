@@ -24,7 +24,7 @@
 * Macro
 ******************************************************************************/
 #define PB_PROT_MSGQUE_SIZE 15
-#define PB_OTA_MSGQUE_SIZE 10
+#define PB_OTA_MSGQUE_SIZE 15
 #define PB_FOTA_MSGQUE_SIZE 10
 #define PB_GUI_MSGQUE_SIZE 5
 #define PB_MM_MSGQUE_SIZE 10
