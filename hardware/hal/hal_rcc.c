@@ -41,27 +41,38 @@
 * 
 * Description : 
 ******************************************************************************/
-void hal_rcc_enable(uint32 rcc)
+void hal_rcc_enable(uint32 rcc, uint32 bus)
 {
-    #if 0 //IS_RCC_AHB_PERIPH is not right, RCC_APB1Periph_TIM2 will return true
-    if (IS_RCC_AHB_PERIPH(rcc))
+    switch (bus)
     {
-        RCC_AHBPeriphClockCmd(rcc, ENABLE);
-    }
-    else
-    #endif
-    if (IS_RCC_APB1_PERIPH(rcc))
-    {
-        RCC_APB1PeriphClockCmd(rcc, ENABLE);
-    }
-    else
-    if (IS_RCC_APB2_PERIPH(rcc))
-    {
-        RCC_APB2PeriphClockCmd(rcc, ENABLE);
-    }
-    else
-    {
-        OS_DBG_ERR(DBG_MOD_HAL, "BAD RCC %d", rcc);
+        case BOARD_RCC_AHB:
+        {
+            RCC_AHBPeriphClockCmd(rcc, ENABLE);
+            break;
+        }
+        case BOARD_RCC_AHB1:
+        {
+            break;
+        }
+        case BOARD_RCC_AHB2:
+        {
+            break;
+        }
+        case BOARD_RCC_APB1:
+        {
+            RCC_APB1PeriphClockCmd(rcc, ENABLE);
+            break;
+        }
+        case BOARD_RCC_APB2:
+        {
+            RCC_APB2PeriphClockCmd(rcc, ENABLE);
+            break;
+        }
+        default:
+        {
+            OS_DBG_ERR(DBG_MOD_HAL, "BAD RCC %d, %X", rcc, bus);
+            break;
+        }
     }
 }
 
