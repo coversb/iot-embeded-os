@@ -23,6 +23,7 @@
 #include "hal_sw_i2c.h"
 #include "sh1106.h"
 #include "font.h"
+#include "pb_io_indicator_led.h"
 
 /******************************************************************************
 * Macros
@@ -64,6 +65,7 @@ static void sh1106_set_error(bool sw)
         {
             bComAvailable = false;
             lastErrTime = os_get_second_count();
+            SYSLED.clear(PB_IO_INDICATOR_SCREEN_OK);
             OS_INFO("BAD SCREEN");
         }
     }
@@ -297,6 +299,8 @@ static void sh1106_reverse(void)
 ******************************************************************************/
 static void sh1106_reset(void)
 {
+    SYSLED.set(PB_IO_INDICATOR_SCREEN_OK);
+    
     sh1106_config(0xAE);    /*display off*/
     sh1106_config(0x02);    /*set lower column address*/
     sh1106_config(0x10);    /*set higher column address*/

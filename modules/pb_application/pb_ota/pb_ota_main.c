@@ -29,6 +29,7 @@
 #include "pb_ota_main.h"
 #include "pb_prot_main.h"
 #include "pb_cfg_proc.h"
+#include "pb_io_indicator_led.h"
 
 /******************************************************************************
 * Macros
@@ -1031,6 +1032,7 @@ void pb_ota_main(void *pvParameters)
     
     os_set_task_init(OS_TASK_ITEM_PB_OTA);
     os_wait_task_init_sync();
+    SYSLED.set(PB_IO_INDICATOR_NET_WORKING);
     
     PB_MSG_TYPE pb_msg;
     PB_MSG_TYPE *p_pb_msg = &pb_msg;

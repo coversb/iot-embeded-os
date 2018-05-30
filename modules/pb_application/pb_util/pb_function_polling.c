@@ -102,7 +102,7 @@ void pb_function_polling_main(void *param)
             pb_multimedia_send_monitor_req();
         }
 
-        os_scheduler_delay(DELAY_500_MS);
+        os_scheduler_delay(DELAY_100_MS*3);
     }
 }
 

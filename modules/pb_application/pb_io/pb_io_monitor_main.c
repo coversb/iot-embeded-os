@@ -29,6 +29,7 @@
 #include "pb_prot_main.h"
 #include "pb_gui_main.h"
 #include "pb_io_main.h"
+#include "pb_io_indicator_led.h"
 
 /******************************************************************************
 * Macros
@@ -296,6 +297,8 @@ void pb_io_monitor_main(void *param)
 
     while (1)
     {
+        SYSLED.process();
+
         pb_io_monitor_pins();
         pb_io_monitor_keyboard();
         pb_io_monitor_debug_com();

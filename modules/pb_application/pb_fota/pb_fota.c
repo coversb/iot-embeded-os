@@ -28,6 +28,7 @@
 #include "pb_ota_main.h"
 #include "ftp.h"
 #include "md5.h"
+#include "pb_io_indicator_led.h"
 
 /******************************************************************************
 * Macros
@@ -658,6 +659,7 @@ void pb_fota_main(void *parameters)
 
     //confirm image
     pb_fota_firmware_confirm();
+    SYSLED.set(PB_IO_INDICATOR_SYS_NORAML);
 
     PB_MSG_TYPE pb_msg;
     PB_MSG_TYPE *p_pb_msg = &pb_msg;

@@ -23,6 +23,7 @@
 #include "os_trace_log.h"
 #include "os_task_define.h"
 #include "pb_app_config.h"
+#include "pb_io_indicator_led.h"
 
 /******************************************************************************
 * Macros
@@ -61,6 +62,7 @@ static void hardware_init()
     hal_rtc_init();
     RGBBOX_PWM.init();
     AC_REMOTE_CTRL.init(&devIRCtrl);
+    SYSLED.init();
 }
 
 /******************************************************************************
@@ -76,7 +78,7 @@ static void hardware_init()
 ******************************************************************************/
 int main(void)
 {
-    os_trace_log_set_mod(0x2c, 3);
+    os_trace_log_set_mod(0xffff, 3);
     hardware_init();
 
     os_task_create_all();

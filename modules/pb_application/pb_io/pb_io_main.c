@@ -30,6 +30,7 @@
 #include "pb_io_drv.h"
 #include "pb_io_alarm.h"
 #include "pb_prot_main.h"
+#include "pb_io_indicator_led.h"
 
 /******************************************************************************
 * Macros

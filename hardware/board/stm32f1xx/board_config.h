@@ -167,6 +167,13 @@ enum
 #define BOARD_KEY_VOLUME_UP GPIOG, GPIO_Pin_3   //KEY3
 #define BOARD_KEY_VOLUME_DOWN GPIOG, GPIO_Pin_2 //KEY4
 
+/*on-board LED*/
+#define BOARD_LED_RCC RCC_APB2Periph_GPIOD|RCC_APB2Periph_GPIOG, BOARD_RCC_APB2
+#define BOARD_LED_SYS GPIOD, GPIO_Pin_7
+#define BOARD_LED_NET GPIOG, GPIO_Pin_9
+#define BOARD_LED_SCREEN GPIOG, GPIO_Pin_10
+#define BOARD_LED_RESERVED GPIOG, GPIO_Pin_11
+
 /*board input and output pin define*/
 #define BOARD_PIN_RESERVED NULL, 0
 /*input pin*/
