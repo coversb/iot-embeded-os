@@ -30,6 +30,8 @@
 #include "pb_prot_main.h"
 #include "pb_multimedia.h"
 #include "pb_ota_main.h"
+#include "pb_io_drv.h"
+#include "pb_io_main.h"
 
 /******************************************************************************
 * Macros
@@ -1154,11 +1156,11 @@ static void pb_prot_proc_cmd_exec_out(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
     {
         if (argOut->pinState == 0)
         {
-            //pb_dev_output_set(argOut->pinIdx, PB_GPIO_LOW);
+            pb_io_drv_output_set(argOut->pinIdx - 1, HAL_GPIO_LOW);
         }
         else
         {
-            //pb_dev_output_set(argOut->pinIdx, PB_GPIO_HIGH);
+            pb_io_drv_output_set(argOut->pinIdx - 1, HAL_GPIO_HIGH);
         }
 
         if (pb_cfg_proc_get_cmd()->omc.mode == PB_OMC_MODE_SPECIAL_TIME_WITH_RSP)
@@ -1169,7 +1171,7 @@ static void pb_prot_proc_cmd_exec_out(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
     }
     else
     {
-        //pb_io_set_output_mask(argOut->ctrlMask);
+        pb_io_output_set(argOut->ctrlMask);
         OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, "OUT[%08X]", argOut->ctrlMask);
     }
 }
@@ -1346,7 +1348,7 @@ static void pb_prot_proc_cmd_exec_rto(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
         }
         case PB_RTO_DEVICEBOX_SW:
         {
-            //pb_io_send_devicebox_msg(argRto->subCmd, PB_IO_DOOR_SW_SERVER);
+            pb_io_dev_lock_sw(argRto->subCmd);
             break;
         }
         case PB_RTO_DEV_INFO_REQ:

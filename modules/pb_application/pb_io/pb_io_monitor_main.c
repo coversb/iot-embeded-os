@@ -28,6 +28,7 @@
 #include "pb_util.h"
 #include "pb_prot_main.h"
 #include "pb_gui_main.h"
+#include "pb_io_main.h"
 
 /******************************************************************************
 * Macros
@@ -50,7 +51,7 @@ static void pb_io_monitor_action(uint8 type);
 static PB_IO_MONITOR_ITEM pb_io_monitor_items[PB_IO_MONITOR_END] = 
 {
     /*PIN define,           trigger type,    default state,    action*/
-    {BOARD_EMERGENCY_BTN,   HAL_GPIO_LOW,    HAL_GPIO_HIGH,    pb_io_monitor_action},
+    {BOARD_IN_EMERGENCY_BTN,   HAL_GPIO_LOW,    HAL_GPIO_HIGH,    pb_io_monitor_action},
     {BOARD_KEY_REVERSE,	    HAL_GPIO_LOW,    HAL_GPIO_HIGH,    pb_io_monitor_action},
     {BOARD_KEY_MENU,        HAL_GPIO_LOW,    HAL_GPIO_HIGH,    pb_io_monitor_action},
     {BOARD_KEY_VOLUME_UP,   HAL_GPIO_LOW,    HAL_GPIO_HIGH,    pb_io_monitor_action},
@@ -181,6 +182,7 @@ static void pb_io_monitor_action(uint8 type)
         case PB_IO_MONITOR_EMERGENCY:
         {
             OS_DBG_TRACE(DBG_MOD_PBIO_MONITOR, DBG_INFO, "EMERGENCY btn triggered");
+            pb_io_door_lock_sw(PB_IO_DOOR_OPEN, PB_PROT_DSE_EMERGNCY);
             break;
         }
         case PB_IO_MONITOR_REVERSE:
@@ -272,9 +274,6 @@ static void pb_io_monitor_init(void)
     hal_gpio_set_mode(BOARD_KEY_MENU, GPIO_Mode_IN_FLOATING);
     hal_gpio_set_mode(BOARD_KEY_VOLUME_UP, GPIO_Mode_IN_FLOATING);
     hal_gpio_set_mode(BOARD_KEY_VOLUME_DOWN, GPIO_Mode_IN_FLOATING);
-    //init emergency button
-    hal_rcc_enable(BOARD_EMERGENCY_BTN_RCC);
-    hal_gpio_set_mode(BOARD_EMERGENCY_BTN, GPIO_Mode_IN_FLOATING);
 }
 
 /******************************************************************************

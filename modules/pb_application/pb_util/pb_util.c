@@ -295,38 +295,6 @@ void pb_util_get_time(uint8 *hour, uint8 *minute, uint8 *sec)
 }
 
 /******************************************************************************
-* Function    : pb_util_get_input_state
-* 
-* Author      : Chen Hao
-* 
-* Parameters  : 
-* 
-* Return      : 
-* 
-* Description : get currnet input pin state (0x00000000 - 0xFFFFFFFF)
-******************************************************************************/
-uint32 pb_util_get_input_state(void)
-{
-    return 0x0000FFFF;
-}
-
-/******************************************************************************
-* Function    : pb_util_get_output_state
-* 
-* Author      : Chen Hao
-* 
-* Parameters  : 
-* 
-* Return      : 
-* 
-* Description : get currnet output pin state (0x00000000 - 0xFFFFFFFF)
-******************************************************************************/
-uint32 pb_util_get_output_state(void)
-{
-    return 0x00000000;
-}
-
-/******************************************************************************
 * Function    : pb_util_get_air_conditioner_state
 * 
 * Author      : Chen Hao

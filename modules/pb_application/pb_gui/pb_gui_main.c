@@ -31,6 +31,7 @@
 #include "pb_cfg_proc.h"
 #include "pb_ota_main.h"
 #include "pb_multimedia.h"
+#include "pb_io_main.h"
 
 /******************************************************************************
 * Macro
@@ -173,12 +174,12 @@ static void pb_gui_show_info(bool update)
 
     //input stat
     memset(temp, 0x00, sizeof(temp));
-    sprintf(temp, "IN:%08X    ", pb_util_get_input_state());
+    sprintf(temp, "IN:%08X    ", pb_io_input_mask());
     devSH1106.show(DEFAULT_COL, INPUT_STAT_ROW, temp);
 
     //output stat
     memset(temp, 0x00, sizeof(temp));
-    sprintf(temp, "OUT:%08X    ", pb_util_get_output_state());
+    sprintf(temp, "OUT:%08X    ", pb_io_output_mask());
     devSH1106.show(DEFAULT_COL, OUTPUT_STAT_ROW, temp);
 }
 

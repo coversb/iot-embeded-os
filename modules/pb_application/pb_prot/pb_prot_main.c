@@ -596,7 +596,7 @@ static void pb_prot_send_rsp(PB_PROT_RSP_TYPE *rsp)
 ******************************************************************************/
 bool pb_prot_check_event(uint8 subType)
 {
-    uint16 eventMask = pb_cfg_proc_get_cmd()->cfg.eventMask;;
+    uint16 eventMask = pb_cfg_proc_get_cmd()->cfg.eventMask;
     bool ret = true;
 
     switch (subType)

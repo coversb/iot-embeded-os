@@ -26,6 +26,7 @@
 #include "pb_multimedia.h"
 #include "pb_function_polling.h"
 #include "rgb_led_task.h"
+#include "pb_io_main.h"
 
 /******************************************************************************
 * Macros
@@ -39,32 +40,34 @@
 */
 static OS_TASK_INFO_TYPE os_task_info[OS_TASK_ITEM_END] = 
 {
-    /*task main functino,   parameter, task name,     stack size,      priority,            task handler*/
+    /*task main functino,         parameter, task name,        stack size,         priority,      task handler*/
     {
-        pb_prot_main,       NULL,      "pbPROT",      (OS_STACK_1K*4), (tskIDLE_PRIORITY+5), NULL
+        pb_prot_main,                NULL,    "pbPROT",      (OS_STACK_1K*4), (tskIDLE_PRIORITY+5), NULL
     },
     {
-        pb_ota_main,        NULL,      "pbOTA",       (OS_STACK_1K*4), (tskIDLE_PRIORITY+4), NULL
+        pb_ota_main,                 NULL,    "pbOTA",       (OS_STACK_1K*4), (tskIDLE_PRIORITY+4), NULL
     },
     {
-        pb_fota_main,        NULL,      "pbFOTA",       (OS_STACK_1K*4), (tskIDLE_PRIORITY+3), NULL
+        pb_fota_main,                NULL,    "pbFOTA",      (OS_STACK_1K*4), (tskIDLE_PRIORITY+3), NULL
     },
     {
-        pb_io_monitor_main, NULL,      "pbIOMonitor", (OS_STACK_1K*2), (tskIDLE_PRIORITY+2), NULL
+        pb_io_main,                  NULL,    "pbIO",        (OS_STACK_1K*2), (tskIDLE_PRIORITY+4), NULL
     },
     {
-        pb_gui_main,        NULL,      "pbGUI",       (OS_STACK_1K),   (tskIDLE_PRIORITY+1), NULL
+        pb_io_monitor_main,          NULL,    "pbIOMonitor", (OS_STACK_1K*2), (tskIDLE_PRIORITY+2), NULL
     },
     {
-        pb_multimedia_main,        NULL,      "pbMM",       (OS_STACK_1K*2),   (tskIDLE_PRIORITY+2), NULL
+        pb_gui_main,                 NULL,    "pbGUI",       (OS_STACK_1K),   (tskIDLE_PRIORITY+1), NULL
     },
     {
-        pb_function_polling_main,NULL,  "pbFPOLL",     (OS_STACK_1K*2), (tskIDLE_PRIORITY),  NULL
+        pb_multimedia_main,          NULL,    "pbMM",        (OS_STACK_1K*2), (tskIDLE_PRIORITY+2), NULL
     },
     {
-        rgbled_task,        NULL,        "rgbTASK",    (OS_STACK_1K),  (tskIDLE_PRIORITY+1),  NULL
+        pb_function_polling_main,    NULL,    "pbFPOLL",     (OS_STACK_1K*2), (tskIDLE_PRIORITY),   NULL
     },
-
+    {
+        rgbled_task,                 NULL,    "rgbTASK",     (OS_STACK_1K),   (tskIDLE_PRIORITY+1),  NULL
+    }
 };
 
 /******************************************************************************
@@ -85,12 +88,15 @@ void os_task_create_all(void)
 {
     for (uint8 idx = OS_TASK_ITEM_BEGIN; idx < OS_TASK_ITEM_END; ++idx)
     {
-        os_task_create(os_task_info[idx].function,
-                                os_task_info[idx].param,
-                                os_task_info[idx].name,
-                                os_task_info[idx].stackSize,
-                                os_task_info[idx].priority,
-                                &os_task_info[idx].hdlr);
+        if (os_task_info[idx].function != NULL)
+        {
+            os_task_create(os_task_info[idx].function,
+                                    os_task_info[idx].param,
+                                    os_task_info[idx].name,
+                                    os_task_info[idx].stackSize,
+                                    os_task_info[idx].priority,
+                                    &os_task_info[idx].hdlr);
+        }
     }
 }
 

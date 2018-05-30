@@ -3,18 +3,18 @@
 *     Copyright (c) 2018 ParkBox Ltd.   
 *        
 *******************************************************************************
-*  file name:          pb_io_monitor_main.h
+*  file name:          pb_io_main.h
 *  author:              Chen Hao
 *  version:             1.00
-*  file description:   polling input source
+*  file description:   inuput / output functions
 *******************************************************************************
 *  revision history:    date               version                  author
 *
-*  change summary:   2018-4-13      1.00                    Chen Hao
+*  change summary:   2018-5-29      1.00                    Chen Hao
 *
 ******************************************************************************/
-#ifndef __PB_IO_MONITOR_MAIN_H__
-#define __PB_IO_MONITOR_MAIN_H__
+#ifndef __PB_IO_ALARM_H__
+#define __PB_IO_ALARM_H__
 /******************************************************************************
 * Include Files
 ******************************************************************************/
@@ -24,41 +24,51 @@
 /******************************************************************************
 * Macros
 ******************************************************************************/
+#define PB_IO_PWR_ALARM_DEBOUNCE 3 // seconds
+#define PB_IO_PWR_ALARM_INTERVAL 60 // seconds
+#define PB_IO_SMOKE_AUDIO_INTERVAL 5 // seconds
 
 /******************************************************************************
 * Enums
 ******************************************************************************/
 typedef enum
 {
-    PB_IO_MONITOR_BEGIN = 0,
-    PB_IO_MONITOR_EMERGENCY = PB_IO_MONITOR_BEGIN,
-    PB_IO_MONITOR_REVERSE,
-    PB_IO_MONITOR_MENU,
-    PB_IO_MONITOR_VOLUME_UP,
-    PB_IO_MONITOR_VOLUME_DOWN,
-    PB_IO_MONITOR_END
-}PB_IO_MONITOR_PINS;
+    PB_IO_ALARM_BEGIN = 0,
+    PB_IO_ALARM_PWR_SUPPLY = PB_IO_ALARM_BEGIN,
+    PB_IO_ALARM_SMOKE,
+    PB_IO_ALARM_DOOR,
+    PB_IO_ALARM_END
+}PB_IO_ALARM_ITEM;
+
+typedef enum
+{
+    PB_IO_ALARM_STATE_PWR = 0,
+    PB_IO_ALARM_STATE_SMOKE,
+    PB_IO_ALARM_STATE_DOOR
+}PB_IO_ALARM_STATE_ITEM;
 
 /******************************************************************************
 * Types
 ******************************************************************************/
 typedef struct
 {
-    GPIO_TypeDef* GPIOx;
-    uint16 GPIO_Pin;
-    uint8 triggerType;
-    uint8 lastStat;
-    void (*function)(uint8);
-}PB_IO_MONITOR_ITEM;
+    const char *name;
+    PB_IO_ALARM_STATE_ITEM item;
+    bool bTriggered;
+    uint32 lastRecordTime;
+    bool (*needCheck)(void);
+    uint32 (*getDebounceDuration)(void);
+    bool (*isDetected)(void);
+    void (*triggerHandler)(void);
+    void (*triggeringHandler)(uint32 *lastReocrdTime, uint32 curTime);
+    void (*relieveHandler)(void);
+}PB_IO_ALARM;
 
 /******************************************************************************
 * Global Variables
 ******************************************************************************/
+extern void pb_io_alarm_init(void);
+extern void pb_io_alarm_check(void);
 
-/******************************************************************************
-* Global Functions
-******************************************************************************/
-extern void pb_io_monitor_main(void *param);
-
-#endif /* __PB_IO_MONITOR_MAIN_H__ */
+#endif /* __PB_IO_ALARM_H__ */
 

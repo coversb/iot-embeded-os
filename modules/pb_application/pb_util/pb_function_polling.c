@@ -29,6 +29,8 @@
 #include "pb_prot_proc.h"
 #include "pb_multimedia.h"
 #include "pb_fota.h"
+#include "pb_io_main.h"
+#include "pb_io_alarm.h"
 
 /******************************************************************************
 * Macros
@@ -65,14 +67,10 @@ void pb_function_polling_main(void *param)
         if (curTime - recordTime >= 1)
         {
             recordTime = curTime;
-            #if 0
-            //check smoke alarm
-            pb_io_smoke_alarm_check();
-            //check door alarm
-            pb_io_door_alarm_check();
-            //check power alarm
-            pb_io_power_supply_check();
-            #endif
+            //monitor door status
+            pb_io_door_monitor();
+            //check alarm
+            pb_io_alarm_check();
             // update OLED info
             pb_gui_send_act_req(PB_GUI_ACT_UPDATE);
 

@@ -385,6 +385,21 @@
               <FileType>1</FileType>
               <FilePath>..\..\modules\pb_application\pb_io\pb_io_monitor_main.c</FilePath>
             </File>
+            <File>
+              <FileName>pb_io_main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_io\pb_io_main.c</FilePath>
+            </File>
+            <File>
+              <FileName>pb_io_alarm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_io\pb_io_alarm.c</FilePath>
+            </File>
+            <File>
+              <FileName>pb_io_drv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_io\pb_io_drv.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

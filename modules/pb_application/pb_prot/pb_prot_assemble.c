@@ -30,6 +30,7 @@
 #include "pb_prot_assemble.h"
 #include "pb_crypto.h"
 #include "pb_ota_network.h"
+#include "pb_io_main.h"
 
 /******************************************************************************
 * Variables (Extern, Global and Static)
@@ -415,10 +416,10 @@ static uint16 pb_prot_assemble_rsp_inf(uint8 *buff, uint8 subMsgType)
     pbuff += pb_prot_assemble_u8(pbuff, pb_ota_network_get_csq_ber());
 
     /*Input state*/
-    pbuff += pb_prot_assemble_u32(pbuff, pb_util_get_input_state());
+    pbuff += pb_prot_assemble_u32(pbuff, pb_io_input_mask());
 
     /*Output state*/
-    pbuff += pb_prot_assemble_u32(pbuff, pb_util_get_output_state());
+    pbuff += pb_prot_assemble_u32(pbuff, pb_io_output_mask());
     
     /*Air conditioner state*/
     pbuff += pb_prot_assemble_u16(pbuff, pb_util_get_air_conditioner_state());
@@ -467,10 +468,10 @@ static uint16 pb_prot_assemble_rsp_pse(uint8 *buff, void *param)
     pbuff += pb_prot_assemble_u8(pbuff, pb_ota_network_get_csq_ber());
 
     /*Input state*/
-    pbuff += pb_prot_assemble_u32(pbuff, pb_util_get_input_state());
+    pbuff += pb_prot_assemble_u32(pbuff, pb_io_input_mask());
 
     /*Output state*/
-    pbuff += pb_prot_assemble_u32(pbuff, pb_util_get_output_state());
+    pbuff += pb_prot_assemble_u32(pbuff, pb_io_output_mask());
     
     /*Air conditioner state*/
     pbuff += pb_prot_assemble_u16(pbuff, pb_util_get_air_conditioner_state());

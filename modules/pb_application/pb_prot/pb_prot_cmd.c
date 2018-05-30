@@ -31,6 +31,7 @@
 #include "pb_crypto.h"
 #include "rgb_led_task.h"
 #include "pb_multimedia.h"
+#include "pb_io_drv.h"
 
 /******************************************************************************
 * Macros
@@ -76,6 +77,25 @@ static void unit_test_ac(void)
     AC_REMOTE_CTRL.close();
 
     OS_INFO("AC UNIT TEST END...");
+}
+
+static void unit_test_output(void)
+{
+    OS_INFO("OUTPUT UNIT TEST BEGIN...");
+
+    for (uint8 idx = PB_OUT_BEGIN; idx < PB_OUT_END; ++idx)
+    {
+        pb_io_drv_output_set(idx, 1);
+        os_scheduler_delay(DELAY_100_MS);
+    }
+
+    for (uint8 idx = PB_OUT_BEGIN; idx < PB_OUT_END; ++idx)
+    {
+        pb_io_drv_output_set(PB_OUT_END - 1 - idx, 0);
+        os_scheduler_delay(DELAY_100_MS);
+    }
+
+    OS_INFO("OUTPUT UNIT TEST END...");
 }
 
 #endif /*PB_UNIT_TEST*/
@@ -278,7 +298,7 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
             uint8 pin = 0;
             if (pb_prot_cmd_find_single_param(para, &pin))
             {
-                OS_INFO("INPUT%d:%d", pin, 0);//pb_dev_input_val(pin));
+                OS_INFO("INPUT%d:%d", pin, pb_io_drv_input_val(pin));
             }
             break;
         }
@@ -291,49 +311,22 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
             uint8 val;
             if (pb_prot_cmd_find_double_param(para, &pin, &val))
             {
-                if (val == 0)
-                {
-                    //pb_dev_output_set(pin, PB_GPIO_LOW);
-                }
-                else
-                if (val == 1)
-                {
-                    //pb_dev_output_set(pin, PB_GPIO_HIGH);
-                }
-                OS_INFO("OUTPUT%d[%d]", pin, val);
+                pb_io_drv_output_set(pin, val);
+                OS_INFO("OUTPUT%d[%d]", pin, pb_io_drv_output_val(pin));
             }
             break;
         }
         /********************************
-        * Board RELAY set
+        * GPOUT
         *********************************/
-        case PB_PROT_FCT_RELAY:
+        case PB_PROT_FCT_GPOUT:
         {
-            uint8 relay;
-            uint8 sw;
-            if (pb_prot_cmd_find_double_param(para, &relay, &sw))
+            uint8 pin;
+            uint8 val;
+            if (pb_prot_cmd_find_double_param(para, &pin, &val))
             {
-                if (sw == 0)
-                {
-                    //pb_dev_io_sys_relay(relay, false);
-                }
-                else if (sw == 1)
-                {
-                    //pb_dev_io_sys_relay(relay, true);
-                }
-                OS_INFO("RELAY%d[%d]", relay, sw);
-            }
-            break;
-        }
-        /********************************
-        * Board INPUT val
-        *********************************/
-        case PB_PROT_FCT_WG:
-        {
-            uint8 pin = 0;
-            if (pb_prot_cmd_find_single_param(para, &pin))
-            {
-                OS_INFO("GW_%c:%d", 'A' + pin - 1, 0);//pb_dev_wg_val(pin));
+                pb_io_drv_gpo_set(pin, val);
+                OS_INFO("GPOUT%d[%d]", pin, pb_io_drv_gpo_val(pin));
             }
             break;
         }
@@ -471,6 +464,11 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
         case PB_PROT_FCT_AC_TEST:
         {
             unit_test_ac();
+            break;
+        }
+        case PB_PROT_FCT_OUTPUT_TEST:
+        {
+            unit_test_output();
             break;
         }
         #endif /*PB_UNIT_TEST*/

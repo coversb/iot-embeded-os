@@ -497,6 +497,17 @@ typedef struct
     uint8 data[PB_UIE_DATA_LEN+1];
 }PB_PROT_RSP_UIE_PARAM;
 
+//Door status RSP[0x03 0x22]
+typedef enum
+{
+    PB_PROT_DSE_UNKNOW = 0,
+    PB_PROT_DSE_PASSWD,   //password
+    PB_PROT_DSE_SERVER,   //server
+    PB_PROT_DSE_EMERGNCY, //emergncy button
+    PB_PROT_DSE_SMA,  //smoke alarm
+    PB_PROT_DSE_MONITOR
+} PB_PROT_DSE_TYPE;
+
 //Person count event[0x03 0x23]
 typedef struct
 {
