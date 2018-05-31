@@ -47,6 +47,12 @@ typedef enum
     PB_IO_DEVBOX_OPEN = 1
 } PB_IO_DEVBOX_SW_TYPE;
 
+typedef enum
+{
+    PB_IO_OUTPUT_OUT_OF_VALIDTIME = 0,
+    PB_IO_OUTPUT_IN_VALIDTIME
+}PB_IO_OUTPUT_MODE;
+
 /******************************************************************************
 * Types
 ******************************************************************************/
@@ -69,8 +75,6 @@ extern void pb_io_dev_lock_sw(uint8 sw);
 extern uint8 pb_io_pwr_suply(void);
 extern uint8 pb_io_smoke_level(void);
 extern uint8 pb_io_door_status(void);
-
-extern void pb_io_door_monitor(void);
 
 #endif /* __PB_IO_MAIN_H__ */
 

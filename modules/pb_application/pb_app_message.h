@@ -36,7 +36,6 @@ typedef enum
 {
     PB_MESSAGE_NONE = 0,
     /*pb_prot_main msg begin*/
-    PB_MSG_PROT_FIRMWARE_CONFIRM_REQ,
     PB_MSG_PROT_ANALYSE_DATA,
     PB_MSG_PROT_SEND_HBP,
     PB_MSG_PROT_SEND_RSP,
@@ -55,15 +54,6 @@ typedef enum
     PB_MSG_FOTA_FIRMWARE_UPGRADE_REQ,
     PB_MSG_FOTA_START_UPGRADE_REQ,
     /*pb_fota_main msg end*/
-    /*pb_io_main msg begine*/
-    PB_MSG_IO_USR_ACCESS_CHECK,
-    PB_MSG_IO_DOOR_SW_REQ,
-    PB_MSG_IO_DEVICEBOX_SW_REQ,
-    PB_MSG_IO_EQUIPMENT_SW_REQ,
-    /*pb_io_main msg end*/
-    /*pb_io_rgbbox msg begine*/
-    PB_MSG_IO_RGBBOX_BLINK,
-    /*pb_io_rgbbox msg end*/
     /*pb_order_main msg begine*/
     PB_MSG_ORDER_PASS_CHECK_REQ,
     PB_MSG_ORDER_OPERATION_STATE_CHECK_REQ,

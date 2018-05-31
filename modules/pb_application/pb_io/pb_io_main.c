@@ -31,6 +31,7 @@
 #include "pb_io_alarm.h"
 #include "pb_prot_main.h"
 #include "pb_io_indicator_led.h"
+#include "pb_cfg_proc.h"
 
 /******************************************************************************
 * Macros
@@ -134,7 +135,7 @@ uint8 pb_io_door_status(void)
 * 
 * Description : monitor door status
 ******************************************************************************/
-void pb_io_door_monitor(void)
+static void pb_io_door_monitor(void)
 {
     static uint8 lastDoorStatus = PB_IO_DOOR_UNKNOWN;
     uint8 curDoorStatus = pb_io_door_status();
@@ -225,6 +226,151 @@ void pb_io_dev_lock_sw(uint8 sw)
         os_tmr_restart(pb_io_context.close_devbox_tmr);
     }
     OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "Device box %d", !sw);
+}
+
+/******************************************************************************
+* Function    : pb_io_get_output_mode
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get current output mode
+******************************************************************************/
+static uint8 pb_io_get_output_mode(void)
+{
+    PB_CFG_OMC *pOmc = &(pb_cfg_proc_get_cmd()->omc);
+    uint16 startMinuteStamp = pOmc->startHour * 60 + pOmc->startMin;
+    uint16 stopMinuteStamp = pOmc->stopHour * 60 + pOmc->stopMin;
+    uint8 hour;
+    uint8 min;
+    uint8 sec;
+    pb_util_get_time(&hour, &min, &sec);
+    uint8 mode = PB_IO_OUTPUT_OUT_OF_VALIDTIME;
+
+    if ((pOmc->mode != 0) && (startMinuteStamp != stopMinuteStamp))
+    {
+        uint16 curMinuteStamp = hour * 60 + min;
+        
+        //in one day
+        if (startMinuteStamp < stopMinuteStamp)
+        {
+            if (curMinuteStamp >= startMinuteStamp && curMinuteStamp <= stopMinuteStamp)
+            {
+                mode = PB_IO_OUTPUT_IN_VALIDTIME;
+            }
+        }
+        //go through 00:00
+        else
+        {
+            if (curMinuteStamp >= startMinuteStamp || curMinuteStamp <= stopMinuteStamp)
+            {
+                mode = PB_IO_OUTPUT_IN_VALIDTIME;
+            }
+        }        
+
+        OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "mode[%d], valid time[%02d:%02d --- %02d:%02d], cur [%02d:%02d]",
+                                mode,
+                                pOmc->startHour, pOmc->startMin,
+                                pOmc->stopHour, pOmc->stopMin,
+                                hour, min);    
+    }
+
+    return mode;
+}
+
+/******************************************************************************
+* Function    : pb_io_get_output
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get current need output status
+******************************************************************************/
+static uint32 pb_io_get_output(void)
+{
+    PB_CFG_OMC *pOmc = &(pb_cfg_proc_get_cmd()->omc);
+    uint32 output = 0;
+
+    bool inService = false;
+    switch (pb_io_get_output_mode())
+    {
+        case PB_IO_OUTPUT_OUT_OF_VALIDTIME:
+        {
+            if (inService)
+            {
+                output = pOmc->inServiceOutput;
+            }
+            else
+            {
+                output = pOmc->idleOutput;
+            }
+            break;
+        }
+        case PB_IO_OUTPUT_IN_VALIDTIME:
+        {
+            if (inService)
+            {
+                output = pOmc->validInServiceOutput;
+            }
+            else
+            {
+                output = pOmc->validIdleOutput;
+            }
+
+            break;
+        }        
+    }
+
+    return output;
+}
+
+/******************************************************************************
+* Function    : pb_io_send_omc_rsp
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_io_send_omc_rsp(void)
+{
+    if (pb_cfg_proc_get_cmd()->omc.mode == 2)
+    {
+        pb_prot_send_rsp_req(PB_PROT_RSP_OMC);
+    }
+}
+
+/******************************************************************************
+* Function    : pb_io_check_output
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_io_check_output(void)
+{
+    static uint32 lastOutput = 0;
+    uint32 output = pb_io_get_output();
+
+    if (lastOutput != output)
+    {
+        pb_io_output_set(output);
+        OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "output [%08X]--->[%08X]", lastOutput, output);
+        lastOutput = output;
+    }
 }
 
 /******************************************************************************
@@ -357,6 +503,9 @@ void pb_io_output_set(uint32 mask)
             pb_io_drv_output_set(pin, HAL_GPIO_LOW);
         }
     }
+
+    pb_io_send_omc_rsp();
+    OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "OUTPUT[%08X]", mask);
 }
 
 /******************************************************************************
@@ -412,6 +561,18 @@ void pb_io_main(void *param)
 
     while (1)
     {
+        //monitor door status
+        pb_io_door_monitor();
+        //check alarm
+        pb_io_alarm_check();
+
+        //check output status by config
+        pb_io_check_output();
+
+        #if 0
+        //check air conditioner switch 
+        pb_io_air_conditioner_sw_check();
+        #endif
         os_scheduler_delay(DELAY_1_S);
     }
 }
