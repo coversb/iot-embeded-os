@@ -405,6 +405,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\modules\pb_application\pb_io\pb_io_indicator_led.c</FilePath>
             </File>
+            <File>
+              <FileName>pb_io_aircon.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_io\pb_io_aircon.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

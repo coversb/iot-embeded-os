@@ -422,10 +422,10 @@ static uint16 pb_prot_assemble_rsp_inf(uint8 *buff, uint8 subMsgType)
     pbuff += pb_prot_assemble_u32(pbuff, pb_io_output_mask());
     
     /*Air conditioner state*/
-    pbuff += pb_prot_assemble_u16(pbuff, pb_util_get_air_conditioner_state());
+    pbuff += pb_prot_assemble_u16(pbuff, pb_io_aircon_state());
 
     /*Smoke level*/
-    pbuff += pb_prot_assemble_u8(pbuff, pb_util_get_smoke_level());
+    pbuff += pb_prot_assemble_u8(pbuff, pb_io_smoke_level());
     
     /*Indoor temperature*/
     pbuff += pb_prot_assemble_u8(pbuff, pb_util_get_indoor_temperature());
@@ -474,10 +474,10 @@ static uint16 pb_prot_assemble_rsp_pse(uint8 *buff, void *param)
     pbuff += pb_prot_assemble_u32(pbuff, pb_io_output_mask());
     
     /*Air conditioner state*/
-    pbuff += pb_prot_assemble_u16(pbuff, pb_util_get_air_conditioner_state());
+    pbuff += pb_prot_assemble_u16(pbuff, pb_io_aircon_state());
 
     /*Smoke level*/
-    pbuff += pb_prot_assemble_u8(pbuff, pb_util_get_smoke_level());
+    pbuff += pb_prot_assemble_u8(pbuff, pb_io_smoke_level());
     
     /*Indoor temperature*/
     pbuff += pb_prot_assemble_u8(pbuff, pb_util_get_indoor_temperature());

@@ -27,6 +27,7 @@
 #include "pb_prot_main.h"
 #include "pb_cfg_proc.h"
 #include "pb_multimedia.h"
+#include "pb_io_aircon.h"
 
 /******************************************************************************
 * Macros
@@ -152,6 +153,9 @@ static void pb_io_pwr_alarm_triggering_handler(uint32 *lastRecordTime, uint32 cu
 static void pb_io_pwr_alarm_relieve_handler(void)
 {
     //reset the output
+    pb_io_output_restore();
+    //reset the air conditioner
+    AIRCON.setState(PB_IO_AIRCON_NEED_RESTART);
     
     //send alarm relieved RSP
     uint8 powerType = PB_PWR_ALARM_MAIN_RECOVER;

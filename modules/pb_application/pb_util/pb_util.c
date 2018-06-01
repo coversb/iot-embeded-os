@@ -295,38 +295,6 @@ void pb_util_get_time(uint8 *hour, uint8 *minute, uint8 *sec)
 }
 
 /******************************************************************************
-* Function    : pb_util_get_air_conditioner_state
-* 
-* Author      : Chen Hao
-* 
-* Parameters  : 
-* 
-* Return      : 
-* 
-* Description : get current air conditioner state (0x0000 - 0xFFFF)
-******************************************************************************/
-uint16 pb_util_get_air_conditioner_state(void)
-{
-    return 0x0000;
-}
-
-/******************************************************************************
-* Function    : pb_util_get_smoke_level
-* 
-* Author      : Chen Hao
-* 
-* Parameters  : 
-* 
-* Return      : 
-* 
-* Description : get current smoke sensor value / percentage (0 - 100)
-******************************************************************************/
-uint8 pb_util_get_smoke_level(void)
-{
-    return 0;
-}
-
-/******************************************************************************
 * Function    : pb_util_get_indoor_temperature
 * 
 * Author      : Chen Hao

@@ -294,6 +294,28 @@ typedef struct
 ******************************************************************************/
 #define PB_ACW_CONTENT_LEN 8
 
+typedef enum
+{
+    PB_ACW_PWR_OFF = 0,
+    PB_ACW_PWR_ON
+}PB_ACW_PWR_MODE;
+
+typedef enum
+{
+    PB_ACW_PWRON_EVENT_BEGIN = 0,
+    PB_ACW_PWRON_ORDER_BEGIN = PB_ACW_PWRON_EVENT_BEGIN,
+    PB_ACW_PWRON_IN_VALIDTIME,
+    PB_ACW_PWRON_EVENT_END
+}PB_ACW_PWRON_EVENT;
+
+typedef enum
+{
+    PB_ACW_PWROFF_EVENT_BEGIN = 0,
+    PB_ACW_PWROFF_ORDER_END = PB_ACW_PWROFF_EVENT_BEGIN,
+    PB_ACW_PWROFF_OUT_VALIDTIME,
+    PB_ACW_PWROFF_EVENT_END
+}PB_ACW_PWROFF_EVENT;
+
 typedef struct
 {
     uint8 mode;

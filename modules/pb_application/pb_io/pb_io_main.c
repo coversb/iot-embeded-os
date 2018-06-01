@@ -32,6 +32,7 @@
 #include "pb_prot_main.h"
 #include "pb_io_indicator_led.h"
 #include "pb_cfg_proc.h"
+#include "pb_io_aircon.h"
 
 /******************************************************************************
 * Macros
@@ -58,6 +59,22 @@ static PB_IO_CONTEXT_TYPE pb_io_context;
 /******************************************************************************
 * Local Functions
 ******************************************************************************/
+/******************************************************************************
+* Function    : pb_io_aircon_state
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get airconditioner state
+******************************************************************************/
+uint16 pb_io_aircon_state(void)
+{
+    return AIRCON.state();
+}
+
 /******************************************************************************
 * Function    : pb_io_pwr_suply
 * 
@@ -270,12 +287,6 @@ static uint8 pb_io_get_output_mode(void)
                 mode = PB_IO_OUTPUT_IN_VALIDTIME;
             }
         }        
-
-        OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "mode[%d], valid time[%02d:%02d --- %02d:%02d], cur [%02d:%02d]",
-                                mode,
-                                pOmc->startHour, pOmc->startMin,
-                                pOmc->stopHour, pOmc->stopMin,
-                                hour, min);    
     }
 
     return mode;
@@ -417,7 +428,7 @@ uint32 pb_io_input_mask(void)
         }
     }
 
-    OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "INPUT[%08X]", mask);
+    OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "Get input[%08X]", mask);
     return mask;
 }
 
@@ -448,7 +459,7 @@ uint32 pb_io_output_mask(void)
         }
     }
 
-    OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "OUTPUT[%08X]", mask);
+    OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "Get output[%08X]", mask);
     return mask;
 }
 
@@ -465,8 +476,8 @@ uint32 pb_io_output_mask(void)
 ******************************************************************************/
 static bool pb_io_output_set_filter(uint8 pin)
 {
-    if (pin == PB_OUT_RESERVED29
-        || pin == PB_OUT_RESERVED30)
+    if (pin == PB_OUT_AIR_CON1
+        || pin == PB_OUT_AIR_CON2)
     {
         return true;
     }
@@ -505,7 +516,24 @@ void pb_io_output_set(uint32 mask)
     }
 
     pb_io_send_omc_rsp();
-    OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "OUTPUT[%08X]", mask);
+    OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "Set output[%08X]", mask);
+}
+
+/******************************************************************************
+* Function    : pb_io_output_restore
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_io_output_restore(void)
+{
+    OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "Restore output");
+    pb_io_output_set(pb_io_get_output());
 }
 
 /******************************************************************************
@@ -523,6 +551,7 @@ static void pb_io_main_init(void)
 {
     pb_io_drv_init();
     pb_io_alarm_init();
+    AIRCON.init();
 
     // close the door
     pb_io_drv_gpo_set(PB_GPO_DOOR_LOCK, PB_IO_DOOR_CLOSE);
@@ -568,11 +597,9 @@ void pb_io_main(void *param)
 
         //check output status by config
         pb_io_check_output();
-
-        #if 0
         //check air conditioner switch 
-        pb_io_air_conditioner_sw_check();
-        #endif
+        AIRCON.process();
+        
         os_scheduler_delay(DELAY_1_S);
     }
 }
