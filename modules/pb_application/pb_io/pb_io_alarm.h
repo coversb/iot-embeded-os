@@ -3,10 +3,10 @@
 *     Copyright (c) 2018 ParkBox Ltd.   
 *        
 *******************************************************************************
-*  file name:          pb_io_main.h
+*  file name:          pb_io_alarm.h
 *  author:              Chen Hao
 *  version:             1.00
-*  file description:   inuput / output functions
+*  file description:   io alarm check
 *******************************************************************************
 *  revision history:    date               version                  author
 *
@@ -33,6 +33,12 @@
 ******************************************************************************/
 typedef enum
 {
+    PB_IO_ALARM_RELIEVED = 0,
+    PB_IO_ALARM_TRIGGERED = 1
+}PB_IO_ALARM_STATUS;
+
+typedef enum
+{
     PB_IO_ALARM_BEGIN = 0,
     PB_IO_ALARM_PWR_SUPPLY = PB_IO_ALARM_BEGIN,
     PB_IO_ALARM_SMOKE,
@@ -54,7 +60,7 @@ typedef struct
 {
     const char *name;
     PB_IO_ALARM_STATE_ITEM item;
-    bool bTriggered;
+    PB_IO_ALARM_STATUS alarmStatus;
     uint32 lastRecordTime;
     bool (*needCheck)(void);
     uint32 (*getDebounceDuration)(void);

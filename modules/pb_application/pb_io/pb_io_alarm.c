@@ -409,7 +409,7 @@ static void pb_io_door_alarm_relieve_handler(void)
 PB_IO_ALARM pb_io_alarm_item[PB_IO_ALARM_END] = 
 {
     {
-        "PWR", PB_IO_ALARM_STATE_PWR, false, 0, 
+        "PWR", PB_IO_ALARM_STATE_PWR, PB_IO_ALARM_RELIEVED, 0, 
         pb_io_pwr_alarm_need_check,
         pb_io_pwr_alarm_get_debounce_duration,
         pb_io_pwr_alarm_is_detected,
@@ -418,7 +418,7 @@ PB_IO_ALARM pb_io_alarm_item[PB_IO_ALARM_END] =
         pb_io_pwr_alarm_relieve_handler
     },
     {
-        "SMA", PB_IO_ALARM_STATE_SMOKE, false, 0, 
+        "SMA", PB_IO_ALARM_STATE_SMOKE, PB_IO_ALARM_RELIEVED, 0, 
         pb_io_smoke_alarm_need_check,
         pb_io_smoke_alarm_get_debounce_duration,
         pb_io_smoke_alarm_is_detected,
@@ -427,7 +427,7 @@ PB_IO_ALARM pb_io_alarm_item[PB_IO_ALARM_END] =
         pb_io_smoke_alarm_relieve_handler
     },
     {
-        "DOA", PB_IO_ALARM_STATE_DOOR, false, 0, 
+        "DOA", PB_IO_ALARM_STATE_DOOR, PB_IO_ALARM_RELIEVED, 0, 
         pb_io_door_alarm_need_check,
         pb_io_door_alarm_get_debounce_duration,
         pb_io_door_alarm_is_detected,
@@ -448,7 +448,7 @@ PB_IO_ALARM pb_io_alarm_item[PB_IO_ALARM_END] =
 * 
 * Description : get alarm state from bpk register
 ******************************************************************************/
-static bool pb_io_get_alarm_state(PB_IO_ALARM_STATE_ITEM item)
+static uint16 pb_io_get_alarm_state(void)
 {
     uint16 stat = hal_bkp_read(BOARD_BKP_DEV_ADDR);
     uint16 crc = hal_bkp_read(BOARD_BKP_DEV_CRC_ADDR);
@@ -458,13 +458,12 @@ static bool pb_io_get_alarm_state(PB_IO_ALARM_STATE_ITEM item)
     if (calCrc != crc)
     {
         OS_DBG_ERR(DBG_MOD_PBIO, "alarm stat crc[%04X] err, need[%04X]", calCrc, crc);
-        return false;
+        return 0xFFFF;
     }
 
-    OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "Get[%d:%d], devstat[%04X], crc[%04X]", 
-                            item, BIT_CHECK(stat, item), stat, crc);
+    OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "Get devstat[%04X], crc[%04X]", stat, crc);
 
-    return (bool)BIT_CHECK(stat, item);
+    return stat;
 }
 
 /******************************************************************************
@@ -478,11 +477,11 @@ static bool pb_io_get_alarm_state(PB_IO_ALARM_STATE_ITEM item)
 * 
 * Description : save alarm state to bpk register
 ******************************************************************************/
-static void pb_io_set_alarm_state(PB_IO_ALARM_STATE_ITEM item, bool val)
+static void pb_io_set_alarm_state(PB_IO_ALARM_STATE_ITEM item, PB_IO_ALARM_STATUS val)
 {
-    uint32 stat = hal_bkp_read(BOARD_BKP_DEV_ADDR);
+    uint16 stat = hal_bkp_read(BOARD_BKP_DEV_ADDR);
 
-    if (val == true)
+    if (val == PB_IO_ALARM_RELIEVED)
     {
         BIT_CLEAR(stat, item);
     }
@@ -491,7 +490,7 @@ static void pb_io_set_alarm_state(PB_IO_ALARM_STATE_ITEM item, bool val)
         BIT_SET(stat, item);
     }
 
-    uint32 crc = pb_util_get_crc16((uint8*)&stat, sizeof(stat));
+    uint16 crc = pb_util_get_crc16((uint8*)&stat, sizeof(stat));
 
     hal_bkp_write(BOARD_BKP_DEV_ADDR, stat);
     hal_bkp_write(BOARD_BKP_DEV_CRC_ADDR, crc);
@@ -527,13 +526,13 @@ void pb_io_alarm_check(void)
             OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "%s alarm detected", pb_io_alarm_item[idx].name);
 
             //haven't triggered alarm, check debounce
-            if (!pb_io_alarm_item[idx].bTriggered)
+            if (PB_IO_ALARM_RELIEVED == pb_io_alarm_item[idx].alarmStatus)
             {
                 if (curTime - pb_io_alarm_item[idx].lastRecordTime >= pb_io_alarm_item[idx].getDebounceDuration())
                 {
                     pb_io_alarm_item[idx].lastRecordTime = curTime;
-                    pb_io_alarm_item[idx].bTriggered = true;
-                    pb_io_set_alarm_state(pb_io_alarm_item[idx].item, true);
+                    pb_io_alarm_item[idx].alarmStatus = PB_IO_ALARM_TRIGGERED;
+                    pb_io_set_alarm_state(pb_io_alarm_item[idx].item, PB_IO_ALARM_TRIGGERED);
                     pb_io_alarm_item[idx].triggerHandler();
                     
                     OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "%s alarm triggered", pb_io_alarm_item[idx].name);
@@ -546,10 +545,10 @@ void pb_io_alarm_check(void)
         }
         else
         {
-            if (pb_io_alarm_item[idx].bTriggered)
+            if (PB_IO_ALARM_TRIGGERED == pb_io_alarm_item[idx].alarmStatus)
             {
-                pb_io_alarm_item[idx].bTriggered = false;
-                pb_io_set_alarm_state(pb_io_alarm_item[idx].item, false);
+                pb_io_alarm_item[idx].alarmStatus = PB_IO_ALARM_RELIEVED;
+                pb_io_set_alarm_state(pb_io_alarm_item[idx].item, PB_IO_ALARM_RELIEVED);
                 pb_io_alarm_item[idx].relieveHandler();
 
                 OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "%s alarm relieved", pb_io_alarm_item[idx].name);
@@ -572,13 +571,21 @@ void pb_io_alarm_check(void)
 ******************************************************************************/
 void pb_io_alarm_init(void)
 {
+    uint16 alarmState = pb_io_get_alarm_state();
     for (uint8 idx = PB_IO_ALARM_BEGIN; idx < PB_IO_ALARM_END; ++idx)
     {
-        pb_io_alarm_item[idx].bTriggered = pb_io_get_alarm_state(pb_io_alarm_item[idx].item);
+        if ((bool)BIT_CHECK(alarmState, idx))
+        {
+            pb_io_alarm_item[idx].alarmStatus = PB_IO_ALARM_TRIGGERED;
+        }
+        else
+        {
+            pb_io_alarm_item[idx].alarmStatus = PB_IO_ALARM_RELIEVED;
+        }
         pb_io_alarm_item[idx].lastRecordTime = pb_util_get_timestamp();
         OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "load %s[%d][%u]", 
                                 pb_io_alarm_item[idx].name, 
-                                pb_io_alarm_item[idx].bTriggered,
+                                pb_io_alarm_item[idx].alarmStatus,
                                 pb_io_alarm_item[idx].lastRecordTime);
     }
 }
