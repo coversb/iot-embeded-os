@@ -33,6 +33,7 @@
 #include "pb_io_drv.h"
 #include "pb_io_main.h"
 #include "pb_order_main.h"
+#include "pb_crypto.h"
 
 /******************************************************************************
 * Macros
@@ -803,6 +804,8 @@ static void pb_prot_proc_cmd_exec_aco(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
 static void pb_prot_proc_cmd_exec_sec(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame)
 {
     bool needSave = false;
+    bool needUpdateComKey = false;
+    bool needUpdatePwKey = false;
     PB_PROT_CMD_SEC_ARG *argSec = &(parsedFrame->arg.sec);
     PB_CFG_SEC *cfgSec = &(pb_cfg_proc_get_cmd()->sec);
 
@@ -814,6 +817,7 @@ static void pb_prot_proc_cmd_exec_sec(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
             {
                 memcpy(cfgSec->normalKey, argSec->key, PB_SEC_KEY_LEN);
                 needSave = true;
+                needUpdatePwKey = true;
             }
             break;
         }
@@ -823,6 +827,7 @@ static void pb_prot_proc_cmd_exec_sec(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
             {
                 memcpy(cfgSec->serviceKey, argSec->key, PB_SEC_KEY_LEN);
                 needSave = true;
+                needUpdatePwKey = true;
             }
             break;
         }
@@ -832,6 +837,7 @@ static void pb_prot_proc_cmd_exec_sec(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
             {
                 memcpy(cfgSec->comKey, argSec->key, PB_SEC_KEY_LEN);
                 needSave = true;
+                needUpdateComKey = true;
             }
             break;
         }
@@ -843,10 +849,19 @@ static void pb_prot_proc_cmd_exec_sec(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
         //save command
         pb_cfg_proc_save_cmd(PB_PROT_CMD_SEC, cfgSec, sizeof(PB_CFG_SEC));
 
-        //update hotp key
-        //pb_hotp_set_update(true);
+        if (needUpdatePwKey)
+        {
+            //update hotp key
+            //pb_hotp_set_update(true);
+        }
+        else
+        if (needUpdateComKey)
+        {
+            pb_crypto_set_key(cfgSec->comKey);
+        }
+
         OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, "Save SEC[%d][%02X]", argSec->keyType, parsedFrame->msgSubType);
-    }    
+    }
 }
 
 /******************************************************************************
@@ -1567,7 +1582,7 @@ void pb_prot_proc_reset_com_key(void)
     memcpy(cfgSec->comKey, PB_CFG_SEC_DEFAULT.comKey, PB_SEC_KEY_LEN);
     pb_cfg_proc_save_cmd(PB_PROT_CMD_SEC, cfgSec, sizeof(PB_CFG_SEC));
 
-    //pb_encrypt_set_key(g_prot_cfg.cfg_sec_4com.comKey);
+    pb_crypto_set_key(cfgSec->comKey);
 }
 
 /******************************************************************************
