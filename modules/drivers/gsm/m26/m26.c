@@ -163,6 +163,7 @@ wait:
 err:
     os_mutex_unlock(&M26_MUTEX);
 
+    rsp[offset] = '\0';
     return offset;
 }
 
@@ -287,6 +288,52 @@ static bool m26_at_cmd_wait_rsp(const char *at, const char *rsp, uint32 timeout)
 }
 
 /******************************************************************************
+* Function    : m26_get_rsp_data
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static char* m26_get_rsp_data(char *pdata, uint16 maxLen)
+{
+    uint16 begin = 0;
+    uint16 offset = 0;
+
+    //filter '\r' '\n' in the begin
+    while (pdata[offset] == '\r' || pdata[offset] == '\n')
+    {
+        if (offset < maxLen)
+        {
+            offset++;
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+    begin = offset;
+
+    while (pdata[offset] != '\r' && pdata[offset] != '\n')
+    {
+        if (offset < maxLen)
+        {
+            offset++;
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+    pdata[offset] = '\0';
+
+    return &pdata[begin];
+}
+
+/******************************************************************************
 * Function    : m26_get_ver
 * 
 * Author      : Chen Hao
@@ -300,21 +347,22 @@ static bool m26_at_cmd_wait_rsp(const char *at, const char *rsp, uint32 timeout)
 static bool m26_get_ver(char *pdata, uint16 len)
 {
     char buff[32+1];
+    uint16 dataLen = 0;
     char *pVer = NULL;
-    uint16 buffLen = 0;
 
-    m26_at_cmd("AT+GMR", buff, 32);
+    dataLen = m26_at_cmd("AT+GMR", buff, 32);
+    
     if (NULL == (pVer = strstr(buff, M26_RSP_MODULE)))
     {
         return false;
     }
-
+    pVer = m26_get_rsp_data(buff, dataLen);
     pVer += strlen(M26_RSP_MODULE);
-    buffLen = strlen(pVer);
+    dataLen = strlen(pVer);
     
-    if (buffLen > 0 && buffLen <= len)
+    if (dataLen > 0 && dataLen <= len)
     {
-        strncpy(pdata, pVer, buffLen);
+        strncpy(pdata, pVer, dataLen);
         return true;
     }
     else
@@ -337,14 +385,18 @@ static bool m26_get_ver(char *pdata, uint16 len)
 static bool m26_get_imei(char *pdata, uint16 len)
 {
     char buff[32+1];
-    uint16 buffLen = 0;
+    uint16 dataLen = 0;
+    char* pImei = NULL;
 
     m26_at_cmd("AT+GSN", buff, 32);
-    buffLen = strlen(buff);
+
+    dataLen = strlen(buff);
+    pImei = m26_get_rsp_data(buff, dataLen);
+    dataLen = strlen(pImei);
     
-    if (buffLen > 0 && buffLen <= len)
+    if (dataLen > 0 && dataLen <= len)
     {
-        strncpy(pdata, buff, buffLen);
+        strncpy(pdata, pImei, dataLen);
         return true;
     }
     else
@@ -367,14 +419,18 @@ static bool m26_get_imei(char *pdata, uint16 len)
 static bool m26_get_imsi(char *pdata, uint16 len)
 {
     char buff[32+1];
-    uint16 buffLen = 0;
+    uint16 dataLen = 0;
+    char* pImsi = NULL;
 
     m26_at_cmd("AT+CIMI", buff, 32);
-    buffLen = strlen(buff);
+
+    dataLen = strlen(buff);
+    pImsi = m26_get_rsp_data(buff, dataLen);
+    dataLen = strlen(pImsi);
     
-    if (buffLen > 0 && buffLen <= len)
+    if (dataLen > 0 && dataLen <= len)
     {
-        strncpy(pdata, buff, buffLen);
+        strncpy(pdata, pImsi, dataLen);
         return true;
     }
     else
@@ -397,14 +453,18 @@ static bool m26_get_imsi(char *pdata, uint16 len)
 static bool m26_get_iccid(char *pdata, uint16 len)
 {
     char buff[32+1];
-    uint16 buffLen = 0;
+    uint16 dataLen = 0;
+    char* pIccid = NULL;
 
     m26_at_cmd("AT+QCCID", buff, 32);
-    buffLen = strlen(buff);
+
+    dataLen = strlen(buff);
+    pIccid = m26_get_rsp_data(buff, dataLen);
+    dataLen = strlen(pIccid);
     
-    if (buffLen > 0 && buffLen <= len)
+    if (dataLen > 0 && dataLen <= len)
     {
-        strncpy(pdata, buff, buffLen);
+        strncpy(pdata, pIccid, dataLen);
         return true;
     }
     else

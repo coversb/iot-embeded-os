@@ -49,7 +49,6 @@ typedef enum
     PB_MSG_OTA_NET_SEND,
     PB_MSG_OTA_NET_RECV,
     PB_MSG_OTA_CELL_LOCATION_REQ,
-    PB_MSG_OTA_GSMINFO_REQ,
     /*pb_ota_main msg end*/
     /*pb_fota_main msg begin*/
     PB_MSG_FOTA_FIRMWARE_UPGRADE_REQ,

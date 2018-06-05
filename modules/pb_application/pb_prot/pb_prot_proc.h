@@ -55,7 +55,7 @@ extern void pb_prot_proc_reset_com_key(void);
 
 extern void pb_prot_proc_device_basic_info_process(void);
 extern void pb_prot_proc_set_dev_gsm_info(PB_PROT_RSP_GSMINFO_PARAM *gsm);
-extern void pb_prot_proc_get_dev_gsm_info(PB_PROT_RSP_GSMINFO_PARAM *gsm);
+extern PB_PROT_RSP_GSMINFO_PARAM* pb_prot_proc_get_dev_gsm_info(void);
 extern void pb_prot_proc_set_dev_location(PB_PROT_RSP_LOC_PARAM *loc);
 extern void pb_prot_proc_get_dev_location(PB_PROT_RSP_LOC_PARAM *loc);
 

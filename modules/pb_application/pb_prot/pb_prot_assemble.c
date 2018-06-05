@@ -1021,25 +1021,25 @@ static uint16 pb_prot_assemble_rsp_loc(uint8 *buff, void *param)
 * 
 * Description : 
 ******************************************************************************/
-static uint16 pb_prot_assemble_rsp_gsm_info(uint8 *buff, void *param)
+static uint16 pb_prot_assemble_rsp_gsm_info(uint8 *buff)
 {
     uint8* pbuff = buff;
-    PB_PROT_RSP_GSMINFO_PARAM *pGsmParam = (PB_PROT_RSP_GSMINFO_PARAM*)param;
+    PB_PROT_RSP_GSMINFO_PARAM *pGsm = pb_prot_proc_get_dev_gsm_info();
     OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, "GSM[%s], IMEI[%s], IMSI[%s], ICCID[%s]",
-                                pGsmParam->gsmModule, pGsmParam->imei,
-                                pGsmParam->imsi, pGsmParam->iccid);
+                            pGsm->gsmModule, pGsm->imei,
+                            pGsm->imsi, pGsm->iccid);
     
     /*GSM module*/
-    pbuff += pb_prot_assemble_u8_array(pbuff, pGsmParam->gsmModule, PB_GSM_MODULE_LEN);
+    pbuff += pb_prot_assemble_u8_array(pbuff, pGsm->gsmModule, PB_GSM_MODULE_LEN);
 
     /*IMEI*/
-    pbuff += pb_prot_assemble_u8_array(pbuff, pGsmParam->imei, PB_GSM_IMEI_LEN);
+    pbuff += pb_prot_assemble_u8_array(pbuff, pGsm->imei, PB_GSM_IMEI_LEN);
 
     /*IMSI*/
-    pbuff += pb_prot_assemble_u8_array(pbuff, pGsmParam->imsi, PB_GSM_IMSI_LEN);
+    pbuff += pb_prot_assemble_u8_array(pbuff, pGsm->imsi, PB_GSM_IMSI_LEN);
     
     /*ICCID*/
-    pbuff += pb_prot_assemble_u8_array(pbuff, pGsmParam->iccid, PB_GSM_ICCID_LEN);
+    pbuff += pb_prot_assemble_u8_array(pbuff, pGsm->iccid, PB_GSM_ICCID_LEN);
 
     return (pbuff - buff);
 }
@@ -1063,10 +1063,10 @@ static uint16 pb_prot_assemble_rsp_dbi(uint8 *buff)
     uint32 imageRunTimes = 0;
     uint32 longitude = 0;
     uint32 latitude = 0;
-    PB_PROT_RSP_GSMINFO_PARAM gsm;
+    PB_PROT_RSP_GSMINFO_PARAM *gsm;
     PB_PROT_RSP_LOC_PARAM loc;
     
-    pb_prot_proc_get_dev_gsm_info(&gsm);
+    gsm = pb_prot_proc_get_dev_gsm_info();
     pb_prot_proc_get_dev_location(&loc);
     pb_fota_get_firmware_info(&imageUpTimestamp, &imageRunTimes);
 
@@ -1078,7 +1078,7 @@ static uint16 pb_prot_assemble_rsp_dbi(uint8 *buff)
                                 "GSM[%s], IMEI[%s], IMSI[%s], ICCID[%s], "
                                 "FIX[%02X], FIX_Time[%u], LONG[%u], LAT[%u]",
                                 imageUpTimestamp, imageRunTimes,
-                                gsm.gsmModule, gsm.imei, gsm.imsi, gsm.iccid,
+                                gsm->gsmModule, gsm->imei, gsm->imsi, gsm->iccid,
                                 loc.fixType, loc.timestamp, longitude, latitude);
 
     /*Hardware type*/
@@ -1103,16 +1103,16 @@ static uint16 pb_prot_assemble_rsp_dbi(uint8 *buff)
     pbuff += pb_prot_assemble_u8_array(pbuff, (uint8*)pb_cfg_proc_get_mac(), PB_MAC_LEN);
 
     /*GSM module*/
-    pbuff += pb_prot_assemble_u8_array(pbuff, gsm.gsmModule, PB_GSM_MODULE_LEN);
+    pbuff += pb_prot_assemble_u8_array(pbuff, gsm->gsmModule, PB_GSM_MODULE_LEN);
 
     /*IMEI*/
-    pbuff += pb_prot_assemble_u8_array(pbuff, gsm.imei, PB_GSM_IMEI_LEN);
+    pbuff += pb_prot_assemble_u8_array(pbuff, gsm->imei, PB_GSM_IMEI_LEN);
 
     /*IMSI*/
-    pbuff += pb_prot_assemble_u8_array(pbuff, gsm.imsi, PB_GSM_IMSI_LEN);
+    pbuff += pb_prot_assemble_u8_array(pbuff, gsm->imsi, PB_GSM_IMSI_LEN);
     
     /*ICCID*/
-    pbuff += pb_prot_assemble_u8_array(pbuff, gsm.iccid, PB_GSM_ICCID_LEN);
+    pbuff += pb_prot_assemble_u8_array(pbuff, gsm->iccid, PB_GSM_ICCID_LEN);
 
     /*FIX type*/
     pbuff += pb_prot_assemble_u8(pbuff, loc.fixType);
@@ -1337,7 +1337,7 @@ uint16 pb_prot_assemble_rsp(PB_PROT_RSP_PACK_TYPE *rspPack)
         }
         case PB_PROT_RSP_GSM:
         {
-            pCipher += pb_prot_assemble_rsp_gsm_info(pCipher, rspPack->msgParam);
+            pCipher += pb_prot_assemble_rsp_gsm_info(pCipher);
             break;
         }
         case PB_PROT_RSP_DBI:

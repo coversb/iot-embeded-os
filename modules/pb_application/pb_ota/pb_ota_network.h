@@ -59,6 +59,7 @@ extern void pb_ota_network_hw_reset(uint8 devType);
 extern bool pb_ota_network_available(uint8 devType);
 extern bool pb_ota_network_config(uint8 devType);
 extern bool pb_ota_network_check_net_stat(uint8 devType);
+extern bool pb_ota_network_modal_info(uint8 devType);
 extern bool pb_ota_network_connect(uint8 devType, const char *domainName, uint16 port);
 extern void pb_ota_network_disconnect(uint8 devType);
 extern uint16 pb_ota_network_send(uint8 devType, uint8 *data, uint16 size);

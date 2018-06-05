@@ -25,6 +25,7 @@
 #include "pb_app_config.h"
 #include "pb_ota_network.h"
 #include "pb_cfg_proc.h"
+#include "pb_prot_proc.h"
 #include "m26.h"
 #include "w5500.h"
 
@@ -314,6 +315,48 @@ bool pb_ota_network_config(uint8 devType)
 
     return ret;
 }
+
+/******************************************************************************
+* Function    : pb_ota_network_modal_info
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get netowrk modal info
+******************************************************************************/
+bool pb_ota_network_modal_info(uint8 devType)
+{
+    bool ret = false;
+    
+    switch (devType)
+    {
+        case PB_OTA_NET_DEV_GPRS:
+        {
+            PB_PROT_RSP_GSMINFO_PARAM gsmInfo;
+            memset(&gsmInfo, 0, sizeof(gsmInfo));
+            devM26.getModulInfo((char*)gsmInfo.gsmModule, PB_GSM_MODULE_LEN,
+                                           (char*)gsmInfo.imei, PB_GSM_IMEI_LEN,
+                                           (char*)gsmInfo.imsi, PB_GSM_IMSI_LEN,
+                                           (char*)gsmInfo.iccid, PB_GSM_ICCID_LEN);
+            pb_prot_proc_set_dev_gsm_info(&gsmInfo);
+            ret = true;
+            break;
+        }
+        case PB_OTA_NET_DEV_ETH:
+        {
+            OS_DBG_TRACE(DBG_MOD_PBOTA, DBG_INFO, "Eth not support modal info");
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    return ret;}
 
 /******************************************************************************
 * Function    : pb_ota_network_connect

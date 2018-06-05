@@ -370,7 +370,6 @@ static void pb_prot_proc_send_dbi(OS_TMR_TYPE tmr)
 void pb_prot_proc_device_basic_info_process(void)
 {
     //pb_ota_send_msg_data_to_ota_mod(PB_MSG_OTA_CELL_LOCATION_REQ, false);
-    //pb_ota_send_msg_data_to_ota_mod(PB_MSG_OTA_GSMINFO_REQ, false);
 
     if (device_basic_rsp_tmr == NULL)
     {
@@ -1337,7 +1336,7 @@ static void pb_prot_proc_cmd_exec_rto(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
         }
         case PB_RTO_GSMINFO:
         {
-            //pb_ota_send_msg_data_to_ota_mod(PB_MSG_OTA_GSMINFO_REQ, true);
+            pb_prot_send_rsp_req(PB_PROT_RSP_GSM);
             break;
         }
         case PB_RTO_DEVICEBOX_SW:
@@ -1646,9 +1645,9 @@ void pb_prot_proc_set_dev_gsm_info(PB_PROT_RSP_GSMINFO_PARAM *gsm)
 * 
 * Description : 
 ******************************************************************************/
-void pb_prot_proc_get_dev_gsm_info(PB_PROT_RSP_GSMINFO_PARAM *gsm)
+PB_PROT_RSP_GSMINFO_PARAM* pb_prot_proc_get_dev_gsm_info(void)
 {
-    memcpy(gsm, &pb_gsm_info, sizeof(PB_PROT_RSP_GSMINFO_PARAM));
+    return &pb_gsm_info;
 }
 
 /******************************************************************************

@@ -169,52 +169,6 @@ static void pb_ota_cell_location_hdlr(PB_MSG_TYPE *pMsg)
 }
 
 /******************************************************************************
-* Function    : pb_ota_gsm_info_hdlr
-* 
-* Author      : Chen Hao
-* 
-* Parameters  : 
-* 
-* Return      : 
-* 
-* Description : 
-******************************************************************************/
-static void pb_ota_gsm_info_hdlr(PB_MSG_TYPE *pMsg)
-{
-    if (!os_msg_data_vaild(pMsg->pMsgData))
-    {
-        return;
-    }
-    uint8 needReport = *(pMsg->pMsgData);
-
-    PB_PROT_RSP_GSMINFO_PARAM gsmRsp;
-    memset(&gsmRsp, 0, sizeof(gsmRsp));
-
-    if (pb_ota_context.act_net_dev == PB_OTA_NET_DEV_GPRS)
-    {
-        if (pb_ota_context.csq_update_cnt >= PB_OTA_NET_CSQ_INTERVAL)
-        {
-            OS_DBG_TRACE(DBG_MOD_PBOTA, DBG_WARN, "***GSM info wait csq update***");
-            os_scheduler_delay(DELAY_500_MS);
-            pb_ota_send_msg_data_to_ota_mod(PB_MSG_OTA_GSMINFO_REQ, needReport);
-            return;
-        }
-        
-        //pb_util_get_gsm_info(&gsmRsp);
-        //pb_prot_proc_set_dev_gsm_info(&gsmRsp);
-    }
-    else
-    {
-        //pb_prot_proc_get_dev_gsm_info(&gsmRsp);
-    }
-
-    if (needReport)
-    {
-        pb_prot_send_rsp_param_req(PB_PROT_RSP_GSM, (uint8*)&gsmRsp, sizeof(gsmRsp));
-    }
-}
-
-/******************************************************************************
 * Function    : pb_ota_set_recv_copying
 * 
 * Author      : Chen Hao
@@ -759,6 +713,11 @@ retry:
     }
     else
     {
+        if (pb_ota_network_modal_info(devType))
+        {
+            pb_prot_send_rsp_req(PB_PROT_RSP_GSM);
+        }
+
         pb_ota_context.act_server = PB_OTA_SERVER_MAIN;
         pb_ota_context.server_connect_cnt = 0;
         pb_ota_net_stat_set(devType, PB_OTA_NET_CONNECTED);
@@ -1080,11 +1039,6 @@ void pb_ota_main(void *pvParameters)
                 case PB_MSG_OTA_CELL_LOCATION_REQ:
                 {
                     pb_ota_cell_location_hdlr(p_pb_msg);
-                    break;
-                }
-                case PB_MSG_OTA_GSMINFO_REQ:
-                {
-                    pb_ota_gsm_info_hdlr(p_pb_msg);
                     break;
                 }
                 default:
