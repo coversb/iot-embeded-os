@@ -22,6 +22,7 @@
 #include "pb_cfg_proc.h"
 #include "pb_io_aircon.h"
 #include "pb_prot_type.h"
+#include "pb_order_main.h"
 
 /******************************************************************************
 * Macros
@@ -37,10 +38,6 @@ static OS_TMR_TYPE delayPwroffTmr;
 static PB_IO_AIRCON_STAT pwrState = PB_IO_AIRCON_CLOSE;
 static uint16 airconState = 0;
 
-//for debug
-static uint32 pb_order_nearest_start_time(void){return 0;}
-static bool pb_order_in_service(void){return false;}
-static uint16 pb_order_total_num(void){return 0;}
 /******************************************************************************
 * Local Functions
 ******************************************************************************/
@@ -149,13 +146,13 @@ static bool pb_io_aircon_has_order(void)
     bool ret = false;
     
     // has no order
-    if (0 == pb_order_total_num())
+    if (0 == pb_order_number())
     {
         ret =  false;
     }
     else
-    // has order and already in service
-    if (pb_order_in_service())
+    // already in service
+    if (PB_ORDER_OPSTAT_SERVICE == pb_order_operation_state())
     {
         ret = true;
     }

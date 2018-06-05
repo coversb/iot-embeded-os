@@ -27,6 +27,7 @@
 #include "pb_function_polling.h"
 #include "rgb_led_task.h"
 #include "pb_io_main.h"
+#include "pb_order_main.h"
 
 /******************************************************************************
 * Macros
@@ -42,10 +43,13 @@ static OS_TASK_INFO_TYPE os_task_info[OS_TASK_ITEM_END] =
 {
     /*task main functino,         parameter, task name,        stack size,         priority,      task handler*/
     {
-        pb_prot_main,                NULL,    "pbPROT",      (OS_STACK_1K*4), (tskIDLE_PRIORITY+5), NULL
+        pb_prot_main,                NULL,    "pbPROT",      (OS_STACK_1K*2), (tskIDLE_PRIORITY+5), NULL
     },
     {
-        pb_ota_main,                 NULL,    "pbOTA",       (OS_STACK_1K*4), (tskIDLE_PRIORITY+4), NULL
+        pb_order_main,               NULL,    "pbOrder",      (OS_STACK_1K*2), (tskIDLE_PRIORITY+5), NULL
+    },
+    {
+        pb_ota_main,                 NULL,    "pbOTA",       (OS_STACK_1K*2), (tskIDLE_PRIORITY+4), NULL
     },
     {
         pb_fota_main,                NULL,    "pbFOTA",      (OS_STACK_1K*4), (tskIDLE_PRIORITY+3), NULL
@@ -60,7 +64,7 @@ static OS_TASK_INFO_TYPE os_task_info[OS_TASK_ITEM_END] =
         pb_gui_main,                 NULL,    "pbGUI",       (OS_STACK_1K),   (tskIDLE_PRIORITY+1), NULL
     },
     {
-        pb_multimedia_main,          NULL,    "pbMM",        (OS_STACK_1K*2), (tskIDLE_PRIORITY+2), NULL
+        pb_multimedia_main,          NULL,    "pbMM",        (OS_STACK_1K), (tskIDLE_PRIORITY+2), NULL
     },
     {
         pb_function_polling_main,    NULL,    "pbFPOLL",     (OS_STACK_1K*2), (tskIDLE_PRIORITY),   NULL

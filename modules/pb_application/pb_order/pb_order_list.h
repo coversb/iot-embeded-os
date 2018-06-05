@@ -3,87 +3,66 @@
 *     Copyright (c) 2018 ParkBox Ltd.
 *
 *******************************************************************************
-*  file name:          pb_app_main.c
+*  file name:          pb_order_list.c
 *  author:              Chen Hao
 *  version:             1.00
-*  file description:   parkbox app main
+*  file description:   mamage order by list
 *******************************************************************************
 *  revision history:    date               version                  author
 *
-*  change summary:   2018-4-11      1.00                    Chen Hao
+*  change summary:   2018-06-01     1.00                    Chen Hao
 *
 ******************************************************************************/
+#ifndef __PB_ORDER_LIST_H__
+#define __PB_ORDER_LIST_H__
 /******************************************************************************
 * Include Files
 ******************************************************************************/
-#include "hal_board.h"
-#include "hal_wdg.h"
-#include "hal_bkp.h"
-#include "hal_rtc.h"
-#include "os_trace_log.h"
-#include "os_task_define.h"
+#include "basetype.h"
 #include "pb_app_config.h"
-#include "pb_io_indicator_led.h"
+#include "pb_prot_type.h"
 
 /******************************************************************************
 * Macros
 ******************************************************************************/
 
 /******************************************************************************
-* Variables (Extern, Global and Static)
+* Enums
 ******************************************************************************/
 
 /******************************************************************************
-* Local Functions
+* Types
 ******************************************************************************/
-
-/******************************************************************************
-* Function    : hardware_init
-*
-* Author      : Chen Hao
-*
-* Parameters  :
-*
-* Return      :
-*
-* Description :
-******************************************************************************/
-static void hardware_init()
+typedef struct pb_order_list_node
 {
-    hal_board_init();
-    PB_DEBUG_COM.begin(115200);
+    struct pb_order_list_node *pNextOrder;
+    PB_PROT_ORDER_TYPE order; 
+}PB_ORDER_LIST_NODE;
 
-    uint16 fmVer = 0x2000;
-    OS_INFO("ParkBox V%d.%02d.%02d", (fmVer >> 12), ((fmVer >> 4) & 0xFF), (fmVer & 0x000F));
-    OS_INFO("@%s-%s", __DATE__, __TIME__);
+typedef struct
+{
+    PB_ORDER_LIST_NODE *header;
+    uint16 size;
+}PB_ORDER_LIST;
 
-    hal_wdg_init();
-    hal_bkp_init();
-    hal_rtc_init();
-    RGBBOX_PWM.init();
-    AC_REMOTE_CTRL.init(&devIRCtrl);
-    SYSLED.init();
-}
+typedef struct
+{
+    void (*init)(void);
+    uint16 (*size)(void);
+    PB_PROT_ORDER_TYPE* (*header)(void);
+    bool (*add)(PB_PROT_ORDER_TYPE *pOrder);
+    bool (*remove)(PB_PROT_ORDER_TYPE * pOrder);
+    void (*update)(void);
+    void (*clear)(void);
+    void (*print)(void);
+    uint8 (*verifyPassword)(uint32 timestamp, uint32 password);
+    uint16 (*validNumByTime)(uint32 timestamp);
+}PB_ORDER_LIST_MANAGER;
 
 /******************************************************************************
-* Function    : main
-*
-* Author      : Chen Hao
-*
-* Parameters  :
-*
-* Return      :
-*
-* Description :
+* Global Variables
 ******************************************************************************/
-int main(void)
-{
-    os_trace_log_set_mod(0xffff, 3);
-    hardware_init();
+extern const PB_ORDER_LIST_MANAGER PB_ORDER;
 
-    os_task_create_all();
-    os_task_scheduler();
-
-    return 0;
-}
+#endif /* __PB_ORDER_LIST_H__ */
 

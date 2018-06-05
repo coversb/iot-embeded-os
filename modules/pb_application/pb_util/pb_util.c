@@ -252,6 +252,27 @@ void pb_util_set_timestamp(uint32 timestamp)
 }
 
 /******************************************************************************
+* Function    : pb_util_timestamp_to_datetime
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_util_timestamp_to_datetime(char *pdata, uint16 len, uint32 timestamp)
+{
+    time_t t = timestamp + PB_DATA_TIME_OFFSET;
+    struct tm *lt;
+    lt = localtime(&t);
+    memset(pdata, 0, len);
+    len = MIN_VALUE(24, len);
+    strftime(pdata, 24, "%Y-%m-%d %H:%M:%S", lt);
+}
+
+/******************************************************************************
 * Function    : pb_util_get_datetime
 * 
 * Author      : Chen Hao

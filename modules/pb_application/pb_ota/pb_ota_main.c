@@ -895,6 +895,7 @@ static void pb_ota_net_send(PB_MSG_TYPE *pMsg)
     if (pb_ota_context.need_reboot)
     {
         pb_ota_context.need_reboot = false;
+        OS_INFO("REBOOT");
         hal_board_reset();
     }
 }

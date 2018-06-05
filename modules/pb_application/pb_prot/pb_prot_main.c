@@ -181,6 +181,27 @@ void pb_prot_send_sae_req(uint8 alarmType, uint8 alarmLv)
 }
 
 /******************************************************************************
+* Function    : pb_order_send_uie
+*
+* Author      : Chen Hao
+*
+* Parameters  :
+*
+* Return      :
+*
+* Description :
+******************************************************************************/
+void pb_prot_send_uie_req(uint8 type, uint8 *data)
+{
+    PB_PROT_RSP_UIE_PARAM uieParam;
+    memset(&uieParam, 0, sizeof (uieParam));
+    uieParam.type = type;
+    memcpy(uieParam.data, data, MIN_VALUE(PB_UIE_DATA_LEN, strlen((char*)data)));
+
+    pb_prot_send_rsp_param_req(PB_PROT_RSP_UIE, (uint8*)&uieParam, sizeof(uieParam));
+}
+
+/******************************************************************************
 * Function    : pb_prot_send_dbg_info_req
 * 
 * Author      : Chen Hao

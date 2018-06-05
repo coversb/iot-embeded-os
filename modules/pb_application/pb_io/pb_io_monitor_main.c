@@ -30,13 +30,11 @@
 #include "pb_gui_main.h"
 #include "pb_io_main.h"
 #include "pb_io_indicator_led.h"
+#include "pb_order_main.h"
 
 /******************************************************************************
 * Macros
 ******************************************************************************/
-#define PB_NPW_LEN 4
-#define PB_SPW_LEN 8
-#define PB_PWB_LEN 32
 #define PB_PW_TIMEOUT 10//seconds
 #define PB_KEY_CANCEL 0x1B
 #define PB_KEY_QUERY 0x0D
@@ -96,12 +94,13 @@ static void pb_io_monitor_debug_com(void)
 static void pb_io_monitor_keyboard(void)
 {
     static uint8 keyOffset = 0;
-    static uint8 keyBuff[PB_PWB_LEN];
+    static uint8 keyBuff[PB_ORDER_ENG_PW_LEN+1];
     static uint32 lastTime = 0;
     
     uint8 byte;
     uint32 curTime;
-    uint8 queryKey[PB_PWB_LEN];
+    uint8 queryKey[PB_ORDER_ENG_PW_LEN+1];
+    uint32 password = 0;
 
     curTime = pb_util_get_timestamp();
 
@@ -126,14 +125,14 @@ static void pb_io_monitor_keyboard(void)
 
             case PB_KEY_QUERY:
             {
-                if (keyOffset == PB_SPW_LEN)
+                if (keyOffset == PB_ORDER_ENG_PW_LEN)
                 {
                     memset(queryKey, 0, sizeof(queryKey));
                     memcpy(queryKey, keyBuff, keyOffset);
-                    OS_DBG_TRACE(DBG_MOD_PBIO_MONITOR, DBG_INFO, "Check spw:%d", atoi((char*)queryKey));
-                    /*
-                    pb_order_check_password(atoi(queryKey));
-                    */
+                    password = atoi((char*)queryKey);
+                    pb_order_send_verify_req(PB_ORDER_VERIFY_KEYBOARD, password);
+
+                    OS_DBG_TRACE(DBG_MOD_PBIO_MONITOR, DBG_INFO, "eng pw:%d", password);
                 }
                 keyOffset = 0;
                 memset(keyBuff, 0, sizeof(keyBuff));
@@ -143,15 +142,16 @@ static void pb_io_monitor_keyboard(void)
             default:
             {
                 keyBuff[keyOffset++] = byte;
-                if ((keyOffset % PB_NPW_LEN == 0) && (keyOffset > 0))
+                if ((keyOffset % PB_ORDER_PW_LEN == 0) && (keyOffset > 0))
                 {
                     memset(queryKey, 0, sizeof(queryKey));
-                    memcpy(queryKey, &keyBuff[keyOffset - PB_NPW_LEN], PB_NPW_LEN);
-                    OS_DBG_TRACE(DBG_MOD_PBIO_MONITOR, DBG_INFO, "Check npw:%d", atoi((char*)queryKey));
-                    /*
-                    pb_order_check_password(atoi(queryKey));
-                    */
-                    if (keyOffset > PB_SPW_LEN)
+                    memcpy(queryKey, &keyBuff[keyOffset - PB_ORDER_PW_LEN], PB_ORDER_PW_LEN);
+                    password = atoi((char*)queryKey);
+                    pb_order_send_verify_req(PB_ORDER_VERIFY_KEYBOARD, password);
+
+                    OS_DBG_TRACE(DBG_MOD_PBIO_MONITOR, DBG_INFO, "pw:%d", password);
+
+                    if (keyOffset > PB_ORDER_ENG_PW_LEN)
                     {
                         keyOffset = 0;
                         memset(keyBuff, 0, sizeof(keyBuff));

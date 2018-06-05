@@ -28,6 +28,7 @@
 #include "pb_cfg_proc.h"
 #include "pb_multimedia.h"
 #include "pb_io_aircon.h"
+#include "pb_order_main.h"
 
 /******************************************************************************
 * Macros
@@ -231,6 +232,8 @@ static void pb_io_smoke_alarm_trigger_handler(void)
     //open door
     pb_io_door_lock_sw(PB_IO_DOOR_OPEN, PB_PROT_DSE_SMA);
 
+    //stop play other media
+    pb_multimedia_send_audio_msg(PB_MM_STOP, 0);
     //play alarm audio
     pb_multimedia_send_audio_msg(PB_MM_PLAY_SMOKE_ALARM, 0);
     lastSmaAudioTime = pb_util_get_timestamp();
@@ -291,6 +294,9 @@ static void pb_io_smoke_alarm_relieve_handler(void)
 {
     //close door
     pb_io_door_lock_sw(PB_IO_DOOR_CLOSE, PB_PROT_DSE_SMA);
+
+    //check bgm by order
+    pb_order_control_bgm();
 
     //send alarm RSP
     pb_prot_send_sae_req(PB_SENSOR_ALARM_SMOKE, pb_io_smoke_level());

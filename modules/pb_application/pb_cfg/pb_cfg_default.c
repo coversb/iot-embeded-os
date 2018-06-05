@@ -183,7 +183,7 @@ const PB_CFG_SMA PB_CFG_SMA_DEFAULT =
 const PB_CFG_MUO PB_CFG_MUO_DEFAULT = 
 {
     20,                        //volume
-    0,                          //auto BGM  11:off 12:on
+    11,                          //auto BGM  11:off 12:on
     0,                          //align
     {0},                       //pending
     0                           //crc

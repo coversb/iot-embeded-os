@@ -48,6 +48,7 @@ extern uint32 pb_util_random_num(uint32 div);
 
 extern uint32 pb_util_get_timestamp(void);
 extern void pb_util_set_timestamp(uint32 timestamp);
+extern void pb_util_timestamp_to_datetime(char *pdata, uint16 len, uint32 timestamp);
 extern void pb_util_get_datetime(char *pdata, uint16 len);
 extern void pb_util_get_time(uint8 *hour, uint8 *minute, uint8 *sec);
 

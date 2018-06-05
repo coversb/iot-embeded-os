@@ -24,6 +24,7 @@
 * Macro
 ******************************************************************************/
 #define PB_PROT_MSGQUE_SIZE 15
+#define PB_ORDER_MSGQUE_SIZE 10
 #define PB_OTA_MSGQUE_SIZE 15
 #define PB_FOTA_MSGQUE_SIZE 10
 #define PB_GUI_MSGQUE_SIZE 5
@@ -55,8 +56,7 @@ typedef enum
     PB_MSG_FOTA_START_UPGRADE_REQ,
     /*pb_fota_main msg end*/
     /*pb_order_main msg begine*/
-    PB_MSG_ORDER_PASS_CHECK_REQ,
-    PB_MSG_ORDER_OPERATION_STATE_CHECK_REQ,
+    PB_MSG_ORDER_VERIFY_REQ,
     /*pb_order_main msg end*/
     /*pb_gui_main msg begine*/
     PB_MSG_GUI_MENU_ACTION_REQ,
@@ -72,12 +72,7 @@ typedef enum
 /******************************************************************************
 * Types
 ******************************************************************************/
-typedef struct
-{
-    uint32 msgID;
-    uint8 *pMsgData;
-    uint32 msgData;
-}PB_MSG_TYPE;
+typedef OS_MSG_TYPE PB_MSG_TYPE;
 
 #endif /* __PB_APP_MESSAGE_H__ */
 

@@ -32,6 +32,7 @@
 #include "pb_ota_main.h"
 #include "pb_multimedia.h"
 #include "pb_io_main.h"
+#include "pb_order_main.h"
 
 /******************************************************************************
 * Macro
@@ -129,18 +130,18 @@ static void pb_gui_show_info(bool update)
     //operate state, order num
     memset(temp, 0x00, sizeof(temp));
     memset(serviceStat, 0, sizeof(serviceStat));
-    uint8 serverState = 0;//pb_order_get_operate_state();
-    if (serverState == 0)//PB_ORDER_OPSTAT_CLOSE)
+    uint8 serverState = pb_order_operation_state();
+    if (serverState == PB_ORDER_OPSTAT_CLOSE)
     {
         sprintf(serviceStat, "%s", "CLOSE       ");
     }
     else
-    if (serverState == 1)//PB_ORDER_OPSTAT_CLOSE_WAIT)
+    if (serverState == PB_ORDER_OPSTAT_CLOSE_WAIT)
     {
         sprintf(serviceStat, "%s", "CLOSE WAIT  ");
     }
     else
-    if (serverState == 2)//PB_ORDER_OPSTAT_SERVICE)
+    if (serverState == PB_ORDER_OPSTAT_SERVICE)
     {
         sprintf(serviceStat, "%s", "IN-SERVICE  ");
     }
@@ -148,8 +149,7 @@ static void pb_gui_show_info(bool update)
     {
         sprintf(serviceStat, "%s", "UNKNOWN     ");
     }
-    //sprintf(temp, "N:%d,%s", pb_order_get_total_order_num(), serviceStat);
-    sprintf(temp, "N:%d,%s", 21, serviceStat);
+    sprintf(temp, "N:%d,%s", pb_order_number(), serviceStat);
     devSH1106.show(DEFAULT_COL, ORDER_INFO_ROW, temp);
 
     //net status

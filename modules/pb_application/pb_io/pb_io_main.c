@@ -33,6 +33,7 @@
 #include "pb_io_indicator_led.h"
 #include "pb_cfg_proc.h"
 #include "pb_io_aircon.h"
+#include "pb_order_main.h"
 
 /******************************************************************************
 * Macros
@@ -307,8 +308,8 @@ static uint32 pb_io_get_output(void)
 {
     PB_CFG_OMC *pOmc = &(pb_cfg_proc_get_cmd()->omc);
     uint32 output = 0;
-
-    bool inService = false;
+    bool inService = (bool)(PB_ORDER_OPSTAT_CLOSE != pb_order_operation_state());
+    
     switch (pb_io_get_output_mode())
     {
         case PB_IO_OUTPUT_OUT_OF_VALIDTIME:

@@ -24,7 +24,6 @@
 /******************************************************************************
 * Macros
 ******************************************************************************/
-#define PB_PROT_MSGQUE_SIZE 15
 
 /******************************************************************************
 * Enums
@@ -33,6 +32,7 @@ typedef enum
 {
     OS_TASK_ITEM_BEGIN = 0,
     OS_TASK_ITEM_PB_PROT = OS_TASK_ITEM_BEGIN,
+    OS_TASK_ITEM_PB_ORDER,
     OS_TASK_ITEM_PB_OTA,
     OS_TASK_ITEM_PB_FOTA,
     OS_TASK_ITEM_PB_IO,

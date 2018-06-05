@@ -104,7 +104,6 @@ typedef struct
 {
     uint32 msgID;
     uint8 *pMsgData;
-    uint32 msgData;
 }OS_MSG_TYPE;
 
 /******************************************************************************

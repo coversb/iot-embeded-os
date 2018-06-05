@@ -32,6 +32,7 @@
 #include "pb_ota_main.h"
 #include "pb_io_drv.h"
 #include "pb_io_main.h"
+#include "pb_order_main.h"
 
 /******************************************************************************
 * Macros
@@ -951,8 +952,6 @@ static void pb_prot_proc_cmd_exec_omc(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
         //save command
         pb_cfg_proc_save_cmd(parsedFrame->msgSubType, cfgOmc, sizeof(PB_CFG_OMC));
         OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, "Save OMC[%02X]", parsedFrame->msgSubType);
-
-        //pb_io_output_mode_check();
     }
 }
 
@@ -1263,20 +1262,15 @@ static void pb_prot_proc_cmd_exec_muo(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
                 cfgMuo->autoBGM = argMuo->act;
                 pb_cfg_proc_save_cmd(PB_PROT_CMD_MUO, cfgMuo, sizeof(PB_CFG_MUO));
                 OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, "Set auto BGM [%d]", argMuo->act);
-                /*
-                if (pb_order_is_in_service())
+
+                if (cfgMuo->autoBGM == PB_MUO_ACT_AUTO_BGM_ON)
                 {
-                    if (g_prot_cfg.cfg_muo.autoBGM == PB_PROT_MMO_ACT_AUTO_BGM_OFF)
-                    {
-                        pb_io_send_audio_msg(PB_DEV_KT603_CTRL_STOP, 0);
-                    }
-                    else
-                    if (g_prot_cfg.cfg_muo.autoBGM == PB_PROT_MMO_ACT_AUTO_BGM_ON)
-                    {
-                        pb_io_send_audio_msg(PB_DEV_KT603_CTRL_BGM, 0);
-                    }
+                    pb_order_control_bgm();
                 }
-                */
+                else
+                {
+                    pb_multimedia_send_audio_msg(PB_MM_STOP, 0);
+                }
             }
             break;
         }
@@ -1333,7 +1327,7 @@ static void pb_prot_proc_cmd_exec_rto(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
         }
         case PB_RTO_DOOR_SW:
         {
-            //pb_io_send_door_msg(argRto->subCmd, PB_IO_DOOR_SW_SERVER);
+            pb_order_send_verify_req(PB_ORDER_VERIFY_SERVER, argRto->subCmd);
             break;
         }
         case PB_RTO_LOCATION:

@@ -32,6 +32,7 @@
 #include "rgb_led_task.h"
 #include "pb_multimedia.h"
 #include "pb_io_drv.h"
+#include "pb_order_main.h"
 
 /******************************************************************************
 * Macros
@@ -421,7 +422,7 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
         *********************************/
         case PB_PROT_FCT_CLEAR_ORDER:
         {
-            //pb_order_local_order_clear();
+            pb_order_clear();
             break;
         }
         /********************************
@@ -429,7 +430,7 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
         *********************************/
         case PB_PROT_FCT_SHOW_ORDER:
         {
-            //pb_order_local_order_show();
+            pb_order_print();
             break;
         }
         /********************************

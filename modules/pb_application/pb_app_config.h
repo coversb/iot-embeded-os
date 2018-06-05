@@ -91,6 +91,9 @@
 #define PB_TMA_AUTO_SET_RANGE 30 //seconds
 #define PB_TMA_AUTO_SET_DEBOUNCE 3 //count
 
+//pb order
+#define PB_ORDER_START_ADJUST 300   // seconds
+
 //pb ota
 #define PB_OTA_DBG 1
 #define PB_OTA_NET_SWITCH_RETRY 2

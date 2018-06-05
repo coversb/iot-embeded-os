@@ -27,6 +27,7 @@
 #include "pb_prot_proc.h"
 #include "pb_crypto.h"
 #include "pb_util.h"
+#include "pb_order_main.h"
 
 /******************************************************************************
 * Variables (Extern, Global and Static)
@@ -1542,13 +1543,13 @@ static bool pb_prot_parse_cmd_ouo(PB_PROT_PARSED_CONTENT_TYPE *content, PB_PROT_
             || act == PB_OUO_ACT_ADD_SERVICE)
         {
             //add new order
-            //pb_order_booking(&order);
+            pb_order_booking(&order);
         }
         else 
         if (act == PB_OUO_ACT_REMOVE)
         {
             //delete order
-            //pb_order_cancel(&order);
+            pb_order_cancel(&order);
         }
         else
         {

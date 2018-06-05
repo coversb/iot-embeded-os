@@ -513,6 +513,16 @@ typedef enum
 
 //User input RSP[0x03 0x21]
 #define PB_UIE_DATA_LEN 40
+
+typedef enum
+{
+    PB_PROT_UIE_KEYBOARD = 0,
+    PB_PROT_UIE_HOTP_PASS,
+    PB_PROT_UIE_ENG_PASS,
+    PB_PROT_UIE_CANCELED_PASS,
+    PB_PROT_UIE_UNKNOWN
+}PB_PROT_UIE_TYPE;
+
 typedef struct
 {
     uint8 type;
