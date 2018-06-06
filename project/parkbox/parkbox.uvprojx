@@ -510,6 +510,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\modules\pb_application\pb_order\pb_order_main.c</FilePath>
             </File>
+            <File>
+              <FileName>pb_order_hotp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_application\pb_order\pb_order_hotp.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

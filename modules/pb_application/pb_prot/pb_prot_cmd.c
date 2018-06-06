@@ -33,6 +33,7 @@
 #include "pb_multimedia.h"
 #include "pb_io_drv.h"
 #include "pb_order_main.h"
+#include "pb_order_hotp.h"
 
 /******************************************************************************
 * Macros
@@ -375,7 +376,7 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
         *********************************/
         case PB_PROT_FCT_HOTP:
         {
-            //pb_util_print_hotp();
+            pb_order_hotp_offline_password_print();
             break;
         }
         /********************************

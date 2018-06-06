@@ -31,6 +31,7 @@
 #include "pb_multimedia.h"
 #include "rgb_led_task.h"
 #include "pb_prot_main.h"
+#include "pb_order_hotp.h"
 
 /******************************************************************************
 * Macros
@@ -313,16 +314,6 @@ static void pb_order_operation_state_update(void)
     }
 }
 
-static uint8 pb_hotp_verify_password(uint32 password)
-{
-    /*
-    PB_ORDER_VERIFY_PW_UNKNOWN,
-    PB_ORDER_VERIFY_PW_OFFLINE,
-    PB_ORDER_VERIFY_PW_ENG,
-    */
-    return PB_ORDER_VERIFY_PW_UNKNOWN;
-}
-
 /******************************************************************************
 * Function    : pb_order_verify_local
 * 
@@ -347,7 +338,7 @@ static uint8 pb_order_verify_keyboard(uint32 password)
         }
         case PB_ORDER_VERIFY_PW_UNKNOWN:
         {
-            passwordType = pb_hotp_verify_password(password);
+            passwordType = pb_order_hotp_verify_password(password);
             break;
         }
         default:break;
@@ -636,8 +627,9 @@ static void pb_order_update_tmr_hdlr(OS_TMR_TYPE tmr)
     //check operate state
     pb_order_operation_state_update();
 
+    //update offline password by timestamp
+    pb_order_hotp_update();
     //pb_hotp_try_to_send_offline_order();
-    //pb_hotp_check_generate_pws();
 }
 
 /******************************************************************************
@@ -692,6 +684,8 @@ static void pb_order_main_init(void)
     os_mutex_lock_init(&pb_order_context.orderMutex);
     pb_order_context.orderUpdateTmr= os_tmr_create(PB_ORDER_UPDATE_INTERVAL, pb_order_update_tmr_hdlr, true);
     pb_order_context.orderOverDelayTmr = os_tmr_create(PB_ORDER_OVER_DELAY, pb_order_over_delay_tmr_hdlr, false);
+
+    pb_order_hotp_init();
 }
 
 /******************************************************************************

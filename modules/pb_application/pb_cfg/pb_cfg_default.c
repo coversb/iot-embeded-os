@@ -113,8 +113,8 @@ const PB_CFG_ACO PB_CFG_ACO_DEFAULT =
 //Security Configuration
 const PB_CFG_SEC PB_CFG_SEC_DEFAULT = 
 {
-    "xobkraP$#@!5678*&^%1234Parkbox",   //service offline key 
-    "Parkbox*&^%1234$#@!5678xobkraP",   //normal offline key
+    "xobkraP$#@!5678*&^%1234Parkbox",   //eng pass key 
+    "Parkbox*&^%1234$#@!5678xobkraP",   //offline pass key
     "XOBKRAP-PARKBOX@EmbeddedTeamSHA",  //com key
     1,                          //hotp mode
     0,                          //align

@@ -93,6 +93,10 @@
 
 //pb order
 #define PB_ORDER_START_ADJUST 300   // seconds
+#define PB_ORDER_OFFLINE_PW_NUM 30
+#define PB_ORDER_ENG_PW_NUM 5
+#define PB_ORDER_PW_LEN 4
+#define PB_ORDER_ENG_PW_LEN 8
 
 //pb ota
 #define PB_OTA_DBG 1

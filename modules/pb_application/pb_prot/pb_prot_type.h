@@ -253,6 +253,12 @@ typedef struct
 
 typedef enum
 {
+    PB_SEC_HOTP_OFF = 0,
+    PB_SEC_HOTP_ON
+}PB_PROT_SEC_HOTP_MODE;
+
+typedef enum
+{
     PB_SEC_KEY_OFFLINE_NORMAL = 1,
     PB_SEC_KEY_OFFLINE_SERVICE = 2,
     PB_SEC_KEY_AES = 3
