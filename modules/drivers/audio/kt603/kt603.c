@@ -129,6 +129,9 @@ static void kt603_send_cmd(uint8 cmd, uint8 ack, uint16 dat)
     KT603_COM->writeBytes(sendCmd, KT603_CMD_LEN);
     KT603_COM->write(KT603_CMD_TAIL);
 
+    //Added some delay to wait the ic handle the commands
+    os_scheduler_delay(DELAY_100_MS);
+
     #if (BOARD_KT603_DEBUG == 1)
     char test[32];
     snprintf(test, 32, "%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
