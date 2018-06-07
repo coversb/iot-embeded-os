@@ -27,6 +27,7 @@
 #include "pb_prot_main.h"
 #include "pb_util.h"
 #include "pb_order_main.h"
+#include "pb_ota_main.h"
 
 /******************************************************************************
 * Macros
@@ -52,6 +53,8 @@ const static uint8 offlinePwSelectIndex[] =
 };
 
 static PB_ORDER_HOTP_CONTEXT pb_order_hotp_context;
+//save offline order, when the network re-connect, send to server
+static PB_ORDER_OFFLINE_BUFF pb_offline_order_buff;
 
 /******************************************************************************
 * Function    : pb_order_hotp_offline_password_enable
@@ -581,6 +584,74 @@ static bool pb_order_hotp_verify_last_offline_password(uint16 password)
 }
 
 /******************************************************************************
+* Function    : pb_order_hotp_buffer_offline_order
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_order_hotp_buffer_offline_order(PB_PROT_ORDER_TYPE *order)
+{
+    if (pb_offline_order_buff.size == PB_ORDER_OFFLINE_BUFFSIZE)
+    {
+        OS_DBG_ERR(DBG_MOD_PBORDER, "Offline order buff full %d", pb_offline_order_buff.size);
+        return;
+    }
+
+    pb_offline_order_buff.order[pb_offline_order_buff.size].inputTime = order->id;
+    pb_offline_order_buff.order[pb_offline_order_buff.size].startTime = order->startTime;
+    pb_offline_order_buff.order[pb_offline_order_buff.size].password = order->passwd;
+    pb_offline_order_buff.size++;
+}
+
+/******************************************************************************
+* Function    : pb_order_hotp_offline_order_buff
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+PB_ORDER_OFFLINE_BUFF *pb_order_hotp_offline_order_buff(void)
+{
+    return &pb_offline_order_buff;
+}
+
+/******************************************************************************
+* Function    : pb_order_hotp_try_to_send_buffer_order
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_order_hotp_try_to_send_buffer_order(void)
+{
+    if (pb_offline_order_buff.size == 0)
+    {
+        return;
+    }
+
+    if (pb_ota_network_connected()
+        && pb_ota_network_send_que_size() == 0)
+    {
+        pb_prot_send_rsp_req(PB_PROT_RSP_OPO);
+        
+        OS_DBG_TRACE(DBG_MOD_PBORDER, DBG_INFO, "Send %d offline order", pb_offline_order_buff.size);
+    }
+}
+
+/******************************************************************************
 * Function    : pb_order_hotp_add_offline_order
 * 
 * Author      : Chen Hao
@@ -624,7 +695,9 @@ static void pb_order_hotp_add_offline_order(uint8 type, uint32 pass)
     order.personNum = 0;
     order.passwdValidCnt = 0;
 
+    pb_order_hotp_buffer_offline_order(&order);
     pb_order_booking(&order);
+    
     OS_DBG_TRACE(DBG_MOD_PBORDER, DBG_INFO, "Added offline order");
 }
 
@@ -710,7 +783,7 @@ void pb_order_hotp_update(void)
 
     //generate offline passoword
     pb_order_hotp_update_offline_password(updateTime, pb_order_hotp_context.offlinePw);
-
+OS_INFO("%d", updateTime);
     pb_order_hotp_context.updateTime = updateTime;
 }
 
@@ -806,6 +879,7 @@ static void pb_order_hotp_init_last_offline_password(void)
 ******************************************************************************/
 void pb_order_hotp_init(void)
 {
+    memset(&pb_offline_order_buff, 0, sizeof(pb_offline_order_buff));
     memset(&pb_order_hotp_context, 0, sizeof(pb_order_hotp_context));
     pb_order_hotp_init_last_offline_password();
     pb_order_hotp_update();

@@ -634,7 +634,7 @@ static void pb_order_update_tmr_hdlr(OS_TMR_TYPE tmr)
 
     //update offline password by timestamp
     pb_order_hotp_update();
-    //pb_hotp_try_to_send_offline_order();
+    pb_order_hotp_try_to_send_buffer_order();
 }
 
 /******************************************************************************

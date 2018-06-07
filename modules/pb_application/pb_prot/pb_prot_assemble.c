@@ -31,6 +31,7 @@
 #include "pb_crypto.h"
 #include "pb_ota_network.h"
 #include "pb_io_main.h"
+#include "pb_order_hotp.h"
 
 /******************************************************************************
 * Variables (Extern, Global and Static)
@@ -676,27 +677,29 @@ static uint16 pb_prot_assemble_rsp_rto(uint8 *buff, void *param)
 * 
 * Description : 
 ******************************************************************************/
-static uint16 pb_prot_assemble_rsp_opo(uint8 *buff, void *param)
+static uint16 pb_prot_assemble_rsp_opo(uint8 *buff)
 {
     uint8* pbuff = buff;
-    #if 0
-    HOTP_ORDER_CONTINER *pOfflineOrder = (HOTP_ORDER_CONTINER*)param;
+
+    PB_ORDER_OFFLINE_BUFF *pOfflineOrder = pb_order_hotp_offline_order_buff();
 
     /*Order number*/
-    pbuff += pb_prot_assemble_u8(pbuff, pOfflineOrder->num);
+    pbuff += pb_prot_assemble_u8(pbuff, pOfflineOrder->size);
 
-    for (uint8 idx = 0; idx < pOfflineOrder->num; ++idx)
+    for (uint8 idx = 0; idx < pOfflineOrder->size; ++idx)
     {
         /*Input datetime*/
-        pbuff += pb_prot_assemble_u32(pbuff, pOfflineOrder->order[idx].input_time);
+        pbuff += pb_prot_assemble_u32(pbuff, pOfflineOrder->order[idx].inputTime);
 
         /*Start datetime*/
-        pbuff += pb_prot_assemble_u32(pbuff, pOfflineOrder->order[idx].order_start_time);
+        pbuff += pb_prot_assemble_u32(pbuff, pOfflineOrder->order[idx].startTime);
 
         /*Password datetime*/
         pbuff += pb_prot_assemble_u32(pbuff, pOfflineOrder->order[idx].password);
     }
-    #endif
+    //set number to 0
+    pOfflineOrder->size = 0;
+   
     return (pbuff - buff);
 }
 
@@ -1322,7 +1325,7 @@ uint16 pb_prot_assemble_rsp(PB_PROT_RSP_PACK_TYPE *rspPack)
         }
         case PB_PROT_RSP_OPO:
         {
-            pCipher += pb_prot_assemble_rsp_opo(pCipher, rspPack->msgParam);
+            pCipher += pb_prot_assemble_rsp_opo(pCipher);
             break;
         }
         case PB_PROT_RSP_CFG:
