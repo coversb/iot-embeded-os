@@ -65,6 +65,7 @@ typedef struct
 * Extern functions
 ******************************************************************************/
 extern void pb_order_hotp_init(void);
+extern void pb_order_hotp_key_change(void);
 extern void pb_order_hotp_update(void);
 extern void pb_order_hotp_try_to_send_buffer_order(void);
 extern PB_ORDER_OFFLINE_BUFF *pb_order_hotp_offline_order_buff(void);

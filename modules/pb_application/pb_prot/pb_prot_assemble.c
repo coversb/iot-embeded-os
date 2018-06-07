@@ -32,6 +32,7 @@
 #include "pb_ota_network.h"
 #include "pb_io_main.h"
 #include "pb_order_hotp.h"
+#include "pb_order_main.h"
 
 /******************************************************************************
 * Variables (Extern, Global and Static)
@@ -540,7 +541,7 @@ static uint16 pb_prot_assemble_rsp_dse(uint8 *buff, void *param)
     uint8 operationType = *((uint8*)param);
 
     /*Door status*/
-    //pbuff += pb_prot_assemble_u8(pbuff, pb_util_get_door_state());
+    pbuff += pb_prot_assemble_u8(pbuff, pb_io_door_status());
 
     /*Operation type*/
     pbuff += pb_prot_assemble_u8(pbuff, operationType);
@@ -630,10 +631,10 @@ static uint16 pb_prot_assemble_rsp_mue(uint8 *buff, void *param)
     pbuff += pb_prot_assemble_u8(pbuff, eventType);
 
     /*Service status*/
-    //pbuff += pb_prot_assemble_u8(pbuff, pb_order_get_operate_state());
+    pbuff += pb_prot_assemble_u8(pbuff, (uint8)pb_order_operation_state());
 
     /*Local order number*/
-    //pbuff += pb_prot_assemble_u16(pbuff, pb_order_get_total_order_num());
+    pbuff += pb_prot_assemble_u16(pbuff, pb_order_number());
 
     return (pbuff - buff);
 }
@@ -660,7 +661,7 @@ static uint16 pb_prot_assemble_rsp_rto(uint8 *buff, void *param)
     /*Firmware version*/
     pbuff += pb_prot_assemble_u16(pbuff, pb_fota_get_firmware_version());
 
-    /*Firmware version*/
+    /*Bootloader version*/
     pbuff += pb_prot_assemble_u16(pbuff, pb_fota_get_bl_version());
 
     return (pbuff - buff);
@@ -994,21 +995,21 @@ static uint16 pb_prot_assemble_rsp_cfg(uint8 *buff, void *param)
 * 
 * Description : assemble information message for location report
 ******************************************************************************/
-static uint16 pb_prot_assemble_rsp_loc(uint8 *buff, void *param)
+static uint16 pb_prot_assemble_rsp_loc(uint8 *buff)
 {
     uint8* pbuff = buff;
-    PB_PROT_RSP_LOC_PARAM *pLocParam = (PB_PROT_RSP_LOC_PARAM*)param;
+    PB_PROT_RSP_LOC_PARAM *pLoc = pb_prot_proc_get_dev_location();
     OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, "LON[%s], LAT[%s]",
-                                pLocParam->longitude, pLocParam->latitude);
+                                pLoc->longitude, pLoc->latitude);
     
     /*Fix type*/
-    pbuff += pb_prot_assemble_u8(pbuff, pLocParam->fixType);
+    pbuff += pb_prot_assemble_u8(pbuff, pLoc->fixType);
 
     /*Longitude*/
-    pbuff += pb_prot_assemble_str(pbuff, pLocParam->longitude);
+    pbuff += pb_prot_assemble_str(pbuff, pLoc->longitude);
 
     /*Latitude*/
-    pbuff += pb_prot_assemble_str(pbuff, pLocParam->latitude);
+    pbuff += pb_prot_assemble_str(pbuff, pLoc->latitude);
 
     return (pbuff - buff);
 }
@@ -1067,14 +1068,14 @@ static uint16 pb_prot_assemble_rsp_dbi(uint8 *buff)
     uint32 longitude = 0;
     uint32 latitude = 0;
     PB_PROT_RSP_GSMINFO_PARAM *gsm;
-    PB_PROT_RSP_LOC_PARAM loc;
+    PB_PROT_RSP_LOC_PARAM *loc;
     
     gsm = pb_prot_proc_get_dev_gsm_info();
-    pb_prot_proc_get_dev_location(&loc);
+    loc = pb_prot_proc_get_dev_location();
     pb_fota_get_firmware_info(&imageUpTimestamp, &imageRunTimes);
 
-    longitude = pb_util_decimal_string_to_int((char*)loc.longitude, 10000000);
-    latitude = pb_util_decimal_string_to_int((char*)loc.latitude, 10000000);
+    longitude = pb_util_decimal_string_to_int((char*)loc->longitude, 10000000);
+    latitude = pb_util_decimal_string_to_int((char*)loc->latitude, 10000000);
     
     OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, 
                                 "DBI upTime[%u], runTimes[%u], "
@@ -1082,7 +1083,7 @@ static uint16 pb_prot_assemble_rsp_dbi(uint8 *buff)
                                 "FIX[%02X], FIX_Time[%u], LONG[%u], LAT[%u]",
                                 imageUpTimestamp, imageRunTimes,
                                 gsm->gsmModule, gsm->imei, gsm->imsi, gsm->iccid,
-                                loc.fixType, loc.timestamp, longitude, latitude);
+                                loc->fixType, loc->timestamp, longitude, latitude);
 
     /*Hardware type*/
     pbuff += pb_prot_assemble_u16(pbuff, pb_cfg_proc_get_hardware_version());
@@ -1118,10 +1119,10 @@ static uint16 pb_prot_assemble_rsp_dbi(uint8 *buff)
     pbuff += pb_prot_assemble_u8_array(pbuff, gsm->iccid, PB_GSM_ICCID_LEN);
 
     /*FIX type*/
-    pbuff += pb_prot_assemble_u8(pbuff, loc.fixType);
+    pbuff += pb_prot_assemble_u8(pbuff, loc->fixType);
 
     /*Locate timestamp*/
-    pbuff += pb_prot_assemble_u32(pbuff, loc.timestamp);
+    pbuff += pb_prot_assemble_u32(pbuff, loc->timestamp);
 
     /*Longitude*/
     pbuff += pb_prot_assemble_u32(pbuff, longitude);
@@ -1335,7 +1336,7 @@ uint16 pb_prot_assemble_rsp(PB_PROT_RSP_PACK_TYPE *rspPack)
         }
         case PB_PROT_RSP_LOC:
         {
-            pCipher += pb_prot_assemble_rsp_loc(pCipher, rspPack->msgParam);
+            pCipher += pb_prot_assemble_rsp_loc(pCipher);
             break;
         }
         case PB_PROT_RSP_GSM:

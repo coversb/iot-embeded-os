@@ -150,21 +150,13 @@ static void pb_ota_cell_location_hdlr(PB_MSG_TYPE *pMsg)
         {
             locRsp.fixType = 0x10;//GSM basestion location
             locRsp.timestamp = pb_util_get_timestamp();
-            //pb_prot_proc_set_dev_location(&locRsp);
+            pb_prot_proc_set_dev_location(&locRsp);
         }
-        else
-        {
-            //pb_prot_proc_get_dev_location(&locRsp);
-        }
-    }
-    else
-    {
-        //pb_prot_proc_get_dev_location(&locRsp);
     }
 
     if (needReport)
     {
-        pb_prot_send_rsp_param_req(PB_PROT_RSP_LOC, (uint8*)&locRsp, sizeof(locRsp));
+        pb_prot_send_rsp_req(PB_PROT_RSP_LOC);
     }
 }
 
@@ -824,7 +816,7 @@ static void pb_ota_net_send(PB_MSG_TYPE *pMsg)
         {
             pb_ota_context.send_retry_cnt++;
             OS_DBG_TRACE(DBG_MOD_PBOTA, DBG_WARN, "SEND [%d]retry %d", devType, pb_ota_context.send_retry_cnt);
-            #if 0
+            #if 0 // optimized for this
             if ((pb_ota_context.send_retry_cnt > PB_OTA_SEND_MAX_RETRY
                 && (!pb_ota_network_check_net_stat(devType)))
                 //something wrong in net device, maybe ram full, also need restart

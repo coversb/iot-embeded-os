@@ -52,6 +52,7 @@ const static uint8 offlinePwSelectIndex[] =
     22, 24, 25, 26,  27,  28,  30
 };
 
+static bool keyChanged = false;
 static PB_ORDER_HOTP_CONTEXT pb_order_hotp_context;
 //save offline order, when the network re-connect, send to server
 static PB_ORDER_OFFLINE_BUFF pb_offline_order_buff;
@@ -108,6 +109,12 @@ static bool pb_order_hotp_need_update(void)
     else
     if (pb_order_hotp_context.updateTime > curTime + 5*60)
     {
+        ret = true;
+    }
+    else
+    if (keyChanged)
+    {
+        keyChanged= false;
         ret = true;
     }
 
@@ -783,8 +790,24 @@ void pb_order_hotp_update(void)
 
     //generate offline passoword
     pb_order_hotp_update_offline_password(updateTime, pb_order_hotp_context.offlinePw);
-OS_INFO("%d", updateTime);
+
     pb_order_hotp_context.updateTime = updateTime;
+}
+
+/******************************************************************************
+* Function    : pb_order_hotp_key_change
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_order_hotp_key_change(void)
+{
+    keyChanged = true;
 }
 
 /******************************************************************************

@@ -34,6 +34,7 @@
 #include "pb_io_main.h"
 #include "pb_order_main.h"
 #include "pb_crypto.h"
+#include "pb_order_hotp.h"
 
 /******************************************************************************
 * Macros
@@ -1561,7 +1562,7 @@ void pb_prot_proc_reset_hotp_key(void)
     memcpy(cfgSec->serviceKey, PB_CFG_SEC_DEFAULT.serviceKey, PB_SEC_KEY_LEN);
     pb_cfg_proc_save_cmd(PB_PROT_CMD_SEC, cfgSec, sizeof(PB_CFG_SEC));
 
-    //pb_hotp_set_update(true);
+    pb_order_hotp_key_change();
 }
 
 /******************************************************************************
@@ -1693,9 +1694,9 @@ void pb_prot_proc_set_dev_location(PB_PROT_RSP_LOC_PARAM *loc)
 * 
 * Description : 
 ******************************************************************************/
-void pb_prot_proc_get_dev_location(PB_PROT_RSP_LOC_PARAM *loc)
+PB_PROT_RSP_LOC_PARAM* pb_prot_proc_get_dev_location(void)
 {
-    memcpy(loc, &pb_location, sizeof(PB_PROT_RSP_LOC_PARAM));
+    return &pb_location;
 }
 
 /******************************************************************************

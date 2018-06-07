@@ -47,6 +47,26 @@ static bool b_fota_upgrading;
 * Local Functions
 ******************************************************************************/
 /******************************************************************************
+* Function    : pb_fota_send_fota_rsp
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_fota_send_fota_rsp(uint8 status, uint8 cnt)
+{
+    PB_PROT_RSP_FOTA_PARAM param;
+    param.status = status;
+    param.cnt = cnt;
+
+    pb_prot_send_rsp_param_req(PB_PROT_RSP_FOTA, (uint8*)&param, sizeof(param));
+}
+
+/******************************************************************************
 * Function    : pb_fota_request_free_bank
 * 
 * Author      : Chen Hao
@@ -121,12 +141,12 @@ static void pb_fota_firmware_confirm(void)
     {
         case PB_IMAGE_FOTA_OK:
         {
-            //pb_ota_send_fota_msg(PB_PROT_RSP_FOTA_UPGRADE_OK, 0);
+            pb_fota_send_fota_rsp(PB_FOTA_UPGRADE_OK, 0);
             break;
         }
         case PB_IMAGE_FOTA_ERR_AND_RECOVER:
         {
-            //pb_ota_send_fota_msg(PB_PROT_RSP_FOTA_UPGRADE_ERR, 0);
+            pb_fota_send_fota_rsp(PB_FOTA_UPGRADE_ERR, 0);
             break;
         }
         case PB_IMAGE_NORMAL:
@@ -182,26 +202,6 @@ uint16 pb_fota_get_firmware_version(void)
 uint16 pb_fota_get_bl_version(void)
 {
     return PB_BOOTLOADER_VERSION;
-}
-
-/******************************************************************************
-* Function    : pb_fota_send_fota_rsp
-* 
-* Author      : Chen Hao
-* 
-* Parameters  : 
-* 
-* Return      : 
-* 
-* Description : 
-******************************************************************************/
-static void pb_fota_send_fota_rsp(uint8 status, uint8 cnt)
-{
-    PB_PROT_RSP_FOTA_PARAM param;
-    param.status = status;
-    param.cnt = cnt;
-
-    pb_prot_send_rsp_param_req(PB_PROT_RSP_FOTA, (uint8*)&param, sizeof(param));
 }
 
 /******************************************************************************
