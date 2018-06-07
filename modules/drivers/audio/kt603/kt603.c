@@ -49,6 +49,7 @@
 /*KT603 CMD*/
 #define KT603_REQ_DEV 0x3F
 #define KT603_REQ_PLAY_STATUS 0x42
+#define KT603_REQ_VOLUME 0x43
 #define KT603_REQ_DIR_FILE_NUM 0x4E
 
 #define KT603_CMD_VOLUME 0x06
@@ -497,6 +498,43 @@ static void kt603_set_mute(bool sw)
 }
 
 /******************************************************************************
+* Function    : kt603_get_volume
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static uint8 kt603_get_volume(void)
+{
+    uint8 retryCnt = 0;
+retry:
+    retryCnt++;
+
+    kt603_send_cmd(KT603_REQ_VOLUME, KT603_ACK_SW, 0);
+
+    uint8 cmd;
+    uint16 dat;
+    bool ret;
+    ret = kt603_recv_rsp(&cmd, &dat);
+
+    if (!ret || cmd != KT603_REQ_VOLUME)
+    {
+        if (retryCnt >= KT603_RESEND_MAX)
+        {
+            OS_DBG_ERR(DBG_MOD_DEV, "kt603_volume[%d][%02X, %04X]", ret, cmd, dat);
+            return KT603_UNKNOW;
+        }
+        goto retry;
+    }
+    
+    return (dat & 0xFF);
+}
+
+/******************************************************************************
 * Function    : kt603_set_volume
 * 
 * Author      : Chen Hao
@@ -530,6 +568,12 @@ retry:
             OS_DBG_ERR(DBG_MOD_DEV, "VOLUME[%d][%02X, %04X]", ret, cmd, dat);
             return false;
         }
+        goto retry;
+    }
+
+    if (lv != kt603_get_volume())
+    {
+        OS_DBG_ERR(DBG_MOD_DEV, "Set volume err, retry");
         goto retry;
     }
 
