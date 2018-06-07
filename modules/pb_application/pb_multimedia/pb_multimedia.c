@@ -167,7 +167,7 @@ static void pb_multimedia_volume_down(void)
 * 
 * Description : 
 ******************************************************************************/
-static void pb_multimedia_play_bgm(void)
+static void pb_multimedia_play_bgm(bool isRandom)
 {
     static bool needGetFileNum = true;
 
@@ -181,12 +181,17 @@ static void pb_multimedia_play_bgm(void)
         OS_DBG_TRACE(DBG_MOD_PBMM, DBG_INFO, "BGM file num[%d]", bgmManager.fileNum);
     }
 
-    uint16 playIdx = 0;
+    //index start from 1 to fileNum
+    uint16 playIdx = (bgmManager.lastPalyingIdx + 1) % (bgmManager.fileNum + 1);
 re_select:
-    playIdx = pb_util_random_num(bgmManager.fileNum);
-    if (playIdx == bgmManager.lastPalyingIdx)
+    if (isRandom)
     {
-        goto re_select;
+        playIdx = pb_util_random_num(bgmManager.fileNum);
+        if (playIdx == 0
+            || playIdx == bgmManager.lastPalyingIdx)
+        {
+            goto re_select;
+        }
     }
     bgmManager.lastPalyingIdx = playIdx;
     bgmManager.lastStartTime = pb_util_get_timestamp();
@@ -279,7 +284,7 @@ static void pb_multimedia_audio_ctrl_hdlr(PB_MSG_TYPE *pMsg)
         }
         case PB_MM_PLAY_BGM:
         {
-            pb_multimedia_play_bgm();
+            pb_multimedia_play_bgm((bool)pAudioMsg->param);
             break;
         }
         default:
@@ -312,7 +317,7 @@ static void pb_multimedia_monitor_hdlr(void)
     {
         if (KT603_STOP == AUDIO.playStatus())
         {
-            pb_multimedia_send_audio_msg(PB_MM_PLAY_BGM, 0);
+            pb_multimedia_send_audio_msg(PB_MM_PLAY_BGM, false);
         }
     }
 }

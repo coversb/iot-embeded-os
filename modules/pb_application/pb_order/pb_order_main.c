@@ -192,7 +192,7 @@ void pb_order_control_bgm(void)
     {
         if (pb_order_operation_state() == PB_ORDER_OPSTAT_SERVICE)
         {
-            pb_multimedia_send_audio_msg(PB_MM_PLAY_BGM, 0);
+            pb_multimedia_send_audio_msg(PB_MM_PLAY_BGM, true);
         }
         else
         {

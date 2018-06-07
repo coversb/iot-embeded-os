@@ -1222,6 +1222,7 @@ static void pb_prot_proc_cmd_exec_muo(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
         case PB_MUO_ACT_PLAY:
         {
             uint8 audioCmd = 0xFF;
+            uint8 audioParam = 0;
             switch (argMuo->fileIdx)
             {
                 case PB_MUO_FILE_WELCOME:
@@ -1242,6 +1243,7 @@ static void pb_prot_proc_cmd_exec_muo(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
                 case PB_MUO_FILE_BGM:
                 {
                     audioCmd = PB_MM_PLAY_BGM;
+                    audioParam = true;
                     break;
                 }
                 default: break;
@@ -1249,7 +1251,7 @@ static void pb_prot_proc_cmd_exec_muo(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
             
             if (audioCmd != 0xFF)
             {
-                pb_multimedia_send_audio_msg(audioCmd, 0);
+                pb_multimedia_send_audio_msg(audioCmd, audioParam);
             }
             break;
         }
