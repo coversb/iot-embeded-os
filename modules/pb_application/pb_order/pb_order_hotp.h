@@ -22,8 +22,15 @@
 #include "pb_app_config.h"
 
 /******************************************************************************
-* Macros
+* Enums
 ******************************************************************************/
+typedef enum
+{
+    PB_ORDER_HOTP_UNKNOWN = 0,
+    PB_ORDER_HOTP_ENG,
+    PB_ORDER_HOTP_OFFLINE,
+    PB_ORDER_HOTP_LASTOFFLINE
+}PB_ORDER_HOTP_TYPE;
 
 /******************************************************************************
 * Types

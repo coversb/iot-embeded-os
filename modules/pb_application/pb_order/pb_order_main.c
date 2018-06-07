@@ -45,6 +45,7 @@
 static OS_MSG_QUEUE_TYPE pb_order_msg_queue;
 static PB_ORDER_CONTEXT_TYPE pb_order_context;
 
+static void pb_order_operation_state_update(void);
 /******************************************************************************
 * Local Functions
 ******************************************************************************/
@@ -67,6 +68,10 @@ void pb_order_booking(PB_PROT_ORDER_TYPE *pOrder)
     pOrder->startTime -= PB_ORDER_START_ADJUST;
 
     PB_ORDER.add(pOrder);
+
+    //check operate state
+    pb_order_operation_state_update();
+
     os_mutex_unlock(&pb_order_context.orderMutex);
 }
 
@@ -245,8 +250,8 @@ static void pb_order_operation_enter_close_wait(void)
 
     //start over delay timer
     os_tmr_start(pb_order_context.orderOverDelayTmr);
-    //control bgm
-    pb_order_control_bgm();
+    //stop all media
+    pb_multimedia_send_audio_msg(PB_MM_STOP, 0);
     //play over media
     pb_multimedia_send_audio_msg(PB_MM_PLAY_ORDER_OVER, 0);
 
@@ -429,7 +434,7 @@ static void pb_order_verify(PB_MSG_TYPE *pMsg)
             verifyRes = pb_order_verify_keyboard(pParam->data);
             break;
         }
-        default:break;
+        default:return;
     }
 
     bool needOpenDevBox = false;
