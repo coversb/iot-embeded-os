@@ -50,13 +50,25 @@ typedef enum
     PB_GUI_MENU_UPGRADE,
 } PB_GUI_MENU_ID;
 
+typedef enum
+{
+    PB_GUI_UP_START = 0,
+    PB_GUI_UP_CONNECT_SERVER,
+    PB_GUI_UP_START_DOWNLOAD,
+    PB_GUI_UP_DOWNLOADING,
+    PB_GUI_UP_VERIFY,
+    PB_GUI_UP_OK,
+    PB_GUI_UP_REBOOT
+}PB_GUI_UP_STAGE;
+
 /******************************************************************************
 * Types
 ******************************************************************************/
 typedef struct
 {
     uint8 cursor;
-    uint8 lastCursor;
+    uint8 upStage;
+    uint8 upProcess;
 }PB_GUI_CONTEXT_TYPE;
 
 /******************************************************************************
@@ -68,6 +80,7 @@ typedef struct
 ******************************************************************************/
 extern void pb_gui_main(void *pvParameters);
 extern void pb_gui_send_act_req(PB_GUI_ACTIONS action);
+extern void pb_gui_set_upgrade_info(uint8 stage, uint8 process);
 
 #endif /* __PB_GUIOCOL_MAIN_H__ */
 

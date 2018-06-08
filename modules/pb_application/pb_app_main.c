@@ -53,7 +53,7 @@ static void hardware_init()
     hal_board_init();
     PB_DEBUG_COM.begin(115200);
 
-    uint16 fmVer = 0x2000;
+    uint16 fmVer = PB_FIRMWARE_VERSION;
     OS_INFO("ParkBox V%d.%02d.%02d", (fmVer >> 12), ((fmVer >> 4) & 0xFF), (fmVer & 0x000F));
     OS_INFO("@%s-%s", __DATE__, __TIME__);
 
@@ -79,7 +79,6 @@ static void hardware_init()
 int main(void)
 {
     //os_trace_log_set_mod(0x144, 3);
-    os_trace_log_set_mod(0x80, 3);
     hardware_init();
 
     os_task_create_all();

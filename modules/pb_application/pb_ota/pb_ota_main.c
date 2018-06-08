@@ -30,6 +30,7 @@
 #include "pb_prot_main.h"
 #include "pb_cfg_proc.h"
 #include "pb_io_indicator_led.h"
+#include "pb_fota.h"
 
 /******************************************************************************
 * Macros
@@ -210,7 +211,8 @@ uint16 pb_ota_get_recv_data(uint8 *data, uint16 maxLen)
 ******************************************************************************/
 void pb_ota_try_to_send_data(void)
 {
-    if (!pb_ota_net_stat_check(pb_ota_context.act_net_dev, PB_OTA_NET_CONNECTED))
+    if (!pb_ota_net_stat_check(pb_ota_context.act_net_dev, PB_OTA_NET_CONNECTED)
+        || pb_fota_upgrading())
     {
         return;
     }
@@ -847,6 +849,8 @@ static void pb_ota_net_send(PB_MSG_TYPE *pMsg)
     {
         pb_ota_context.need_reboot = false;
         OS_INFO("REBOOT");
+        //add some delay make sure the RSP send to server
+        os_scheduler_delay(DELAY_1_S);
         hal_board_reset();
     }
 }

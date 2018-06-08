@@ -29,6 +29,7 @@
 #include "ftp.h"
 #include "md5.h"
 #include "pb_io_indicator_led.h"
+#include "pb_gui_main.h"
 
 /******************************************************************************
 * Macros
@@ -135,6 +136,7 @@ static int32 pb_fota_submit_new_image(PB_IMAGE_CONTENT_TYPE IC)
 static void pb_fota_firmware_confirm(void)
 {
     int32 ret = confirmImage();
+    bool needReportVer = false;
     OS_DBG_TRACE(DBG_MOD_PBFOTA, DBG_INFO, "Prot FIRMWARE COMFIRM[%d]", ret);
 
     switch (ret)
@@ -142,17 +144,25 @@ static void pb_fota_firmware_confirm(void)
         case PB_IMAGE_FOTA_OK:
         {
             pb_fota_send_fota_rsp(PB_FOTA_UPGRADE_OK, 0);
+            needReportVer = true;
             break;
         }
         case PB_IMAGE_FOTA_ERR_AND_RECOVER:
         {
             pb_fota_send_fota_rsp(PB_FOTA_UPGRADE_ERR, 0);
+            needReportVer = true;
             break;
         }
         case PB_IMAGE_NORMAL:
         case PB_IMAGE_COM_UPDATE:
         default:
             break;
+    }
+    
+    if (needReportVer)
+    {
+        uint8 cmdType = 0;
+        pb_prot_send_rsp_param_req(PB_PROT_RSP_RTO, (uint8*)&cmdType, sizeof(cmdType));
     }
 }
 
@@ -394,6 +404,9 @@ static bool pb_fota_save(FTP_CLIENT *ftp, PB_FOTA_CONTEXT *param, PB_IMAGE_CONTE
             /*!!!when trace log text length is longer than buff size, datas will be error!!!*/
             //PB_DEBUG_TRACE(DBG_TRACE_DRV, "File data[%d][%s]", dataLen, data);
             totalLen += dataLen;
+
+            //display up process in screen 10% ~ 90%
+            pb_gui_set_upgrade_info(PB_GUI_UP_DOWNLOADING, (uint8)(10 + (totalLen * 80.0f / param->totalSize)));
         }
         else
         {
@@ -450,6 +463,8 @@ static uint8 pb_fota_ftp_process(PB_FOTA_CONTEXT *param, PB_IMAGE_CONTENT_TYPE *
             OS_DBG_ERR(DBG_MOD_PBFOTA, "ftp connect err");
             continue;
         }
+        //display up process in screen
+        pb_gui_set_upgrade_info(PB_GUI_UP_CONNECT_SERVER, 5);
 
         //set ftp server path
         if (!ftp->setPath(path))
@@ -465,6 +480,8 @@ static uint8 pb_fota_ftp_process(PB_FOTA_CONTEXT *param, PB_IMAGE_CONTENT_TYPE *
             goto ftpClose;
         }
 
+        //display up process in screen
+        pb_gui_set_upgrade_info(PB_GUI_UP_START_DOWNLOAD, 10);
         //get frimware bin total size
         if (0 == (param->totalSize = ftp->getFileSize(fname, param->timeout*60*1000)))
         {
@@ -536,6 +553,8 @@ static uint8 pb_fota_process(PB_FOTA_CONTEXT *param)
     {
         goto end;
     }
+    //display up process in screen
+    pb_gui_set_upgrade_info(PB_GUI_UP_VERIFY, 90);
 
     //firmware MD5 check
     uint8 md5Data[PB_FOTA_MD5_LEN];
@@ -563,6 +582,8 @@ static uint8 pb_fota_process(PB_FOTA_CONTEXT *param)
     submitIC.rom_add_end = IC.rom_add_end;
     pb_fota_submit_new_image(submitIC);
     OS_DBG_TRACE(DBG_MOD_PBFOTA, DBG_INFO, "NEW IMAGE SUBMIT");
+    //display up process in screen
+    pb_gui_set_upgrade_info(PB_GUI_UP_OK, 100);
 
 end:
     return ret;
@@ -598,6 +619,10 @@ static void pb_fota_upgrade(void)
     //start upgrading
     OS_DBG_TRACE(DBG_MOD_PBFOTA, DBG_INFO, "Start FOTA...");
     b_fota_upgrading = true;
+    
+    //turn on display upgrading info in OLED
+    pb_gui_send_act_req(PB_GUI_ACT_UPGRADEMENU);
+    pb_gui_set_upgrade_info(PB_GUI_UP_START, 0);
 
     uint8 fotaRet;
     fotaRet = pb_fota_process(&pb_fota_context);
@@ -611,12 +636,14 @@ static void pb_fota_upgrade(void)
     {
         pb_fota_send_fota_rsp(PB_FOTA_UPGRADE_START, pb_fota_context.curRetryCnt);
         pb_prot_send_rsp_req(PB_PROT_RSP_PFE);
+
+        pb_gui_set_upgrade_info(PB_GUI_UP_REBOOT, 100);
         pb_ota_need_set_reboot(true);
     }
     else
     {
         //turn off display upgrading info in OLED
-        //pb_gui_send_menu_act_req(PB_GUI_MSG_UPGRADEMENU); 
+        pb_gui_send_act_req(PB_GUI_ACT_UPGRADEMENU);
     }
 }
 

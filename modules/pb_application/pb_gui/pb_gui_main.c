@@ -51,6 +51,11 @@
 /*Volume page*/
 #define TITLE_ROW 1
 #define VOLUME_ROW 2
+/*Upgrade page*/
+#define UP_TITLE_ROW 0
+#define UP_STAGE_ROW 1
+#define UP_PROCESS_ROW 2
+#define UP_DATE_ROW 3
 
 /******************************************************************************
 * Variables (Extern, Global and Static)
@@ -83,7 +88,7 @@ static void pb_gui_show_version(bool update)
     
     //firmware version
     memset(temp, 0x00, sizeof(temp));
-    uint16 fmVer = 0x2000;
+    uint16 fmVer = PB_FIRMWARE_VERSION;
     sprintf(temp, "ParkBox V%d.%02d.%02d", (fmVer >> 12), ((fmVer >> 4) & 0xFF), (fmVer & 0x000F));
     devSH1106.show(DEFAULT_COL, VERSION_ROW, temp);
 
@@ -211,6 +216,99 @@ static void pb_gui_show_volume(bool update)
 }
 
 /******************************************************************************
+* Function    : pb_gui_show_upgrade
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_gui_show_upgrade(bool update)
+{
+    if (!update)
+    {
+        devSH1106.clear();
+    }
+
+    char temp[32];
+
+    //Upgrade title
+    sprintf(temp, "Firmware  Update");
+    devSH1106.show(DEFAULT_COL, UP_TITLE_ROW, temp);
+    
+    //Upgrade stage
+    memset(temp, 0, sizeof(temp));
+    switch (pb_gui_context.upStage)
+    {
+        case PB_GUI_UP_START:
+        {
+            sprintf(temp, "preparing ...");
+            break;
+        }
+        case PB_GUI_UP_CONNECT_SERVER:
+        {
+            sprintf(temp, "connecting ...");
+            break;
+        }
+        case PB_GUI_UP_START_DOWNLOAD:
+        {
+            sprintf(temp, "trasnferring ...");
+            break;
+        }
+        case PB_GUI_UP_DOWNLOADING:
+        {
+            sprintf(temp, "downloading ...");
+            break;
+        }
+        case PB_GUI_UP_VERIFY:
+        {
+            sprintf(temp, "verifying ...");
+            break;
+        }
+        case PB_GUI_UP_OK:
+        {
+            sprintf(temp, "completed !");
+            break;
+        }
+        case PB_GUI_UP_REBOOT:
+        {
+            sprintf(temp, "rebooting ...");
+            break;
+        }
+    }
+    devSH1106.show(DEFAULT_COL, UP_STAGE_ROW, temp);
+
+    //Upgrade process
+    memset(temp, 0, sizeof(temp));
+    sprintf(temp, "      %d%%      ", pb_gui_context.upProcess);
+    devSH1106.show(DEFAULT_COL, UP_PROCESS_ROW, temp);
+
+    //SYS date time
+    pb_util_get_datetime(temp, sizeof(temp));
+    devSH1106.show(DEFAULT_COL, UP_DATE_ROW, temp);    
+}
+
+/******************************************************************************
+* Function    : pb_gui_set_upgrade_info
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_gui_set_upgrade_info(uint8 stage, uint8 process)
+{
+    pb_gui_context.upStage = stage;
+    pb_gui_context.upProcess = process;
+}
+
+/******************************************************************************
 * Function    : pb_gui_switch_page
 * 
 * Author      : Chen Hao
@@ -242,6 +340,7 @@ static void pb_gui_show_page(bool update)
         }
         case PB_GUI_MENU_UPGRADE:
         {
+            pb_gui_show_upgrade(update);
             break;
         }
         default:
@@ -315,6 +414,16 @@ static void pb_gui_act_hdlr(PB_MSG_TYPE *pMsg)
         }
         case PB_GUI_ACT_UPGRADEMENU:
         {
+            //switch to first page
+            if (pb_gui_context.cursor == PB_GUI_MENU_UPGRADE)
+            {
+                pb_gui_context.cursor = PB_GUI_MENU_VERSION;
+            }
+            else
+            {
+                pb_gui_context.cursor = PB_GUI_MENU_UPGRADE;
+            }
+            pb_gui_show_page(false);
             break;
         }
         default:
@@ -341,7 +450,8 @@ static void pb_gui_main_init(void)
 
     memset(&pb_gui_context, 0, sizeof(pb_gui_context));
     pb_gui_context.cursor = 0;
-    pb_gui_context.lastCursor = 0;
+    pb_gui_context.upStage = 0;
+    pb_gui_context.upProcess = 0;
     
     pb_gui_show_version(true);
 }
