@@ -662,7 +662,7 @@ static uint16 pb_prot_assemble_rsp_rto(uint8 *buff, void *param)
     pbuff += pb_prot_assemble_u16(pbuff, pb_fota_get_firmware_version());
 
     /*Bootloader version*/
-    pbuff += pb_prot_assemble_u16(pbuff, pb_fota_get_bl_version());
+    pbuff += pb_prot_assemble_u16(pbuff, pb_cfg_proc_get_hardware_version());
 
     return (pbuff - buff);
 }
