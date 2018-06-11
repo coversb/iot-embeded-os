@@ -39,7 +39,6 @@
 /******************************************************************************
 * Macros
 ******************************************************************************/
-#define PB_PROT_DBI_RSP_DELAY (10 * SEC2MSEC)
 #define PB_PROT_SACK_CNTOUT 2
 
 /******************************************************************************
@@ -55,7 +54,6 @@ static bool bCfgNeedUpdate = false;
 //sack check count
 static uint8 unAckHBPCnt = 0;
 
-static OS_TMR_TYPE device_basic_rsp_tmr = NULL;
 static PB_PROT_RSP_GSMINFO_PARAM pb_gsm_info;
 static PB_PROT_RSP_LOC_PARAM pb_location;
 
@@ -340,44 +338,6 @@ void pb_prot_proc_update_rtc(uint32 timestamp)
     }
 
     lastTimestamp = timestamp;
-}
-
-/******************************************************************************
-* Function    : pb_prot_proc_send_dbi
-*
-* Author      : Chen Hao
-*
-* Parameters  :
-*
-* Return      :
-*
-* Description :
-******************************************************************************/
-static void pb_prot_proc_send_dbi(OS_TMR_TYPE tmr)
-{
-    pb_prot_send_rsp_req(PB_PROT_RSP_DBI);
-}
-
-/******************************************************************************
-* Function    : pb_prot_proc_device_basic_info_process
-*
-* Author      : Chen Hao
-*
-* Parameters  :
-*
-* Return      :
-*
-* Description :
-******************************************************************************/
-void pb_prot_proc_device_basic_info_process(void)
-{
-    //pb_ota_send_msg_data_to_ota_mod(PB_MSG_OTA_CELL_LOCATION_REQ, false);
-
-    if (device_basic_rsp_tmr == NULL)
-    {
-        device_basic_rsp_tmr = os_tmr_create(PB_PROT_DBI_RSP_DELAY, pb_prot_proc_send_dbi, false);
-    }
-    os_tmr_restart(device_basic_rsp_tmr);
 }
 
 /******************************************************************************
@@ -1349,7 +1309,7 @@ static void pb_prot_proc_cmd_exec_rto(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
         }
         case PB_RTO_LOCATION:
         {
-            //pb_ota_send_msg_data_to_ota_mod(PB_MSG_OTA_CELL_LOCATION_REQ, true);
+            pb_prot_send_rsp_req(PB_PROT_RSP_LOC);
             break;
         }
         case PB_RTO_GSMINFO:
@@ -1364,7 +1324,7 @@ static void pb_prot_proc_cmd_exec_rto(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
         }
         case PB_RTO_DEV_INFO_REQ:
         {
-            pb_prot_proc_device_basic_info_process();
+            pb_prot_send_rsp_req(PB_PROT_RSP_DBI);
             break;
         }
         case PB_RTO_DEV_CFG_REQ:

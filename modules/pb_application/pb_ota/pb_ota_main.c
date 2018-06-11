@@ -117,51 +117,6 @@ void pb_ota_need_set_reboot(bool sw)
 }
 
 /******************************************************************************
-* Function    : pb_ota_cell_location_hdlr
-* 
-* Author      : Chen Hao
-* 
-* Parameters  : 
-* 
-* Return      : 
-* 
-* Description : handle location message and send location report
-******************************************************************************/
-static void pb_ota_cell_location_hdlr(PB_MSG_TYPE *pMsg)
-{
-    if (!os_msg_data_vaild(pMsg->pMsgData))
-    {
-        return;
-    }
-    uint8 needReport = *(pMsg->pMsgData);
-
-    PB_PROT_RSP_LOC_PARAM locRsp;
-
-    if (pb_ota_context.act_net_dev == PB_OTA_NET_DEV_GPRS)
-    {
-        if (pb_ota_context.csq_update_cnt >= PB_OTA_NET_CSQ_INTERVAL)
-        {
-            OS_DBG_TRACE(DBG_MOD_PBOTA, DBG_WARN, "***Cell loc wait csq update***");
-            os_scheduler_delay(DELAY_500_MS);
-            pb_ota_send_msg_data_to_ota_mod(PB_MSG_OTA_CELL_LOCATION_REQ, needReport);
-            return;
-        }
-
-        if (0)//pb_util_get_location((char*)locRsp.longitude, (char*)locRsp.latitude))
-        {
-            locRsp.fixType = 0x10;//GSM basestion location
-            locRsp.timestamp = pb_util_get_timestamp();
-            pb_prot_proc_set_dev_location(&locRsp);
-        }
-    }
-
-    if (needReport)
-    {
-        pb_prot_send_rsp_req(PB_PROT_RSP_LOC);
-    }
-}
-
-/******************************************************************************
 * Function    : pb_ota_set_recv_copying
 * 
 * Author      : Chen Hao
@@ -716,15 +671,6 @@ retry:
         pb_ota_context.server_connect_cnt = 0;
         pb_ota_net_stat_set(devType, PB_OTA_NET_CONNECTED);
         pb_ota_net_retry_cnt_clear();
-
-        #if 0//disable auto send in this version
-        //After bootup, first time to connect network, send device basic info
-        if (pb_ota_need_send_dbi)
-        {
-            pb_ota_need_send_dbi = false;
-            pb_prot_proc_device_basic_info_process();
-        }
-        #endif//disable auto send in this version
     }
 }
 
@@ -1030,11 +976,6 @@ void pb_ota_main(void *pvParameters)
                 case PB_MSG_OTA_NET_RECV:
                 {
                     pb_ota_net_recv(p_pb_msg);
-                    break;
-                }
-                case PB_MSG_OTA_CELL_LOCATION_REQ:
-                {
-                    pb_ota_cell_location_hdlr(p_pb_msg);
                     break;
                 }
                 default:
