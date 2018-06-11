@@ -36,7 +36,7 @@
 #define PB_CMDCFG_ADDR (BOARD_FLASH_BASE + 0x7F000)
 
 /*Versions*/
-#define PB_PROTOCOL_VERSION 0x0116  //1.22
+#define PB_PROTOCOL_VERSION 0x0117  //1.23
 #define PB_FIRMWARE_VERSION 0x2000  //2.00.00
 #define PB_BOOTLOADER_VERSION 0x1040  //1.04.00
 
@@ -75,7 +75,7 @@
 #define AC_REMOTE_CTRL acCtrl
 
 //unit test
-#define PB_UNIT_TEST 1
+#define PB_UNIT_TEST 0
 
 //autdio 
 #define AUDIO_COM hwSerial2
@@ -86,7 +86,7 @@
 //pb prot
 #define PB_PROT_DBG 0
 #define PB_PROT_NETWORK_BYTE_ORDER  1 //big endian
-#define PB_PROT_AES 0
+#define PB_PROT_AES 1
 
 #define PB_TMA_AUTO_SET_RANGE 30 //seconds
 #define PB_TMA_AUTO_SET_DEBOUNCE 3 //count
@@ -99,7 +99,7 @@
 #define PB_ORDER_ENG_PW_LEN 8
 
 //pb ota
-#define PB_OTA_DBG 1
+#define PB_OTA_DBG 0
 #define PB_OTA_NET_SWITCH_RETRY 2
 #define PB_OTA_SERVER_SWITCH_RETRY 3
 
