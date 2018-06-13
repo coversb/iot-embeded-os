@@ -31,6 +31,7 @@
 #include "stm32f10x_flash.h"
 #include "stm32f10x_tim.h"
 #include "stm32f10x_spi.h"
+#include "flash_config.h"
 
 /******************************************************************************
 * Enums
@@ -48,9 +49,6 @@ enum
 /******************************************************************************
 * Macros
 ******************************************************************************/
-#define BOARD_FLASH_BASE FLASH_BASE
-#define BOARD_FLASH_SECTOR_SIZE 2048   //bytes
-#define BOARD_APP_OFFSET 0x4000
 #define BOARD_NVIC_PRIO_GROUP NVIC_PriorityGroup_1
 
 //peripheral

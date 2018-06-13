@@ -19,6 +19,7 @@
 * Include Files
 ******************************************************************************/
 #include "board_config.h"
+#include "flash_config.h"
 #include "os_config.h"
 #include "os_middleware.h"
 #include "hal_flash.h"
@@ -32,8 +33,8 @@
 * Macros
 ******************************************************************************/
 /*Flash partition*/
-#define PB_DEVINFO_ADDR (BOARD_FLASH_BASE + 0x7E800)
-#define PB_CMDCFG_ADDR (BOARD_FLASH_BASE + 0x7F000)
+#define PB_DEVINFO_ADDR DEVINFO_BEGIN
+#define PB_CMDCFG_ADDR CMDCFG_BEGIN
 
 /*Versions*/
 #define PB_PROTOCOL_VERSION 0x0117  //1.23
