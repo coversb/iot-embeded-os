@@ -121,6 +121,7 @@ bool os_msg_data_vaild(uint8 *p)
     return true;
 }
 
+#if (OS_TMR_ENABLE == 1)
 /******************************************************************************
 * Function    : os_tmr_start
 * 
@@ -202,7 +203,9 @@ void os_tmr_stop(OS_TMR_TYPE tmrHdlr)
         }
     }
 }
+#endif /*OS_TMR_ENABLE*/
 
+#if (OS_MUTEX_ENABLE == 1)
 /******************************************************************************
 * Function    : os_mutex_lock_init
 * 
@@ -327,6 +330,7 @@ bool os_mutex_unlock(OS_MUTEX_TYPE *mutex)
     }
     return (bool)os_mutex_give(*mutex);
 }
+#endif /*OS_MUTEX_ENABLE*/
 
 /******************************************************************************
 * Function    : os_set_task_init

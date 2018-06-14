@@ -28,7 +28,6 @@
 #include "timers.h"
 #include "semphr.h"
 #include "portable.h"
-#include "FreeRTOSConfig.h"
 
 /******************************************************************************
 * Macros
@@ -53,6 +52,9 @@
 #define MIN2SEC (60)
 
 /*FreeRTOS*/
+#define OS_TMR_ENABLE configUSE_TIMERS
+#define OS_MUTEX_ENABLE configUSE_MUTEXES
+
 #define OS_STACK_1K (1024)
 #define OS_MSG_BLOCK_WAIT portMAX_DELAY
 #define OS_MSG_RECV_FAILED pdFAIL
@@ -78,6 +80,7 @@
 //#define os_msg_queue_send(que, pData, timeout) xQueueSend((que), (pData), (timeout))
 
 //timer
+#if (OS_TMR_ENABLE == 1)
 #define os_tmr_create(tInterval, tCallback, tAutoReload) xTimerCreate("OSTMR", ((tInterval)/portTICK_RATE_MS), (tAutoReload), NULL, (tCallback))
 #define os_tmr_delete(tmrHdlr) xTimerDelete((tmrHdlr), 0)
 //#define os_tmr_start(tmrHdlr) xTimerStart((tmrHdlr), 0)
@@ -86,12 +89,15 @@
 #define os_tmr_change_period(tmrHdlr, tInterval) xTimerChangePeriod((tmrHdlr), ((tInterval)/portTICK_RATE_MS), 0)
 #define os_tmr_is_active(tmrHdlr) xTimerIsTimerActive((tmrHdlr))
 #define os_tmr_get_expire_time(tmrHdlr) xTimerGetExpiryTime((tmrHdlr))
+#endif /*OS_TMR_ENABLE*/
 
 //mutex
+#if (OS_MUTEX_ENABLE == 1)
 #define os_mutex_create() xSemaphoreCreateMutex()
 #define os_mutex_delete(mutexHdlr) vSemaphoreDelete((mutexHdlr))
 #define os_mutex_take(mutexHdlr, timeout) xSemaphoreTake((mutexHdlr), ((timeout)/portTICK_RATE_MS))
 #define os_mutex_give(mutexHdlr) xSemaphoreGive((mutexHdlr))
+#endif /*OS_MUTEX_ENABLE*/
 
 /******************************************************************************
 * Enums
@@ -114,14 +120,18 @@ typedef struct
 extern void os_msg_queue_send(OS_MSG_QUEUE_TYPE que, const void * const pdata, uint32 timeWait);
 extern bool os_msg_data_vaild(uint8 *p);
 //timer
+#if (OS_TMR_ENABLE == 1)
 extern void os_tmr_start(OS_TMR_TYPE tmrHdlr);
 extern void os_tmr_stop(OS_TMR_TYPE tmrHdlr);
+#endif /*OS_TMR_ENABLE*/
 //mutex
+#if (OS_MUTEX_ENABLE == 1)
 extern bool os_mutex_lock_init(OS_MUTEX_TYPE *mutex);
 extern void os_mutex_lock_deinit(OS_MUTEX_TYPE *mutex);
 extern bool os_mutex_lock(OS_MUTEX_TYPE *mutex);
 extern bool os_mutex_try_lock(OS_MUTEX_TYPE *mutex, uint32 timeout);
 extern bool os_mutex_unlock(OS_MUTEX_TYPE *mutex);
+#endif /*OS_MUTEX_ENABLE*/
 /*OS API functions end*/
 
 extern void os_set_task_init(uint8 idx);

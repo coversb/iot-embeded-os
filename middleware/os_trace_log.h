@@ -31,6 +31,13 @@
 #define OS_DBG_ERR(DBG_IDX, ...)  os_trace_debug(DBG_IDX, DBG_ERR, __FILE__, __LINE__, __VA_ARGS__)
 #define OS_DBG_TRACE(DBG_IDX, DBG_LV, ...)  os_trace_debug(DBG_IDX, DBG_LV, __FILE__, __LINE__, __VA_ARGS__)
 #else
+#define BL_INFO(...) \
+do \
+{ \
+    printf(__VA_ARGS__); \
+    printf("\r\n"); \
+}while (0)
+
 #define OS_INFO(...) 
 #define OS_DBG_ERR(DBG_IDX, ...)  
 #define OS_DBG_TRACE(DBG_IDX, DBG_LV, ...)  

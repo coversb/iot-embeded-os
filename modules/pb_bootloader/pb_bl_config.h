@@ -1,48 +1,51 @@
 /******************************************************************************
 *        
-*     Open source
+*     Copyright (c) 2018 ParkBox Ltd.   
 *        
 *******************************************************************************
-*  file name:          hal_flash.h
+*  file name:          pb_bl_config.h 
 *  author:              Chen Hao
 *  version:             1.00
-*  file description:   flash driver
+*  file description:   bootloader config
 *******************************************************************************
 *  revision history:    date               version                  author
 *
-*  change summary:   2018-4-17      1.00                    Chen Hao
+*  change summary:   2018-6-12      1.00                    Chen Hao
 *
 ******************************************************************************/
-#ifndef __HAL_FLASH_H__
-#define __HAL_FLASH_H__
+#ifndef __PB_BL_CONFIG_H__
+#define __PB_BL_CONFIG_H__
 /******************************************************************************
 * Include Files
 ******************************************************************************/
-#include "basetype.h"
 #include "board_config.h"
+#include "os_config.h"
+#include "os_middleware.h"
+#include "hal_flash.h"
+#include "hal_usart.h"
 
 /******************************************************************************
 * Macros
 ******************************************************************************/
+/*Versions*/
+#define PB_HW_VERSION 0x0101 //01.01
+#define PB_BL_VERSION 0x2000  //2.00.00
 
 /******************************************************************************
-* Types
+* Device define
 ******************************************************************************/
-typedef struct
-{
-    void (*init)(void);
-    void (*deint)(void);
-    bool (*erase)(uint32 addr);
-    bool (*erasePages)(uint32 addr, uint32 len);
-    uint32 (*read)(uint32 addr, uint8 *buff, uint32 len);
-    int32 (*write)(uint32 addr, uint32 *buff, uint32 len);
-    int32 (*forceWrite)(uint32 addr, uint32 *buff, uint32 len);
-}HAL_FLASH_TYPE;
+/*Flash handler*/
+#define PB_FLASH_HDLR hwFlash
 
-/******************************************************************************
-* Extern variable
-******************************************************************************/
-extern const HAL_FLASH_TYPE hwFlash;
+#if defined(PB_BOOTLOADER_DBG)
+#define PB_BL_DEBUG_COM hwSerial5
+#endif /*PB_BOOTLOADER_DBG*/
+/*Debug com*/
+#define PB_DEBUG_COM OS_TRACE_COM
+#define PB_UPGRADE_COM OS_TRACE_COM
 
-#endif /*__HAL_FLASH_H__*/
+/*OLED I2C*/
+//#define OLED_I2C swI2C1
+
+#endif /* __PB_BL_CONFIG_H__ */
 

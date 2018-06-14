@@ -25,7 +25,9 @@
 * Macros
 ******************************************************************************/
 #define BOARD_FLASH_BASE FLASH_BASE
+#define BOARD_FLASH_SIZE 0x80000
 #define BOARD_FLASH_SECTOR_SIZE 0x800 //bytes
+#define BOARD_BL_OFFSET 0x0000
 #define BOARD_APP_OFFSET 0x4000
 
 /******************************************************************************

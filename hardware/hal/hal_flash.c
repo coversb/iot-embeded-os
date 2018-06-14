@@ -98,6 +98,45 @@ static bool hal_flash_erase_page(uint32 addr)
 }
 
 /******************************************************************************
+* Function    : hal_flash_erase_pages
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static bool hal_flash_erase_pages(uint32 addr, uint32 len)
+{
+    uint32 offsetAddr = 0;
+    uint32 pagePos = 0;
+    uint32 pageNum = 0;
+    
+    if ((addr < BOARD_FLASH_BASE)
+        || (addr > BOARD_FLASH_BASE + BOARD_FLASH_SIZE)
+        || (addr + len > BOARD_FLASH_BASE + BOARD_FLASH_SIZE))
+    {
+        return false;
+    }
+
+    offsetAddr = addr - BOARD_FLASH_BASE;
+    pagePos = offsetAddr / BOARD_FLASH_SECTOR_SIZE;
+    pageNum = len / BOARD_FLASH_SECTOR_SIZE + (((len % BOARD_FLASH_SECTOR_SIZE) > 0) ? 1 : 0);
+
+    for (uint32 pageIdx = pagePos; pageIdx < pagePos + pageNum; ++pageIdx)
+    {
+        if (!hal_flash_erase_page(BOARD_FLASH_BASE + pageIdx * BOARD_FLASH_SECTOR_SIZE))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/******************************************************************************
 * Function    : hal_flash_read
 * 
 * Author      : Chen Hao
@@ -171,12 +210,58 @@ flash_programe_EXIT:
     return (-i_write);
 }
 
+/******************************************************************************
+* Function    : hal_flash_write_force
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+int32 hal_flash_write_force(uint32 addr, uint32  *buff, uint32 len)
+{
+    uint16 i_write = 0;
+    uint32 write_addr = addr;
+    uint16 WordLength = (len + 3) / 4;
+
+    os_mutex_lock(&hal_flash_mutex);
+    
+    FLASH_Unlock();
+    for(i_write = 0; i_write < WordLength; i_write++)
+    {
+        FLASH_ProgramWord(write_addr, *buff);
+        if((*(u32*)write_addr) != (*buff))
+        {
+            OS_DBG_ERR(DBG_MOD_HAL, "flash write err");
+            goto flash_programe_EXIT;
+        }
+        write_addr += 4;
+        buff++;
+    }
+flash_programe_EXIT:	
+    FLASH_Lock();
+
+    os_mutex_unlock(&hal_flash_mutex);
+
+    if(i_write == WordLength)
+    {
+        return 0;
+    }
+    
+    return (-i_write);
+}
+
 const HAL_FLASH_TYPE hwFlash = 
 {
     hal_flash_init,
     hal_flash_deinit,
     hal_flash_erase_page,
+    hal_flash_erase_pages,
     hal_flash_read,
-    hal_flash_write
+    hal_flash_write,
+    hal_flash_write_force
 };
 

@@ -25,6 +25,38 @@
 #include "os_trace_log.h"
 
 /******************************************************************************
+* printf redirect to debug com begin
+******************************************************************************/
+#pragma import(__use_no_semihosting)             
+struct __FILE 
+{ 
+    int handle; 
+};
+
+FILE __stdout;
+
+void _sys_exit(int x) 
+{ 
+    x = x; 
+} 
+
+int fputc(int ch, FILE *f)
+{
+    uint8 str[1] = {0};
+    str[0] = (uint8)ch;
+    OS_TRACE_COM.write(str[0]);
+    
+    return ch;
+}
+
+void _ttywrch(int ch)
+{
+    ch = ch;
+}
+
+#if ( OS_TRACE_LOG == 1 )
+
+/******************************************************************************
 * Macros
 ******************************************************************************/
 
@@ -59,36 +91,6 @@ const char *TRACE_LV_NAME[DBG_END + 1] =
 
 static uint32 os_trace_module = 0x00000000;
 static uint32 os_trace_level = 0x00000000;
-
-/******************************************************************************
-* printf redirect to debug com begin
-******************************************************************************/
-#pragma import(__use_no_semihosting)             
-struct __FILE 
-{ 
-    int handle; 
-};
-
-FILE __stdout;
-
-void _sys_exit(int x) 
-{ 
-    x = x; 
-} 
-
-int fputc(int ch, FILE *f)
-{
-    uint8 str[1] = {0};
-    str[0] = (uint8)ch;
-    OS_TRACE_COM.write(str[0]);
-    
-    return ch;
-}
-
-void _ttywrch(int ch)
-{
-    ch = ch;
-}
 
 /******************************************************************************
 * Local Functions
@@ -222,4 +224,6 @@ uint16 os_trace_get_hex_str(uint8 *str, uint16 strLen, uint8 *hex, uint16 hexLen
 
     return printLen;
 }
+
+#endif /*OS_TRACE_LOG*/
 

@@ -47,6 +47,32 @@ enum
 };
 
 /******************************************************************************
+* Macros control
+******************************************************************************/
+#if defined(PB_BOOTLOADER)
+#define BOARD_USART1_ENABLE 1   //USART1 for debug
+#define BOARD_USART1_RX_BUFFSIZE 2048
+#if defined(PB_BOOTLOADER_DBG)
+#define BOARD_USART5_ENABLE 1
+#endif /*PB_BOOTLOADER_DBG*/
+
+#elif defined(PB_APPLICATION)
+#define BOARD_BKP_ENABLE 1
+#define BOARD_RTC_ENABLE 1
+#define BOARD_USART1_ENABLE 1   //USART1 for debug
+#define BOARD_USART1_RX_BUFFSIZE 256
+
+#define BOARD_USART2_ENABLE 1   //USART2 for KT603 (Audio)
+#define BOARD_USART3_ENABLE 1   //USART3 for M26 (GPRS)
+#define BOARD_USART5_ENABLE 1   //key board or QR module
+#define BOARD_SW_I2C1_ENABLE 1
+#define BOARD_SPI2_ENABLE 1
+#define BOARD_TIM2_ENABLE 1
+#define BOARD_TIM3_PWM_ENABLE 1
+
+#endif
+
+/******************************************************************************
 * Macros
 ******************************************************************************/
 #define BOARD_NVIC_PRIO_GROUP NVIC_PriorityGroup_1
@@ -60,29 +86,24 @@ enum
 #define BOARD_EXT_WDG_PIN GPIOB, GPIO_Pin_1
 
 /*BKP*/
-#define BOARD_BKP_ENABLE 1
 #define BOARD_BKP_RCC RCC_APB1Periph_PWR|RCC_APB1Periph_BKP, BOARD_RCC_APB1
 #define BOARD_BKP_RTC_ADDR BKP_DR1
 #define BOARD_BKP_DEV_CRC_ADDR BKP_DR2
 #define BOARD_BKP_DEV_ADDR BKP_DR3
 
 /*RTC*/
-#define BOARD_RTC_ENABLE 1
 #define BOARD_RTC_BKP_SETFLAG  0x5A5A
 #define BOARD_RTC_DEFAULT  1525104000   //2018-05-01 00:00:00
 
 /*USART1*/
-#define BOARD_USART1_ENABLE 1   //USART1 for debug
 #define BOARD_IQR_PRIO_USART1 1
 #define BOARD_IQR_SUB_PRIO_USART1 2
 #define BOARD_USART1_RCC RCC_APB2Periph_USART1, BOARD_RCC_APB2
 #define BOARD_USART1_IO_RCC RCC_APB2Periph_GPIOA|RCC_APB2Periph_AFIO, BOARD_RCC_APB2
 #define BOARD_USART1_TX GPIOA, GPIO_Pin_9
 #define BOARD_USART1_RX GPIOA, GPIO_Pin_10
-#define BOARD_USART1_RX_BUFFSIZE 256
 
 /*USART2*/
-#define BOARD_USART2_ENABLE 1   //USART2 for KT603 (Audio)
 #define BOARD_IQR_PRIO_USART2 1
 #define BOARD_IQR_SUB_PRIO_USART2 2
 #define BOARD_USART2_RCC RCC_APB1Periph_USART2, BOARD_RCC_APB1
@@ -99,7 +120,6 @@ enum
 #define BOARD_KT603_DEBUG 0
 
 /*USART3*/
-#define BOARD_USART3_ENABLE 1   //USART3 for M26 (GPRS)
 #define BOARD_IQR_PRIO_USART3 1
 #define BOARD_IQR_SUB_PRIO_USART3 1
 #define BOARD_USART3_RCC RCC_APB1Periph_USART3, BOARD_RCC_APB1
@@ -113,7 +133,6 @@ enum
 #define BOARD_M26_PWRKEY GPIOA, GPIO_Pin_8
 
 /*USART5*/
-#define BOARD_USART5_ENABLE 1   //key board or QR module
 #define BOARD_IQR_PRIO_UART5 1
 #define BOARD_IQR_SUB_PRIO_UART5 1
 #define BOARD_USART5_RCC RCC_APB1Periph_UART5, BOARD_RCC_APB1
@@ -123,13 +142,11 @@ enum
 #define BOARD_UART5_RX_BUFFSIZE 128
 
 /*Software I2C 1*/
-#define BOARD_SW_I2C1_ENABLE 1
 #define BOARD_SW_I2C1_RCC RCC_APB2Periph_GPIOB, BOARD_RCC_APB2
 #define BOARD_SW_I2C1_SCL GPIOB, GPIO_Pin_6
 #define BOARD_SW_I2C1_SDA GPIOB, GPIO_Pin_7
 
 /*SPI2*/
-#define BOARD_SPI2_ENABLE 1
 #define BOARD_SPI2_RCC RCC_APB1Periph_SPI2, BOARD_RCC_APB1
 #define BOARD_SPI2_IO_RCC RCC_APB2Periph_GPIOB|RCC_APB2Periph_GPIOG|RCC_APB2Periph_AFIO, BOARD_RCC_APB2
 #define BOARD_SPI2_CLK GPIOB, GPIO_Pin_13
@@ -141,13 +158,11 @@ enum
 #define BOARD_W5500_RST GPIOG, GPIO_Pin_14
 
 /*TIM*/
-#define BOARD_TIM2_ENABLE 1
 #define BOARD_TIM2_RCC RCC_APB1Periph_TIM2, BOARD_RCC_APB1
 #define BOARD_TIM2_COUNTER 48
 #define BOARD_IQR_PRIO_TIM2 1
 #define BOARD_IQR_SUB_PRIO_TIM2 2
 
-#define BOARD_TIM3_PWM_ENABLE 1
 #define BOARD_TIM3_RCC RCC_APB1Periph_TIM3, BOARD_RCC_APB1
 #define BOARD_TIM3_CH2_RCC RCC_APB2Periph_GPIOA, BOARD_RCC_APB2
 #define BOARD_TIM3_CH2 GPIOA, GPIO_Pin_7

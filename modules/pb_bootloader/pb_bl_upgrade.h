@@ -1,48 +1,42 @@
 /******************************************************************************
 *        
-*     Open source
+*     Copyright (c) 2018 ParkBox Ltd.   
 *        
 *******************************************************************************
-*  file name:          hal_flash.h
+*  file name:          pb_bl_upgrade.h
 *  author:              Chen Hao
 *  version:             1.00
-*  file description:   flash driver
+*  file description:   bl upgrade functions
 *******************************************************************************
 *  revision history:    date               version                  author
 *
-*  change summary:   2018-4-17      1.00                    Chen Hao
+*  change summary:   2018-6-13      1.00                    Chen Hao
 *
 ******************************************************************************/
-#ifndef __HAL_FLASH_H__
-#define __HAL_FLASH_H__
+#ifndef __PB_BL_UPGRADE_H__
+#define __PB_BL_UPGRADE_H__
 /******************************************************************************
 * Include Files
 ******************************************************************************/
 #include "basetype.h"
-#include "board_config.h"
+#include "pb_bl_config.h"
 
 /******************************************************************************
 * Macros
 ******************************************************************************/
 
 /******************************************************************************
-* Types
+* Enums
 ******************************************************************************/
-typedef struct
-{
-    void (*init)(void);
-    void (*deint)(void);
-    bool (*erase)(uint32 addr);
-    bool (*erasePages)(uint32 addr, uint32 len);
-    uint32 (*read)(uint32 addr, uint8 *buff, uint32 len);
-    int32 (*write)(uint32 addr, uint32 *buff, uint32 len);
-    int32 (*forceWrite)(uint32 addr, uint32 *buff, uint32 len);
-}HAL_FLASH_TYPE;
 
 /******************************************************************************
-* Extern variable
+* Types
 ******************************************************************************/
-extern const HAL_FLASH_TYPE hwFlash;
 
-#endif /*__HAL_FLASH_H__*/
+/******************************************************************************
+* Global Variables
+******************************************************************************/
+extern bool pb_bl_upgrade_by_uart(void);
+
+#endif /* __PB_BL_UPGRADE_H__ */
 

@@ -44,7 +44,12 @@ void hal_board_init(void)
 {
     SystemInit();
 
+    #if defined(PB_BOOTLOADER)
+    NVIC_SetVectorTable(NVIC_VectTab_FLASH, BOARD_BL_OFFSET);
+    #elif defined(PB_APPLICATION)
     NVIC_SetVectorTable(NVIC_VectTab_FLASH, BOARD_APP_OFFSET);
+    #endif
+    
     NVIC_PriorityGroupConfig(BOARD_NVIC_PRIO_GROUP);
 }
 
