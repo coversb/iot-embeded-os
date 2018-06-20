@@ -25,6 +25,7 @@
 * Macros
 ******************************************************************************/
 #if ( OS_TRACE_LOG == 1 )
+#define BL_INFO(...) os_trace_info(__VA_ARGS__)
 //os info
 #define OS_INFO(...) os_trace_info(__VA_ARGS__)
 //os debug log

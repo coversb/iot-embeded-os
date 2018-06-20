@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER,PB_BOOTLOADER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_bootloader</IncludePath>
+              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_bootloader;..\..\modules\pb_firmware_manage</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -378,6 +378,16 @@
       </TargetOption>
       <Groups>
         <Group>
+          <GroupName>pb_firmware_manage</GroupName>
+          <Files>
+            <File>
+              <FileName>pb_firmware_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_firmware_manage\pb_firmware_manage.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>pb_bl</GroupName>
           <Files>
             <File>
@@ -394,6 +404,11 @@
               <FileName>ymodem.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\modules\pb_bootloader\ymodem.c</FilePath>
+            </File>
+            <File>
+              <FileName>pb_bl_dbg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_bootloader\pb_bl_dbg.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3130,7 +3145,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER,PB_APPLICATION</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_crypto;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_gui;..\..\modules\pb_application\pb_multimedia;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\drivers\screen\oled;..\..\modules\drivers\rgbLed;..\..\modules\drivers\ir;..\..\modules\drivers\audio\kt603;..\..\modules\drivers\eth;..\..\modules\network_util;..\..\modules\pb_application\pb_order</IncludePath>
+              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_crypto;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_gui;..\..\modules\pb_application\pb_multimedia;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\drivers\screen\oled;..\..\modules\drivers\rgbLed;..\..\modules\drivers\ir;..\..\modules\drivers\audio\kt603;..\..\modules\drivers\eth;..\..\modules\network_util;..\..\modules\pb_application\pb_order;..\..\modules\pb_firmware_manage</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -3171,6 +3186,16 @@
         </TargetArmAds>
       </TargetOption>
       <Groups>
+        <Group>
+          <GroupName>pb_firmware_manage</GroupName>
+          <Files>
+            <File>
+              <FileName>pb_firmware_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_firmware_manage\pb_firmware_manage.c</FilePath>
+            </File>
+          </Files>
+        </Group>
         <Group>
           <GroupName>pb_bl</GroupName>
           <GroupOption>
@@ -3256,6 +3281,11 @@
               <FileName>ymodem.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\modules\pb_bootloader\ymodem.c</FilePath>
+            </File>
+            <File>
+              <FileName>pb_bl_dbg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\modules\pb_bootloader\pb_bl_dbg.c</FilePath>
             </File>
           </Files>
         </Group>

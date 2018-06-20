@@ -49,6 +49,8 @@ enum
 /******************************************************************************
 * Macros control
 ******************************************************************************/
+#define BOARD_HW_VERSION 0x0100 //V1.00
+
 #if defined(PB_BOOTLOADER)
 #define BOARD_USART1_ENABLE 1   //USART1 for debug
 #define BOARD_USART1_RX_BUFFSIZE 2048

@@ -175,7 +175,7 @@ static uint32 hal_flash_read(uint32 addr, uint8 *buff, uint32 len)
 * 
 * Description : write data to flash
 ******************************************************************************/
-int32 hal_flash_write(uint32 addr, uint32  *buff, uint32 len)
+static int32 hal_flash_write(uint32 addr, uint32 *buff, uint32 len)
 {
     uint16 i_write = 0;
     uint32 write_addr = addr;
@@ -221,7 +221,7 @@ flash_programe_EXIT:
 * 
 * Description : 
 ******************************************************************************/
-int32 hal_flash_write_force(uint32 addr, uint32  *buff, uint32 len)
+static int32 hal_flash_write_force(uint32 addr, uint32 *buff, uint32 len)
 {
     uint16 i_write = 0;
     uint32 write_addr = addr;

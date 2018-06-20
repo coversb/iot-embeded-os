@@ -17,23 +17,15 @@
 * Include Files
 ******************************************************************************/
 #include "os_middleware.h"
-#include "os_trace_log.h"
 #include "pb_bl_config.h"
 #include "ymodem.h"
 #include "hal_wdg.h"
+#include "pb_firmware_manage.h"
+#include "pb_bl_dbg.h"
 
 /******************************************************************************
 * Macros
 ******************************************************************************/
-#if defined(PB_BOOTLOADER_DBG)
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-
-#define YMODEM_INFO(...) ymodem_trace_info(__VA_ARGS__)
-#else
-#define YMODEM_INFO(...) 
-#endif /*PB_BOOTLOADER_DBG*/
 
 /******************************************************************************
 * Variables (Extern, Global and Static)
@@ -42,22 +34,6 @@
 /******************************************************************************
 * Local Functions
 ******************************************************************************/
-#if defined(PB_BOOTLOADER_DBG)
-static void ymodem_trace_info(const char *fmt, ...)
-{
-    char buff[OS_TRACE_LOG_SIZE + 1];
-    uint32 len;
-
-    va_list va;
-    va_start(va, fmt);
-    len = vsnprintf(buff, OS_TRACE_LOG_SIZE, fmt, va);
-    va_end(va);
-    buff[len] = '\0';
-
-    PB_BL_DEBUG_COM.println(buff);
-}
-#endif /*PB_BOOTLOADER_DBG*/
-
 static uint8 char2int(uint8 character)
 {
     uint8 i = 0;
@@ -200,7 +176,7 @@ static uint16 uartRecv(uint8 *pData, uint16 needLen)
         os_scheduler_delay(DELAY_50_MS);
         if (uartTimeout(sendTime, DOWNLOAD_TIMEOUT))
         {
-            YMODEM_INFO("recv timeout");
+            BL_DBG_INFO("recv timeout");
             offset = 0;
             goto err;
         }
@@ -335,19 +311,19 @@ static uint16 ymodem_packet_data(const uint8 type, uint8 *pdata, uint16 *size)
     
     needSize = *size + PACKET_OVERHEAD_SIZE;
 
-    YMODEM_INFO("need recv %d", needSize);
+    BL_DBG_INFO("need recv %d", needSize);
     readSize = uartRecv(&pdata[PACKET_NUMBER_INDEX], needSize);
     
     if (readSize != needSize)
     {
-        YMODEM_INFO("need %d, real %d", needSize, readSize);
+        BL_DBG_INFO("need %d, real %d", needSize, readSize);
         readSize = 0;
         goto err;
     }
 
     if (pdata[PACKET_NUMBER_INDEX] != ((pdata[PACKET_CNUMBER_INDEX]) ^ NEGATIVE_BYTE))
     {
-        YMODEM_INFO("idx %d, %d", pdata[PACKET_NUMBER_INDEX], ((pdata[PACKET_CNUMBER_INDEX]) ^ NEGATIVE_BYTE));
+        BL_DBG_INFO("idx %d, %d", pdata[PACKET_NUMBER_INDEX], ((pdata[PACKET_CNUMBER_INDEX]) ^ NEGATIVE_BYTE));
         readSize = 0;
         goto err;
     }
@@ -356,7 +332,7 @@ static uint16 ymodem_packet_data(const uint8 type, uint8 *pdata, uint16 *size)
     crc += pdata[*size + PACKET_DATA_INDEX + 1];
     if (getCRC16(&pdata[PACKET_DATA_INDEX], *size) != crc)
     {
-        YMODEM_INFO("crc need %02X, %02X", crc, getCRC16(&pdata[PACKET_DATA_INDEX], *size));
+        BL_DBG_INFO("crc need %02X, %02X", crc, getCRC16(&pdata[PACKET_DATA_INDEX], *size));
         readSize = 0;
         goto err;
     }
@@ -396,7 +372,7 @@ static bool ymodem_get_file_info(uint8 *pdata, uint32 *fSize)
     szSize[offset] = '\0';
 
     *fSize = dec2int(szSize, offset);
-    YMODEM_INFO("FSIZE %d", *fSize);
+    BL_DBG_INFO("FSIZE %d", *fSize);
     
     return true;
 }
@@ -414,9 +390,9 @@ static bool ymodem_get_file_info(uint8 *pdata, uint32 *fSize)
 ******************************************************************************/
 YMODEM_STATUS ymodem_process(void)
 {
-    YMODEM_STATUS ret = YMODEM_INIT;
+    volatile YMODEM_STATUS ret = YMODEM_INIT;
     
-    bool bTransmitting = true;
+    volatile bool bTransmitting = true;
     bool fileTransmitting = false;
     uint8 fileReqCnt = 0;
     uint8 errCnt = 0;
@@ -429,7 +405,7 @@ YMODEM_STATUS ymodem_process(void)
     uint32 romAddr = 0;
     uint32 ramSrc = 0;
 
-    YMODEM_INFO("YMODEM Start");
+    BL_DBG_INFO("YMODEM Start");
     //send begin
     uartSend(CRC16);
 
@@ -439,7 +415,7 @@ YMODEM_STATUS ymodem_process(void)
         hal_wdg_feed();
         
         pakcetType = ymodem_packet_type();
-        YMODEM_INFO("TYPE %d", pakcetType);
+        BL_DBG_INFO("TYPE %d", pakcetType);
         switch (pakcetType)
         {
             //Data packet
@@ -449,13 +425,13 @@ YMODEM_STATUS ymodem_process(void)
                 //get data in packet
                 if (0 == ymodem_packet_data(pakcetType, packetData, &packetSize))
                 {
-                    YMODEM_INFO("Recv none");
+                    BL_DBG_INFO("Recv none");
                     continue;
                 }
                 //check packet index
                 if (packetIdx != packetData[PACKET_NUMBER_INDEX])
                 {
-                    YMODEM_INFO("Idx err %d, %d", packetIdx, packetData[PACKET_NUMBER_INDEX]);
+                    BL_DBG_INFO("Idx err %d, %d", packetIdx, packetData[PACKET_NUMBER_INDEX]);
                     uartSend(NAK);
                     break;
                 }
@@ -489,7 +465,7 @@ YMODEM_STATUS ymodem_process(void)
                             uartSend(ACK);
                             if (!PB_FLASH_HDLR.erasePages(APP_BEGIN, APP_END - APP_BEGIN))
                             {
-                                YMODEM_INFO("erase err");
+                                BL_DBG_INFO("erase err");
                             }
                             else
                             {
@@ -501,16 +477,16 @@ YMODEM_STATUS ymodem_process(void)
                 else
                 {
                     ramSrc = (uint32)&packetData[PACKET_DATA_INDEX];
-                    YMODEM_INFO("write %X to %x", ramSrc, romAddr);
+                    BL_DBG_INFO("write %X to %x", ramSrc, romAddr);
                     if (PB_FLASH_HDLR.forceWrite(romAddr, (uint32*)ramSrc, packetSize) == 0)
                     {
                         romAddr += packetSize;
                         uartSend(ACK);
-                        YMODEM_INFO("romAddr %X, %d", romAddr, packetSize);
+                        BL_DBG_INFO("romAddr %X, %d", romAddr, packetSize);
                     }
                     else
                     {
-                        YMODEM_INFO("write %X to %x error", ramSrc, romAddr);
+                        BL_DBG_INFO("write %X to %x error", ramSrc, romAddr);
                         terminate();
                         ret = YMODEM_FLASHERR;
                         bTransmitting = false;
@@ -572,6 +548,8 @@ YMODEM_STATUS ymodem_process(void)
             }
         }
     }
+
+    BL_DBG_INFO("ret %d", ret);
 
     return ret;
 }

@@ -153,8 +153,12 @@ static void pb_fota_firmware_confirm(void)
             needReportVer = true;
             break;
         }
-        case PB_IMAGE_NORMAL:
         case PB_IMAGE_COM_UPDATE:
+        {
+            needReportVer = true;
+            break;
+        }
+        case PB_IMAGE_NORMAL:
         default:
             break;
     }

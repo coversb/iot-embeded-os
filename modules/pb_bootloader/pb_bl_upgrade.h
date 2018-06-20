@@ -37,6 +37,8 @@
 * Global Variables
 ******************************************************************************/
 extern bool pb_bl_upgrade_by_uart(void);
+extern bool pb_bl_upgrade_by_fota(void);
+extern bool pb_bl_recover(void);
 
 #endif /* __PB_BL_UPGRADE_H__ */
 
