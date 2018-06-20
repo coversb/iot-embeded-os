@@ -19,7 +19,6 @@
 * Include Files
 ******************************************************************************/
 #include "board_config.h"
-#include "flash_config.h"
 #include "os_config.h"
 #include "os_middleware.h"
 #include "hal_flash.h"
@@ -38,8 +37,7 @@
 
 /*Versions*/
 #define PB_PROTOCOL_VERSION 0x0117  //1.23
-#define PB_FIRMWARE_VERSION 0x2000  //2.00.00
-#define PB_BOOTLOADER_VERSION 0x1040  //1.04.00
+#define PB_FIRMWARE_VERSION 0x2010  //2.01.00
 
 /******************************************************************************
 * Device define
