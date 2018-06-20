@@ -24,6 +24,7 @@
 #include "os_task_define.h"
 #include "pb_app_config.h"
 #include "pb_io_indicator_led.h"
+#include "pb_firmware_manage.h"
 
 /******************************************************************************
 * Macros
@@ -54,6 +55,16 @@ static void hardware_init()
     PB_DEBUG_COM.begin(115200);
 
     uint16 fmVer = PB_FIRMWARE_VERSION;
+    PB_IMAGE_INFO imageInfo;
+    if (!fwManager.imageInfo(PB_IMAGE_APP, &imageInfo))
+    {
+        OS_INFO("image info err %x, %x, %x", imageInfo.imageType, imageInfo.hwVersion, imageInfo.imageVersion);
+    }
+    else
+    {
+        fmVer = imageInfo.imageVersion;
+    }
+
     OS_INFO("ParkBox V%d.%02d.%02d", (fmVer >> 12), ((fmVer >> 4) & 0xFF), (fmVer & 0x000F));
     OS_INFO("@%s-%s", __DATE__, __TIME__);
 

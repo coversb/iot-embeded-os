@@ -20,7 +20,7 @@
 ******************************************************************************/
 #include "basetype.h"
 #include "pb_prot_type.h"
-#include "AppUpgrade.h"
+#include "pb_firmware_manage.h"
 
 /******************************************************************************
 * Macros
@@ -29,19 +29,10 @@
 /******************************************************************************
 * Enums
 ******************************************************************************/
-typedef enum
-{
-    PB_IMAGE_NORMAL = 0,
-    PB_IMAGE_FOTA_OK = 1,
-    PB_IMAGE_FOTA_ERR_AND_RECOVER = 2,
-    PB_IMAGE_COM_UPDATE = 3
-}PB_IMAGE_CONFIRM_TYPE;
 
 /******************************************************************************
 * Types
 ******************************************************************************/
-typedef Image_ContentTypeDef PB_IMAGE_CONTENT_TYPE;
-
 /*FOTA context definition*/
 typedef struct
 {

@@ -1341,84 +1341,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>pb_bl_api</GroupName>
-          <GroupOption>
-            <CommonProperty>
-              <UseCPPCompiler>0</UseCPPCompiler>
-              <RVCTCodeConst>0</RVCTCodeConst>
-              <RVCTZI>0</RVCTZI>
-              <RVCTOtherData>0</RVCTOtherData>
-              <ModuleSelection>0</ModuleSelection>
-              <IncludeInBuild>0</IncludeInBuild>
-              <AlwaysBuild>2</AlwaysBuild>
-              <GenerateAssemblyFile>2</GenerateAssemblyFile>
-              <AssembleAssemblyFile>2</AssembleAssemblyFile>
-              <PublicsOnly>2</PublicsOnly>
-              <StopOnExitCode>11</StopOnExitCode>
-              <CustomArgument></CustomArgument>
-              <IncludeLibraryModules></IncludeLibraryModules>
-              <ComprImg>1</ComprImg>
-            </CommonProperty>
-            <GroupArmAds>
-              <Cads>
-                <interw>2</interw>
-                <Optim>0</Optim>
-                <oTime>2</oTime>
-                <SplitLS>2</SplitLS>
-                <OneElfS>2</OneElfS>
-                <Strict>2</Strict>
-                <EnumInt>2</EnumInt>
-                <PlainCh>2</PlainCh>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <wLevel>0</wLevel>
-                <uThumb>2</uThumb>
-                <uSurpInc>2</uSurpInc>
-                <uC99>2</uC99>
-                <useXO>2</useXO>
-                <v6Lang>0</v6Lang>
-                <v6LangP>0</v6LangP>
-                <vShortEn>2</vShortEn>
-                <vShortWch>2</vShortWch>
-                <v6Lto>2</v6Lto>
-                <v6WtE>2</v6WtE>
-                <v6Rtti>2</v6Rtti>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Cads>
-              <Aads>
-                <interw>2</interw>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <thumb>2</thumb>
-                <SplitLS>2</SplitLS>
-                <SwStkChk>2</SwStkChk>
-                <NoWarn>2</NoWarn>
-                <uSurpInc>2</uSurpInc>
-                <useXO>2</useXO>
-                <uClangAs>2</uClangAs>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Aads>
-            </GroupArmAds>
-          </GroupOption>
-          <Files>
-            <File>
-              <FileName>AppUpgrade.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\modules\pb_application\pb_bl_api\AppUpgrade.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>network_util</GroupName>
           <GroupOption>
             <CommonProperty>
@@ -3145,7 +3067,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER,PB_APPLICATION</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_crypto;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_gui;..\..\modules\pb_application\pb_multimedia;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_bl_api;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\drivers\screen\oled;..\..\modules\drivers\rgbLed;..\..\modules\drivers\ir;..\..\modules\drivers\audio\kt603;..\..\modules\drivers\eth;..\..\modules\network_util;..\..\modules\pb_application\pb_order;..\..\modules\pb_firmware_manage</IncludePath>
+              <IncludePath>..\..\common;..\..\hardware\board\stm32f1xx\startup;..\..\hardware\board\stm32f1xx\STM32F10x_StdPeriph_Driver\inc;..\..\hardware\board\stm32f1xx;..\..\hardware\hal;..\..\thirdparty\FreeRTOS\Source\include;..\..\thirdparty\FreeRTOS\Source\portable\stm32f1xx;..\..\middleware;..\..\modules\pb_application;..\..\modules\pb_application\pb_cfg;..\..\modules\pb_application\pb_prot;..\..\modules\pb_application\pb_crypto;..\..\modules\pb_application\pb_util;..\..\modules\pb_application\pb_gui;..\..\modules\pb_application\pb_multimedia;..\..\modules\pb_application\pb_io;..\..\modules\pb_application\pb_fota;..\..\modules\pb_application\pb_ota;..\..\modules\drivers\gsm\m26;..\..\modules\crypto;..\..\modules\drivers\screen\oled;..\..\modules\drivers\rgbLed;..\..\modules\drivers\ir;..\..\modules\drivers\audio\kt603;..\..\modules\drivers\eth;..\..\modules\network_util;..\..\modules\pb_application\pb_order;..\..\modules\pb_firmware_manage</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -3466,16 +3388,6 @@
               <FileName>pb_cfg_proc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\modules\pb_application\pb_cfg\pb_cfg_proc.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>pb_bl_api</GroupName>
-          <Files>
-            <File>
-              <FileName>AppUpgrade.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\modules\pb_application\pb_bl_api\AppUpgrade.c</FilePath>
             </File>
           </Files>
         </Group>

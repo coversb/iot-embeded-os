@@ -68,22 +68,6 @@ static void pb_fota_send_fota_rsp(uint8 status, uint8 cnt)
 }
 
 /******************************************************************************
-* Function    : pb_fota_request_free_bank
-* 
-* Author      : Chen Hao
-* 
-* Parameters  : 
-* 
-* Return      : 
-* 
-* Description : get current image flash address
-******************************************************************************/
-static int32 pb_fota_request_free_bank(PB_IMAGE_CONTENT_TYPE *pIC)
-{
-    return getFreeImageBanker(pIC);
-}
-
-/******************************************************************************
 * Function    : pb_fota_write_firmware_to_free_bank
 * 
 * Author      : Chen Hao
@@ -94,32 +78,16 @@ static int32 pb_fota_request_free_bank(PB_IMAGE_CONTENT_TYPE *pIC)
 * 
 * Description : write firmdata to free bank
 ******************************************************************************/
-static int32 pb_fota_write_firmware_to_free_bank(PB_IMAGE_CONTENT_TYPE *pIC, uint32 addrOffset, uint8 *pdata, uint16 len)
+static int32 pb_fota_write_firmware_to_free_bank(PB_IMAGE_CONTEXT *imageContext, uint32 addrOffset, uint8 *pdata, uint16 len)
 {
-    uint32 writeAddr = pIC->rom_add_start + addrOffset;
-    if (writeAddr > pIC->rom_add_end)
+    uint32 writeAddr = imageContext->romBegin + addrOffset;
+    if (writeAddr > imageContext->romEnd)
     {
         OS_DBG_ERR(DBG_MOD_PBFOTA, "BAD FOTA WRITE ADDR[%08X]", writeAddr);
         return -1;
     }
 
     return PB_FLASH_HDLR.write(writeAddr, (uint32*)pdata, len);
-}
-
-/******************************************************************************
-* Function    : pb_util_submit_new_image
-* 
-* Author      : Chen Hao
-* 
-* Parameters  : 
-* 
-* Return      : 
-* 
-* Description : submit new image to bl
-******************************************************************************/
-static int32 pb_fota_submit_new_image(PB_IMAGE_CONTENT_TYPE IC)
-{
-    return submitNewImage(IC);
 }
 
 /******************************************************************************
@@ -135,7 +103,7 @@ static int32 pb_fota_submit_new_image(PB_IMAGE_CONTENT_TYPE IC)
 ******************************************************************************/
 static void pb_fota_firmware_confirm(void)
 {
-    int32 ret = confirmImage();
+    uint32 ret = fwManager.confirm();
     bool needReportVer = false;
     OS_DBG_TRACE(DBG_MOD_PBFOTA, DBG_INFO, "Prot FIRMWARE COMFIRM[%d]", ret);
 
@@ -183,7 +151,7 @@ static void pb_fota_firmware_confirm(void)
 ******************************************************************************/
 void pb_fota_get_firmware_info(uint32 *upTimestamp, uint32 *runTimes)
 {
-    getCurrentImageInfo(upTimestamp, runTimes);
+    fwManager.imageContext(upTimestamp, runTimes);
 }
 
 /******************************************************************************
@@ -199,7 +167,10 @@ void pb_fota_get_firmware_info(uint32 *upTimestamp, uint32 *runTimes)
 ******************************************************************************/
 uint16 pb_fota_get_firmware_version(void)
 {
-    return PB_FIRMWARE_VERSION;
+    PB_IMAGE_INFO imageInfo = {0};
+    fwManager.imageInfo(PB_IMAGE_APP, &imageInfo);
+
+    return imageInfo.imageVersion;
 }
 
 /******************************************************************************
@@ -215,7 +186,10 @@ uint16 pb_fota_get_firmware_version(void)
 ******************************************************************************/
 uint16 pb_fota_get_bl_version(void)
 {
-    return PB_BOOTLOADER_VERSION;
+    PB_IMAGE_INFO imageInfo = {0};
+    fwManager.imageInfo(PB_IMAGE_BL, &imageInfo);
+
+    return imageInfo.imageVersion;
 }
 
 /******************************************************************************
@@ -380,7 +354,7 @@ static bool pb_fota_parse_url(char *src, uint16 maxLen, char *addr, char *path, 
 * 
 * Description : write download data to flash
 ******************************************************************************/
-static bool pb_fota_save(FTP_CLIENT *ftp, PB_FOTA_CONTEXT *param, PB_IMAGE_CONTENT_TYPE *imageContent)
+static bool pb_fota_save(FTP_CLIENT *ftp, PB_FOTA_CONTEXT *param, PB_IMAGE_CONTEXT *imageContext)
 {
     bool ret = false;
     uint32 totalLen = 0;
@@ -399,7 +373,7 @@ static bool pb_fota_save(FTP_CLIENT *ftp, PB_FOTA_CONTEXT *param, PB_IMAGE_CONTE
             }
             
             //write to flash
-            if (pb_fota_write_firmware_to_free_bank(imageContent, totalLen, data, dataLen) < 0)
+            if (pb_fota_write_firmware_to_free_bank(imageContext, totalLen, data, dataLen) < 0)
             {
                 OS_DBG_ERR(DBG_MOD_PBFOTA, "FLASH WRITE ERR");
                 break;
@@ -435,7 +409,7 @@ static bool pb_fota_save(FTP_CLIENT *ftp, PB_FOTA_CONTEXT *param, PB_IMAGE_CONTE
 * 
 * Description : 
 ******************************************************************************/
-static uint8 pb_fota_ftp_process(PB_FOTA_CONTEXT *param, PB_IMAGE_CONTENT_TYPE *imageContent)
+static uint8 pb_fota_ftp_process(PB_FOTA_CONTEXT *param, PB_IMAGE_CONTEXT *imageContext)
 {
     uint8 ret = PB_FOTA_DOWNLOAD_ERR;
     FTP_CLIENT *ftp = (FTP_CLIENT*)pb_ota_network_get_ftp_client(pb_ota_net_get_act_dev());
@@ -494,7 +468,7 @@ static uint8 pb_fota_ftp_process(PB_FOTA_CONTEXT *param, PB_IMAGE_CONTENT_TYPE *
         }
 
         //save firmware bin file to flash
-        if (!pb_fota_save(ftp, param, imageContent))
+        if (!pb_fota_save(ftp, param, imageContext))
         {
             OS_DBG_ERR(DBG_MOD_PBFOTA, "ftp save firmware err");
             goto ftpClose;
@@ -532,10 +506,11 @@ err:
 static uint8 pb_fota_process(PB_FOTA_CONTEXT *param)
 {
     //get image management content
-    PB_IMAGE_CONTENT_TYPE IC;
-    memset(&IC, 0, sizeof(IC));
-    pb_fota_request_free_bank(&IC);
-    OS_DBG_TRACE(DBG_MOD_PBFOTA, DBG_INFO, "REQ FIRM ADDR[%08X]", IC.rom_add_start);
+    PB_IMAGE_CONTEXT newImage;
+    memset(&newImage, 0, sizeof(newImage));
+
+    fwManager.request(&newImage);
+    OS_DBG_TRACE(DBG_MOD_PBFOTA, DBG_INFO, "REQ FIRM ADDR[%08X]", newImage.romBegin);
 
     uint8 ret = (uint8)PB_FOTA_DOWNLOAD_ERR;
 
@@ -544,7 +519,7 @@ static uint8 pb_fota_process(PB_FOTA_CONTEXT *param)
     {
         case PB_FOTA_FTP:
         {
-            ret = pb_fota_ftp_process(param, &IC);
+            ret = pb_fota_ftp_process(param, &newImage);
             break;
         }
         default:
@@ -562,7 +537,7 @@ static uint8 pb_fota_process(PB_FOTA_CONTEXT *param)
 
     //firmware MD5 check
     uint8 md5Data[PB_FOTA_MD5_LEN];
-    md5((uint8*)IC.rom_add_start, param->totalSize, md5Data);
+    md5((uint8*)newImage.romBegin, param->totalSize, md5Data);
     if (memcmp(md5Data, param->md5, 16) != 0)
     {
         OS_DBG_ERR(DBG_MOD_PBFOTA, "Err MD5:%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
@@ -576,15 +551,13 @@ static uint8 pb_fota_process(PB_FOTA_CONTEXT *param)
     }
 
     //update Image content
-    PB_IMAGE_CONTENT_TYPE submitIC;
-    submitIC.length = param->totalSize;
-    submitIC.crc = 0;
-    submitIC.upgrade_time = pb_util_get_timestamp();
-    submitIC.run_times = 0;
-    submitIC.version = IC.version + 1;
-    submitIC.rom_add_start = IC.rom_add_start;
-    submitIC.rom_add_end = IC.rom_add_end;
-    pb_fota_submit_new_image(submitIC);
+    newImage.length = param->totalSize;
+    newImage.crc = 0;
+    newImage.upgradeTimestamp = pb_util_get_timestamp();
+    newImage.runTimes = 0;
+    newImage.version += 1;
+
+    fwManager.submit(&newImage);    
     OS_DBG_TRACE(DBG_MOD_PBFOTA, DBG_INFO, "NEW IMAGE SUBMIT");
     //display up process in screen
     pb_gui_set_upgrade_info(PB_GUI_UP_OK, 100);

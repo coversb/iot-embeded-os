@@ -320,6 +320,166 @@ end:
 }
 
 /******************************************************************************
+* Function    : pb_firmware_manage_get_image_context
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_firmware_manage_get_image_context(uint32 *upTimestamp, uint32 *runTimes)
+{
+    switch (pbFirmwareContext.curImage)
+    {
+        case PB_FIRMWARE_A:
+        case PB_FIRMWARE_B:
+        {
+            *upTimestamp = pbFirmwareContext.images[pbFirmwareContext.curImage].upgradeTimestamp;
+            break;
+        }
+        case PB_FIRMWARE_UART:
+        default:
+        {
+            *upTimestamp = 0;
+            break;
+        }
+    }
+
+    *runTimes = pbFirmwareContext.runnableBootTimes;
+}
+
+/******************************************************************************
+* Function    : pb_firmware_request_image_context
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : request available image context to save new image
+******************************************************************************/
+static void pb_firmware_request_image_context(PB_IMAGE_CONTEXT *imageContext)
+{
+    uint8 imageScore[PB_FIRMWARE_NUM] = {0};
+
+    //socre each image
+    switch (pbFirmwareContext.curImage)
+    {
+        case PB_FIRMWARE_A:
+        {
+            imageScore[PB_FIRMWARE_A] += 1;
+            break;
+        }
+        case PB_FIRMWARE_B:
+        {
+            imageScore[PB_FIRMWARE_B] += 1;
+            break;
+        }
+        case PB_FIRMWARE_UART:
+        default:
+        {
+            if (pbFirmwareContext.images[PB_FIRMWARE_A].runTimes != 0
+                && pbFirmwareContext.images[PB_FIRMWARE_A].runTimes != 0xFFFF)
+            {
+                imageScore[PB_FIRMWARE_A] += 1;
+            }
+            if (pbFirmwareContext.images[PB_FIRMWARE_B].runTimes != 0
+                && pbFirmwareContext.images[PB_FIRMWARE_B].runTimes != 0xFFFF)
+            {
+                imageScore[PB_FIRMWARE_B] += 1;
+            }
+            if (pbFirmwareContext.images[PB_FIRMWARE_A].version > pbFirmwareContext.images[PB_FIRMWARE_B].version)
+            {
+                imageScore[PB_FIRMWARE_A] += 1;
+            }
+            if (pbFirmwareContext.images[PB_FIRMWARE_B].version > pbFirmwareContext.images[PB_FIRMWARE_A].version)
+            {
+                imageScore[PB_FIRMWARE_B] += 1;
+            }
+            break;
+        }
+    }
+
+    //over-write older image
+    if (imageScore[PB_FIRMWARE_A] > imageScore[PB_FIRMWARE_B])
+    {
+        *imageContext = pbFirmwareContext.images[PB_FIRMWARE_B];
+    }
+    else
+    {
+        *imageContext = pbFirmwareContext.images[PB_FIRMWARE_A];
+    }
+}
+
+/******************************************************************************
+* Function    : pb_firmware_submit_uart_image
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : submit image upgrade via uart
+******************************************************************************/
+static void pb_firmware_submit_uart_image(void)
+{
+    pbFirmwareContext.curImage = PB_FIRMWARE_UART;
+    pbFirmwareContext.runnableWorking = 1;
+    pbFirmwareContext.runnableBootTimes = 1;
+}
+
+/******************************************************************************
+* Function    : pb_firmware_submit_fota_image
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : submit image upgrade via fota
+******************************************************************************/
+static void pb_firmware_submit_fota_image(PB_IMAGE_CONTEXT *imageContext)
+{
+    uint16 curImage = 0xFF;
+    
+    switch (imageContext->romBegin)
+    {
+        case FIRMWARE_A_BEGIN:
+        {
+            curImage = PB_FIRMWARE_A;
+            break;
+        }
+        case FIRMWARE_B_BEGIN:
+        {
+            curImage = PB_FIRMWARE_B;
+            break;
+        }
+        default:
+        {
+            goto unknownImage;
+        }
+    }
+
+    pbFirmwareContext.curImage = curImage;
+    pbFirmwareContext.images[curImage].runTimes = 0;
+
+    pbFirmwareContext.images[curImage].length = imageContext->length;
+    pbFirmwareContext.images[curImage].crc = imageContext->crc;
+    pbFirmwareContext.images[curImage].upgradeTimestamp = imageContext->upgradeTimestamp;
+    pbFirmwareContext.images[curImage].version = imageContext->version;
+
+unknownImage:
+    pbFirmwareContext.runnableWorking = 1;
+    pbFirmwareContext.runnableBootTimes = 0;
+}
+
+/******************************************************************************
 * Function    : pb_firmware_submit_image
 * 
 * Author      : Chen Hao
@@ -335,13 +495,11 @@ static void pb_firmware_submit_image(PB_IMAGE_CONTEXT *imageContext)
     //submit app upgrade via uart
     if (imageContext == NULL)
     {
-        pbFirmwareContext.curImage = PB_FIRMWARE_UART;
-        pbFirmwareContext.runnableWorking = 1;
-        pbFirmwareContext.runnableBootTimes = 1;
+        pb_firmware_submit_uart_image();
     }
     else
     {
-    
+        pb_firmware_submit_fota_image(imageContext);
     }
     
     //write info to flash
@@ -386,13 +544,78 @@ static void pb_firmware_update_runnable(uint8 type)
     pb_firmware_context_update();    
 }
 
+/******************************************************************************
+* Function    : pb_firmware_confirm
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : confirm image in app
+******************************************************************************/
+static uint32 pb_firmware_confirm(void)
+{
+    uint32 ret = PB_IMAGE_NORMAL;
+    pb_firmware_context_load();
+
+    //reset boot up fail count
+    pbFirmwareContext.runnableWorking = 0;
+
+    switch(pbFirmwareContext.curImage)
+    {
+        case PB_FIRMWARE_A:
+        case PB_FIRMWARE_B:
+        {
+            if (pbFirmwareContext.images[pbFirmwareContext.curImage].runTimes < 0x7FFF)
+            {
+                pbFirmwareContext.images[pbFirmwareContext.curImage].runTimes += 1;
+            }
+            
+            if (pbFirmwareContext.runnableBootTimes == 1)
+            {
+                if (pbFirmwareContext.images[pbFirmwareContext.curImage].runTimes == 1)
+                {
+                    ret = PB_IMAGE_FOTA_OK;
+                }
+                else
+                {
+                    ret = PB_IMAGE_FOTA_ERR_AND_RECOVER;
+                }
+            }            
+            break;
+        }        
+        case PB_FIRMWARE_UART:
+        {
+            if (pbFirmwareContext.runnableBootTimes == 1)
+            {
+                ret = PB_IMAGE_COM_UPDATE;
+            }
+            break;
+        }
+        default:break;
+    }
+
+    if (pbFirmwareContext.runnableBootTimes < 0x7FFFFFFF)
+    {
+        pbFirmwareContext.runnableBootTimes += 1;
+    }
+    pb_firmware_context_update();
+
+    return ret;
+}
+
 const PB_FIRMWARE_MANAGE fwManager =
 {
     pb_firmware_manage_get_context,
     pb_firmware_manage_get_image_info,
+    pb_firmware_manage_get_image_context,
     pb_firmware_context_load,
     pb_firmware_context_update,
+    pb_firmware_request_image_context,
     pb_firmware_submit_image,
-    pb_firmware_update_runnable
+    pb_firmware_update_runnable,
+    pb_firmware_confirm
 };
 

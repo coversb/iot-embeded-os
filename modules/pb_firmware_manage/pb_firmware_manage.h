@@ -54,6 +54,14 @@ typedef enum
     PB_FIRMWARE_RECOVER
 }PB_FIRMWARE_RUNNABLE_TYPE;
 
+typedef enum
+{
+    PB_IMAGE_NORMAL = 0,
+    PB_IMAGE_FOTA_OK = 1,
+    PB_IMAGE_FOTA_ERR_AND_RECOVER = 2,
+    PB_IMAGE_COM_UPDATE = 3
+}PB_IMAGE_CONFIRM_TYPE;
+
 /******************************************************************************
 * Types
 ******************************************************************************/
@@ -89,10 +97,13 @@ typedef struct
 {
     PB_FIRMWARE_CONTEXT* (*firmwareContext)(void);
     bool (*imageInfo)(uint8 type, PB_IMAGE_INFO *info);
+    void (*imageContext)(uint32 *upTimestamp, uint32 *runTimes);
     void (*load)(void);
     void (*update)(void);
+    void (*request)(PB_IMAGE_CONTEXT *imageContext);
     void (*submit)(PB_IMAGE_CONTEXT *imageContext);
     void (*updateRunnable)(uint8 type);
+    uint32 (*confirm)(void);
 }PB_FIRMWARE_MANAGE;
 
 /******************************************************************************
