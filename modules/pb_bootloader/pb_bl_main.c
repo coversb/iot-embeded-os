@@ -54,8 +54,11 @@ static void pb_bl_print_info(void)
     {
         BL_INFO("image info err %x, %x, %x", imageInfo.imageType, imageInfo.hwVersion, imageInfo.imageVersion);
     }
-    hwVer = imageInfo.hwVersion;
-    fmVer = imageInfo.imageVersion;
+    else
+    {
+        hwVer = imageInfo.hwVersion;
+        fmVer = imageInfo.imageVersion;
+    }
     
     BL_INFO("");
     BL_INFO("================================================");
