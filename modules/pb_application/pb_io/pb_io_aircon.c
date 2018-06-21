@@ -23,6 +23,7 @@
 #include "pb_io_aircon.h"
 #include "pb_prot_type.h"
 #include "pb_order_main.h"
+#include "pb_prot_main.h"
 
 /******************************************************************************
 * Macros
@@ -81,6 +82,8 @@ static void pb_io_aircon_set_state(uint8 sw, uint8 workMode, uint8 windLv, uint8
     //temperature
     airconState |= (((temp & 0x03F) << 6) & 0x0FC0);
 
+    pb_prot_send_rsp_req(PB_PROT_RSP_INF);
+    
     OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO,
                             "Set aircon pwr[%d], work[%d], wind[%d], temperature[%d]",
                             sw, workMode, windLv, temp); 

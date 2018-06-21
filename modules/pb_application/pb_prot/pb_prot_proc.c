@@ -741,7 +741,7 @@ static void pb_prot_proc_cmd_exec_aco(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
         needSave = true;
     }
 
-    //pb_io_air_conditioner_control(true);
+    pb_io_aircon_update();
 
     if (needSave)
     {

@@ -77,6 +77,41 @@ uint16 pb_io_aircon_state(void)
 }
 
 /******************************************************************************
+* Function    : pb_io_aircon_update
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : update airconditioner state
+******************************************************************************/
+void pb_io_aircon_update(void)
+{
+    PB_CFG_ACO *pAco = &(pb_cfg_proc_get_cmd()->aco);
+
+    switch (pAco->pwrMode)
+    {
+        case PB_ACO_MODE_AUTO:
+        {
+            break;
+        }
+        case PB_ACO_MODE_ON:
+        {
+            AIRCON.set(PB_IO_AIRCON_ON);
+            break;
+        }
+        case PB_ACO_MODE_OFF:
+        default:
+        {
+            AIRCON.set(PB_IO_AIRCON_OFF);
+            break;
+        }
+    }
+}
+
+/******************************************************************************
 * Function    : pb_io_pwr_suply
 * 
 * Author      : Chen Hao
