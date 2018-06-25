@@ -185,7 +185,13 @@ static bool ac_control_init(const DEV_TYPE_IR_CONTROL *ir)
         return false;
     }
     IR = (DEV_TYPE_IR_CONTROL *)ir;
+    #if defined(BOARD_STM32F1XX)
     IR->init(&tim3Pwm);
+    #elif defined(BOARD_STM32F4XX)
+    IR->init(&tim1Pwm);
+    #else
+    #error ac_control_init
+    #endif
     IR->setDelay(tim2.delay);
     return true;
 }

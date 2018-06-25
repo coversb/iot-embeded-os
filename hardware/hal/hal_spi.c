@@ -160,7 +160,7 @@ static void hal_spi2_write(const uint8 *pdata, const uint16 size)
 
 /******************************************************************************
 * Function    : hal_spi2_select
-* hal_gpio_set
+* 
 * Author      : Chen Hao
 * 
 * Parameters  : 
@@ -213,10 +213,22 @@ static void hal_spi2_init(void)
 {
     //spi 2 io init
     hal_rcc_enable(BOARD_SPI2_IO_RCC);
-    hal_gpio_set_mode(BOARD_SPI2_CLK, GPIO_Mode_AF_PP);
-    hal_gpio_set_mode(BOARD_SPI2_MISO, GPIO_Mode_AF_PP);
-    hal_gpio_set_mode(BOARD_SPI2_MOSI, GPIO_Mode_AF_PP);
-    hal_gpio_set_mode(BOARD_SPI2_CS_W5500, GPIO_Mode_Out_PP);
+    #if defined(BOARD_STM32F1XX)
+    hal_gpio_set_mode(BOARD_SPI2_CLK, HAL_GPIO_AF_PP);
+    hal_gpio_set_mode(BOARD_SPI2_MISO, HAL_GPIO_AF_PP);
+    hal_gpio_set_mode(BOARD_SPI2_MOSI, HAL_GPIO_AF_PP);
+    hal_gpio_set_mode(BOARD_SPI2_CS_W5500, HAL_GPIO_OUT_PP);
+    #elif defined(BOARD_STM32F4XX)
+    hal_gpio_af_config(BOARD_SPI2_CLK_AF);
+    hal_gpio_af_config(BOARD_SPI2_MISO_AF);
+    hal_gpio_af_config(BOARD_SPI2_MOSI_AF);
+    hal_gpio_set_mode(BOARD_SPI2_CLK, HAL_GPIO_AF_PP_DOWN);
+    hal_gpio_set_mode(BOARD_SPI2_MISO, HAL_GPIO_AF_PP_DOWN);
+    hal_gpio_set_mode(BOARD_SPI2_MOSI, HAL_GPIO_AF_PP_DOWN);
+    hal_gpio_set_mode(BOARD_SPI2_CS_W5500, HAL_GPIO_OUT_PP);
+    #else
+    #error hal_spi2_init
+    #endif
     //spi 2 init
     hal_rcc_enable(BOARD_SPI2_RCC);
     /*SPI2 config*/

@@ -301,9 +301,9 @@ static void rgbled_task_init(void)
     hal_rcc_enable(BOARD_RGBLED_RCC);
 
     /*GPIO config*/
-    hal_gpio_set_mode(BOARD_RGBLED_R, GPIO_Mode_Out_PP);
-    hal_gpio_set_mode(BOARD_RGBLED_G, GPIO_Mode_Out_PP);
-    hal_gpio_set_mode(BOARD_RGBLED_B, GPIO_Mode_Out_PP);
+    hal_gpio_set_mode(BOARD_RGBLED_R, HAL_GPIO_OUT_PP);
+    hal_gpio_set_mode(BOARD_RGBLED_G, HAL_GPIO_OUT_PP);
+    hal_gpio_set_mode(BOARD_RGBLED_B, HAL_GPIO_OUT_PP);
 
     hal_gpio_set(BOARD_RGBLED_R, HAL_GPIO_LOW);
     hal_gpio_set(BOARD_RGBLED_G, HAL_GPIO_LOW);

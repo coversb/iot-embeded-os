@@ -50,6 +50,10 @@ typedef struct
 /******************************************************************************
 * Extern variable
 ******************************************************************************/
+#if (BOARD_TIM1_PWM_ENABLE == 1)
+extern const HAL_TIM_PWM_TYPE tim1Pwm;
+#endif /*BOARD_TIM1_PWM_ENABLE*/
+
 #if (BOARD_TIM2_ENABLE == 1)
 extern const HAL_TIM_TYPE tim2;
 #endif /*BOARD_TIM2_ENABLE*/

@@ -228,10 +228,10 @@ static void pb_io_indicator_led_init(void)
 {
     hal_rcc_enable(BOARD_LED_RCC);
 
-    hal_gpio_set_mode(BOARD_LED_SYS, GPIO_Mode_Out_PP);
-    hal_gpio_set_mode(BOARD_LED_NET, GPIO_Mode_Out_PP);
-    hal_gpio_set_mode(BOARD_LED_SCREEN, GPIO_Mode_Out_PP);
-    hal_gpio_set_mode(BOARD_LED_RESERVED, GPIO_Mode_Out_PP);
+    hal_gpio_set_mode(BOARD_LED_SYS, HAL_GPIO_OUT_PP);
+    hal_gpio_set_mode(BOARD_LED_NET, HAL_GPIO_OUT_PP);
+    hal_gpio_set_mode(BOARD_LED_SCREEN, HAL_GPIO_OUT_PP);
+    hal_gpio_set_mode(BOARD_LED_RESERVED, HAL_GPIO_OUT_PP);
 
     hal_gpio_set(BOARD_LED_RESERVED, HAL_GPIO_LOW);
     pb_io_indicator_led_clear(PB_IO_INDICATOR_SYS_NORAML);

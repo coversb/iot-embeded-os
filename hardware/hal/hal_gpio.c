@@ -29,6 +29,24 @@
 /******************************************************************************
 * Local Functions
 ******************************************************************************/
+#if defined(BOARD_STM32F4XX)
+/******************************************************************************
+* Function    : hal_gpio_af_config
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void hal_gpio_af_config(GPIO_TypeDef* GPIOx, uint16 GPIO_PinSource, uint8 GPIO_AF)
+{
+    GPIO_PinAFConfig(GPIOx, GPIO_PinSource, GPIO_AF);
+}
+#endif /*BOARD_STM32F4XX*/
+
 /******************************************************************************
 * Function    : hal_gpio_set_mode
 * 
@@ -40,13 +58,110 @@
 * 
 * Description : set gpio pin mode
 ******************************************************************************/
-void hal_gpio_set_mode(GPIO_TypeDef* io, uint16 pin, GPIOMode_TypeDef mode)
+void hal_gpio_set_mode(GPIO_TypeDef* io, uint16 pin, HAL_GPIO_MODE mode)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
 
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Pin = pin;
-    GPIO_InitStructure.GPIO_Mode = mode;    
+
+    #if defined(BOARD_STM32F1XX)
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = (GPIOMode_TypeDef)mode;
+    #elif defined(BOARD_STM32F4XX)
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    switch(mode & 0xff)
+    {
+        case HAL_GPIO_AIN:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+            break;
+        }
+        case HAL_GPIO_IN_FLOATING:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+            break;
+        }
+        case HAL_GPIO_IPD:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+            break;
+        }
+        case HAL_GPIO_IPU:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+            break;
+        }
+        case HAL_GPIO_OUT_OD:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+            GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+            break;
+        }
+        case HAL_GPIO_OUT_OD_UP:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+            GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+            break;
+        }
+        case HAL_GPIO_OUT_PP:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+            GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+            break;
+        }
+        case HAL_GPIO_OUT_PP_UP:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+            GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+            break;
+        }
+        case HAL_GPIO_AF_OD:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+            GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+            break;
+        }
+        case HAL_GPIO_AF_PP:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+            GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+            break;
+        }
+        case HAL_GPIO_AF_PP_UP:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+            GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+            break;
+        }
+        case HAL_GPIO_AF_PP_DOWN:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+            GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+            break;
+        }
+        default:
+        {
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+            break;
+        }
+    }
+    #else
+    #error hal_gpio_set_mode
+    #endif
+    
     GPIO_Init(io, &GPIO_InitStructure);
 }
 

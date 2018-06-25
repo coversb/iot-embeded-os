@@ -67,7 +67,7 @@ static void pam8610_switch(bool sw)
 static bool pam8610_init(void)
 {
     hal_rcc_enable(BOARD_PA_IO_RCC);
-    hal_gpio_set_mode(BOARD_PA_PWR, GPIO_Mode_Out_PP);
+    hal_gpio_set_mode(BOARD_PA_PWR, HAL_GPIO_OUT_PP);
     hal_gpio_set(BOARD_PA_PWR, HAL_GPIO_LOW);
 
     return true;

@@ -38,8 +38,8 @@ static void hal_sw_i2c_delay(void)
 #define SDA_HIGH(io, pin) hal_gpio_set(io, pin, HAL_GPIO_HIGH)
 #define SDA_LOW(io, pin) hal_gpio_set(io, pin, HAL_GPIO_LOW)
 #define SDA_VAL(io, pin) hal_gpio_val(io, pin)
-#define SDA_IN(io, pin) hal_gpio_set_mode(io, pin, GPIO_Mode_IN_FLOATING)
-#define SDA_OUT(io, pin) hal_gpio_set_mode(io, pin, GPIO_Mode_Out_OD)
+#define SDA_IN(io, pin) hal_gpio_set_mode(io, pin, HAL_GPIO_IN_FLOATING)
+#define SDA_OUT(io, pin) hal_gpio_set_mode(io, pin, HAL_GPIO_OUT_OD)
 #define I2C_DELAY() hal_sw_i2c_delay()
 
 /******************************************************************************
@@ -441,8 +441,8 @@ err:
 static void hal_sw_i2c1_init(void)
 {
     hal_rcc_enable(BOARD_SW_I2C1_RCC);
-    hal_gpio_set_mode(BOARD_SW_I2C1_SCL, GPIO_Mode_Out_OD);
-    hal_gpio_set_mode(BOARD_SW_I2C1_SDA, GPIO_Mode_Out_OD);
+    hal_gpio_set_mode(BOARD_SW_I2C1_SCL, HAL_GPIO_OUT_OD);
+    hal_gpio_set_mode(BOARD_SW_I2C1_SDA, HAL_GPIO_OUT_OD);
 }
 
 const HAL_SW_I2C_TYPE swI2C1 = 

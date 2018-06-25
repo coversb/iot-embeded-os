@@ -87,8 +87,12 @@ static void hal_usart1_begin(u32 baundrate)
     hal_rcc_enable(BOARD_USART1_IO_RCC);
 
     /*GPIO config*/
-    hal_gpio_set_mode(BOARD_USART1_TX, GPIO_Mode_AF_PP);
-    hal_gpio_set_mode(BOARD_USART1_RX, GPIO_Mode_IN_FLOATING);
+    #if defined(BOARD_STM32F4XX)
+    hal_gpio_af_config(BOARD_USART1_TX_AF);
+    hal_gpio_af_config(BOARD_USART1_RX_AF);    
+    #endif /*BOARD_STM32F4XX*/
+    hal_gpio_set_mode(BOARD_USART1_TX, HAL_GPIO_AF_PP);
+    hal_gpio_set_mode(BOARD_USART1_RX, HAL_GPIO_IN_FLOATING);
 
     /*Usart 1 config*/
     hal_usart_config(USART1, baundrate);
@@ -327,8 +331,12 @@ static void hal_usart2_begin(u32 baundrate)
     hal_rcc_enable(BOARD_USART2_IO_RCC);
 
     /*GPIO config*/
-    hal_gpio_set_mode(BOARD_USART2_TX, GPIO_Mode_AF_PP);   //USART2 TX
-    hal_gpio_set_mode(BOARD_USART2_RX, GPIO_Mode_IN_FLOATING);    //USART2 RX
+    #if defined(BOARD_STM32F4XX)
+    hal_gpio_af_config(BOARD_USART2_TX_AF);
+    hal_gpio_af_config(BOARD_USART2_RX_AF);    
+    #endif /*BOARD_STM32F4XX*/
+    hal_gpio_set_mode(BOARD_USART2_TX, HAL_GPIO_AF_PP);   //USART2 TX
+    hal_gpio_set_mode(BOARD_USART2_RX, HAL_GPIO_IN_FLOATING);    //USART2 RX
 
     /*Usart 2 config*/
     hal_usart_config(USART2, baundrate);
@@ -568,8 +576,12 @@ static void hal_usart3_begin(u32 baundrate)
     hal_rcc_enable(BOARD_USART3_IO_RCC);
 
     /*GPIO config*/
-    hal_gpio_set_mode(BOARD_USART3_TX, GPIO_Mode_AF_PP);   //USART3 TX
-    hal_gpio_set_mode(BOARD_USART3_RX, GPIO_Mode_IN_FLOATING);    //USART3 RX
+    #if defined(BOARD_STM32F4XX)
+    hal_gpio_af_config(BOARD_USART3_TX_AF);
+    hal_gpio_af_config(BOARD_USART3_RX_AF);    
+    #endif /*BOARD_STM32F4XX*/
+    hal_gpio_set_mode(BOARD_USART3_TX, HAL_GPIO_AF_PP);   //USART3 TX
+    hal_gpio_set_mode(BOARD_USART3_RX, HAL_GPIO_IN_FLOATING);    //USART3 RX
 
     /*Usart 3 config*/
     hal_usart_config(USART3, baundrate);
@@ -812,12 +824,16 @@ static void hal_uart5_begin(u32 baundrate)
     os_ds_que_create(&hal_uart5_rx_que, HAL_UART5_RX_BUFF, sizeof(HAL_UART5_RX_BUFF));
 
     /*RCC config*/
-    hal_rcc_enable(BOARD_USART5_RCC);
-    hal_rcc_enable(BOARD_USART5_IO_RCC);
+    hal_rcc_enable(BOARD_UART5_RCC);
+    hal_rcc_enable(BOARD_UART5_IO_RCC);
 
     /*GPIO config*/
-    hal_gpio_set_mode(BOARD_UART5_TX, GPIO_Mode_AF_PP);   //UART5 TX
-    hal_gpio_set_mode(BOARD_UART5_RX, GPIO_Mode_IN_FLOATING);    //UART5 RX
+    #if defined(BOARD_STM32F4XX)
+    hal_gpio_af_config(BOARD_UART5_TX_AF);
+    hal_gpio_af_config(BOARD_UART5_RX_AF);    
+    #endif /*BOARD_STM32F4XX*/
+    hal_gpio_set_mode(BOARD_UART5_TX, HAL_GPIO_AF_PP);   //UART5 TX
+    hal_gpio_set_mode(BOARD_UART5_RX, HAL_GPIO_IN_FLOATING);    //UART5 RX
 
     /*Uart5 config*/
     hal_usart_config(UART5, baundrate);

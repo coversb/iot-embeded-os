@@ -1583,7 +1583,7 @@ static bool w5500_hw_init(HAL_SPI_TYPE *spi)
     W5500_SPI = spi;
 
     hal_rcc_enable(BOARD_W5500_IO_RCC);
-    hal_gpio_set_mode(BOARD_W5500_RST, GPIO_Mode_Out_PP);
+    hal_gpio_set_mode(BOARD_W5500_RST, HAL_GPIO_OUT_PP);
 
     OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "W5500 INIT OK");
     return true;

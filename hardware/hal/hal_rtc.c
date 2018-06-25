@@ -19,6 +19,7 @@
 #include "hal_rtc.h"
 #include "hal_bkp.h"
 #include "os_trace_log.h"
+#include <time.h>
 
 /******************************************************************************
 * Macros
@@ -47,9 +48,35 @@ void hal_rtc_set(uint32 timestamp)
     #if ( BOARD_RTC_ENABLE == 1 )
     PWR_BackupAccessCmd(ENABLE);
 
+    #if defined(BOARD_STM32F1XX)
     RTC_WaitForLastTask();
     RTC_SetCounter(timestamp);
     RTC_WaitForLastTask();
+    #elif defined(BOARD_STM32F4XX)
+    time_t t;
+    struct tm *lt;
+    t = timestamp;
+    lt = localtime(&t);
+    
+    RTC_DateTypeDef RTC_DateTypeInitStructure;
+    RTC_TimeTypeDef RTC_TimeTypeInitStructure;
+
+    RTC_DateTypeInitStructure.RTC_Year = lt->tm_year + 1900 - 2000;
+    RTC_DateTypeInitStructure.RTC_Month = lt->tm_mon + 1;
+    RTC_DateTypeInitStructure.RTC_Date = lt->tm_mday;
+    //set a default value, incase of reg calc err
+    RTC_DateTypeInitStructure.RTC_WeekDay = 0;
+
+    RTC_TimeTypeInitStructure.RTC_Hours = lt->tm_hour;
+    RTC_TimeTypeInitStructure.RTC_Minutes = lt->tm_min;
+    RTC_TimeTypeInitStructure.RTC_Seconds = lt->tm_sec;
+    //set a default value, incase of reg calc err
+    RTC_TimeTypeInitStructure.RTC_H12 = 0;
+    RTC_SetDate(RTC_Format_BIN, &RTC_DateTypeInitStructure);
+    RTC_SetTime(RTC_Format_BIN, &RTC_TimeTypeInitStructure);
+    #else
+    #error hal_rtc_set
+    #endif
 
     PWR_BackupAccessCmd(DISABLE);
     #endif /*BOARD_RTC_ENABLE*/
@@ -71,9 +98,40 @@ uint32 hal_rtc_get(void)
     uint32 time = 0;
 
     #if ( BOARD_RTC_ENABLE == 1 )
+    #if defined(BOARD_STM32F1XX)
     RTC_WaitForLastTask();
     time = RTC_GetCounter();
     RTC_WaitForLastTask();
+    #elif defined(BOARD_STM32F4XX)
+    uint16 y;
+    uint8 m, d, hour, min, sec;
+
+    RTC_DateTypeDef RTC_DateTypeInitStructure;
+    RTC_TimeTypeDef RTC_TimeTypeInitStructure;
+
+    RTC_GetTime(RTC_Format_BIN, &RTC_TimeTypeInitStructure);
+    RTC_GetDate(RTC_Format_BIN, &RTC_DateTypeInitStructure);
+
+    y = RTC_DateTypeInitStructure.RTC_Year + 2000;
+    m = RTC_DateTypeInitStructure.RTC_Month;
+    d = RTC_DateTypeInitStructure.RTC_Date;
+
+    hour = RTC_TimeTypeInitStructure.RTC_Hours;
+    min = RTC_TimeTypeInitStructure.RTC_Minutes;
+    sec = RTC_TimeTypeInitStructure.RTC_Seconds;
+
+    struct tm lt;
+    lt.tm_year = y - 1900;
+    lt.tm_mon = m - 1;
+    lt.tm_mday = d;
+    lt.tm_hour = hour;
+    lt.tm_min = min;
+    lt.tm_sec = sec;
+
+    time = mktime(&lt);
+    #else
+    #error hal_rtc_get
+    #endif
     #endif /*BOARD_RTC_ENABLE*/
 
     return time;
@@ -122,10 +180,20 @@ void hal_rtc_init(void)
         //Enable RTC Clock */
         RCC_RTCCLKCmd(ENABLE);
         RTC_WaitForSynchro();
-        
+
+        #if defined(BOARD_STM32F1XX)
         //Set RTC prescaler: set RTC period to 1sec
         RTC_WaitForLastTask();
         RTC_SetPrescaler(32767); /* RTC period = RTCCLK/RTC_PR = (32.768 KHz)/(32767+1) */
+        #elif defined(BOARD_STM32F4XX)
+        RTC_InitTypeDef RTC_InitStructure;
+        RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
+        RTC_InitStructure.RTC_AsynchPrediv = 0x7F;
+        RTC_InitStructure.RTC_SynchPrediv = 0xFF;
+        RTC_Init(&RTC_InitStructure);
+        #else
+        #error hal_rtc_init
+        #endif
 
         OS_DBG_ERR(DBG_MOD_HAL, "RTC set to default");
         hal_rtc_set(BOARD_RTC_DEFAULT);

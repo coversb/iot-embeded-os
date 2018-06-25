@@ -271,10 +271,10 @@ static void pb_io_monitor_init(void)
     PB_KEYBOARD.begin(9600);
     //init onboard key
     hal_rcc_enable(BOARD_KEY_RCC);
-    hal_gpio_set_mode(BOARD_KEY_REVERSE, GPIO_Mode_IN_FLOATING);
-    hal_gpio_set_mode(BOARD_KEY_MENU, GPIO_Mode_IN_FLOATING);
-    hal_gpio_set_mode(BOARD_KEY_VOLUME_UP, GPIO_Mode_IN_FLOATING);
-    hal_gpio_set_mode(BOARD_KEY_VOLUME_DOWN, GPIO_Mode_IN_FLOATING);
+    hal_gpio_set_mode(BOARD_KEY_REVERSE, HAL_GPIO_IN_FLOATING);
+    hal_gpio_set_mode(BOARD_KEY_MENU, HAL_GPIO_IN_FLOATING);
+    hal_gpio_set_mode(BOARD_KEY_VOLUME_UP, HAL_GPIO_IN_FLOATING);
+    hal_gpio_set_mode(BOARD_KEY_VOLUME_DOWN, HAL_GPIO_IN_FLOATING);
 }
 
 /******************************************************************************

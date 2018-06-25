@@ -47,15 +47,23 @@ void hal_rcc_enable(uint32 rcc, uint32 bus)
     {
         case BOARD_RCC_AHB:
         {
+            #if defined(BOARD_STM32F1XX)
             RCC_AHBPeriphClockCmd(rcc, ENABLE);
+            #endif
             break;
         }
         case BOARD_RCC_AHB1:
         {
+            #if defined(BOARD_STM32F4XX)
+            RCC_AHB1PeriphClockCmd(rcc, ENABLE);
+            #endif
             break;
         }
         case BOARD_RCC_AHB2:
         {
+            #if defined(BOARD_STM32F4XX)
+            RCC_AHB2PeriphClockCmd(rcc, ENABLE);
+            #endif
             break;
         }
         case BOARD_RCC_APB1:

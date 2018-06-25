@@ -6,7 +6,7 @@
 *  file name:          board_config.h
 *  author:              Chen Hao
 *  version:             1.00
-*  file description:   bsp header files and macro to enable/disable featrures
+*  file description:   bsp header files and macro to enable/disable featrures fot stm32f103
 *******************************************************************************
 *  revision history:    date               version                  author
 *
@@ -28,7 +28,6 @@
 #include "stm32f10x_pwr.h"
 #include "stm32f10x_bkp.h"
 #include "stm32f10x_rtc.h"
-#include "stm32f10x_flash.h"
 #include "stm32f10x_tim.h"
 #include "stm32f10x_spi.h"
 #include "flash_config.h"
@@ -137,8 +136,8 @@ enum
 /*USART5*/
 #define BOARD_IQR_PRIO_UART5 1
 #define BOARD_IQR_SUB_PRIO_UART5 1
-#define BOARD_USART5_RCC RCC_APB1Periph_UART5, BOARD_RCC_APB1
-#define BOARD_USART5_IO_RCC RCC_APB2Periph_GPIOC|RCC_APB2Periph_GPIOD|RCC_APB2Periph_AFIO, BOARD_RCC_APB2
+#define BOARD_UART5_RCC RCC_APB1Periph_UART5, BOARD_RCC_APB1
+#define BOARD_UART5_IO_RCC RCC_APB2Periph_GPIOC|RCC_APB2Periph_GPIOD|RCC_APB2Periph_AFIO, BOARD_RCC_APB2
 #define BOARD_UART5_TX GPIOC, GPIO_Pin_12
 #define BOARD_UART5_RX GPIOD, GPIO_Pin_2
 #define BOARD_UART5_RX_BUFFSIZE 128
@@ -162,6 +161,7 @@ enum
 /*TIM*/
 #define BOARD_TIM2_RCC RCC_APB1Periph_TIM2, BOARD_RCC_APB1
 #define BOARD_TIM2_COUNTER 48
+#define BOARD_TIM2_PRESCALER 71
 #define BOARD_IQR_PRIO_TIM2 1
 #define BOARD_IQR_SUB_PRIO_TIM2 2
 

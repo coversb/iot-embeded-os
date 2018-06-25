@@ -1304,8 +1304,8 @@ static bool m26_hw_init(HAL_USART_TYPE *com, const uint32 baudrate)
 
     hal_rcc_enable(BOARD_M26_IO_RCC);
 
-    hal_gpio_set_mode(BOARD_M26_PWR, GPIO_Mode_Out_PP);
-    hal_gpio_set_mode(BOARD_M26_PWRKEY, GPIO_Mode_Out_PP);
+    hal_gpio_set_mode(BOARD_M26_PWR, HAL_GPIO_OUT_PP);
+    hal_gpio_set_mode(BOARD_M26_PWRKEY, HAL_GPIO_OUT_PP);
 
     OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "M26 INIT OK, BAUD[%d]", baudrate);
     return true;

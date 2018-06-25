@@ -21,6 +21,129 @@
 #include "hal_tim.h"
 #include "hal_board.h"
 
+#if (BOARD_TIM1_PWM_ENABLE == 1)
+/******************************************************************************
+* Function    : hal_tim1_pwm_init
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : tim1 generates 38K pwm signal
+******************************************************************************/
+static void hal_tim1_pwm_init(void)
+{
+    hal_rcc_enable(BOARD_TIM1_CH1_RCC);
+    hal_gpio_af_config(BOARD_TIM1_CH1_AF);
+    hal_gpio_set_mode(BOARD_TIM1_CH1, HAL_GPIO_AF_PP);
+
+    hal_rcc_enable(BOARD_TIM1_RCC);
+    TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+    TIM_OCInitTypeDef  TIM_OCInitStructure;
+    u16 CCR1_Val;
+
+    /* Time base configuration */
+    TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
+    TIM_TimeBaseStructure.TIM_Period = BOARD_TIM1_PEROID;       //当定时器从0计数到999，即为1000次，为一个定时周期
+    TIM_TimeBaseStructure.TIM_Prescaler = 0;	    //设置预分频：不预分频，即为72MHz
+    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1 ;	//设置时钟分频系数：不分频(这里用不到)
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //向上计数模式
+    TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+
+    /* PWM1 Mode configuration: Channel1 */
+    CCR1_Val = (BOARD_TIM1_PEROID + 1) * 500 / 1000; /* PWM信号电平跳变值 */
+    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;	    //配置为PWM模式1
+    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;  //当定时器计数值小于CCR1_Val时为高电平
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+    TIM_OCInitStructure.TIM_Pulse = CCR1_Val;	  //设置电平跳变值，输出一个占空比的PWM
+
+    TIM_OC2Init(TIM1, &TIM_OCInitStructure);	  //使能通道2
+    TIM_OC2PreloadConfig(TIM1, TIM_OCPreload_Enable);
+
+    TIM_ARRPreloadConfig(TIM1, ENABLE);  // 使能TIM3重载寄存器ARR
+
+    /* TIM1 enable counter */
+    TIM_Cmd(TIM1, DISABLE); //disable first
+}
+
+/******************************************************************************
+* Function    : hal_tim1_pwm_deinit
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void hal_tim1_pwm_deinit(void)
+{
+    TIM_Cmd(TIM1, DISABLE);
+    TIM_DeInit(TIM1);
+}
+
+/******************************************************************************
+* Function    : hal_tim1_pwm_enable
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void hal_tim1_pwm_enable(void)
+{
+    TIM_Cmd(TIM1, ENABLE);
+    TIM_CtrlPWMOutputs(TIM1, ENABLE);
+}
+
+/******************************************************************************
+* Function    : hal_tim1_pwm_disable
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void hal_tim1_pwm_disable(void)
+{
+    TIM_Cmd(TIM1, DISABLE);
+}
+
+/******************************************************************************
+* Function    : hal_tim3_pwm_generate_event
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void hal_tim1_pwm_generate_event(void)
+{
+    TIM_GenerateEvent(TIM1, TIM_EventSource_Update);
+}
+
+const HAL_TIM_PWM_TYPE tim1Pwm = 
+{
+    hal_tim1_pwm_init,
+    hal_tim1_pwm_deinit,
+    hal_tim1_pwm_enable,
+    hal_tim1_pwm_disable,
+    hal_tim1_pwm_generate_event
+};
+#endif /*BOARD_TIM1_PWM_ENABLE*/
+
 #if (BOARD_TIM2_ENABLE == 1)
 /******************************************************************************
 * Variables (Extern, Global and Static)
@@ -117,7 +240,7 @@ static void hal_tim2_init(void)
 
     TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
     TIM_TimeBaseStructure.TIM_Period = BOARD_TIM2_COUNTER;
-    TIM_TimeBaseStructure.TIM_Prescaler = 71;
+    TIM_TimeBaseStructure.TIM_Prescaler = BOARD_TIM2_PRESCALER;
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
@@ -207,7 +330,7 @@ void TIM2_IRQHandler(void)
 static void hal_tim3_pwm_init(void)
 {
     hal_rcc_enable(BOARD_TIM3_CH2_RCC);
-    hal_gpio_set_mode(BOARD_TIM3_CH2, GPIO_Mode_AF_PP);
+    hal_gpio_set_mode(BOARD_TIM3_CH2, HAL_GPIO_AF_PP);
 
     hal_rcc_enable(BOARD_TIM3_RCC);
     TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
@@ -215,14 +338,15 @@ static void hal_tim3_pwm_init(void)
     u16 CCR1_Val;
 
     /* Time base configuration */
-    TIM_TimeBaseStructure.TIM_Period = 1894;       //当定时器从0计数到999，即为1000次，为一个定时周期
+    TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
+    TIM_TimeBaseStructure.TIM_Period = BOARD_TIM3_PEROID;       //当定时器从0计数到999，即为1000次，为一个定时周期
     TIM_TimeBaseStructure.TIM_Prescaler = 0;	    //设置预分频：不预分频，即为72MHz
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1 ;	//设置时钟分频系数：不分频(这里用不到)
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //向上计数模式
     TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
 
     /* PWM1 Mode configuration: Channel1 */
-    CCR1_Val = (1894 + 1) * 500 / 1000; /* PWM信号电平跳变值 */
+    CCR1_Val = (BOARD_TIM3_PEROID + 1) * 500 / 1000; /* PWM信号电平跳变值 */
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;	    //配置为PWM模式1
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;  //当定时器计数值小于CCR1_Val时为高电平
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;

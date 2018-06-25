@@ -676,7 +676,7 @@ static bool kt603_init(const HAL_USART_TYPE *com, const uint32 baudrate)
     KT603_COM_BAUDRATE = baudrate;
 
     hal_rcc_enable(BOARD_KT603_IO_RCC);
-    hal_gpio_set_mode(BOARD_KT603_RST, GPIO_Mode_Out_PP);
+    hal_gpio_set_mode(BOARD_KT603_RST, HAL_GPIO_OUT_PP);
 
     kt603_reset();
 

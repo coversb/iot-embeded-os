@@ -102,7 +102,7 @@ static void pb_io_drv_input_init(void)
         {
             continue;
         }
-        hal_gpio_set_mode(PB_INPUT_TABLE[idx].group, PB_INPUT_TABLE[idx].pin, GPIO_Mode_IN_FLOATING);
+        hal_gpio_set_mode(PB_INPUT_TABLE[idx].group, PB_INPUT_TABLE[idx].pin, HAL_GPIO_IN_FLOATING);
     }
 }
 
@@ -172,7 +172,7 @@ static void pb_io_drv_output_init(void)
         {
             continue;
         }
-        hal_gpio_set_mode(PB_OUTPUT_TABLE[idx].group, PB_OUTPUT_TABLE[idx].pin, GPIO_Mode_Out_PP);
+        hal_gpio_set_mode(PB_OUTPUT_TABLE[idx].group, PB_OUTPUT_TABLE[idx].pin, HAL_GPIO_OUT_PP);
     }
 }
 
@@ -242,7 +242,7 @@ static void pb_io_drv_gpo_init(void)
         {
             continue;
         }
-        hal_gpio_set_mode(PB_GPO_TABLE[idx].group, PB_GPO_TABLE[idx].pin, GPIO_Mode_Out_PP);
+        hal_gpio_set_mode(PB_GPO_TABLE[idx].group, PB_GPO_TABLE[idx].pin, HAL_GPIO_OUT_PP);
     }
 }
 
