@@ -1163,7 +1163,7 @@ static bool m26_config(const char *apn, const char *user, const char *pass)
     }
 
     //set APN when it's not null
-    if (apn != NULL)
+    if (apn != NULL && strlen(apn) != 0)
     {
         if (!m26_set_apn(apn, user, pass))
         {
