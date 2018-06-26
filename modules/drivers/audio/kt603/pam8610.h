@@ -21,6 +21,25 @@
 #include "basetype.h"
 
 /******************************************************************************
+* Enums
+******************************************************************************/
+#if defined(BOARD_STM32F1XX)
+typedef enum
+{
+    DEV_PA_CLOSE = HAL_GPIO_LOW,
+    DEV_PA_OPEN = HAL_GPIO_HIGH
+}DEV_PA_SW;
+#elif defined(BOARD_STM32F4XX)
+typedef enum
+{
+    DEV_PA_CLOSE = HAL_GPIO_HIGH,
+    DEV_PA_OPEN = HAL_GPIO_LOW
+}DEV_PA_SW;
+#else
+#error DEV_PA_SW
+#endif
+
+/******************************************************************************
 * Types
 ******************************************************************************/
 typedef struct

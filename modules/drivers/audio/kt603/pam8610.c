@@ -44,11 +44,11 @@ static void pam8610_switch(bool sw)
 {
     if (sw == true)
     {
-        hal_gpio_set(BOARD_PA_PWR, HAL_GPIO_HIGH);
+        hal_gpio_set(BOARD_PA_PWR, (HAL_GPIO_VAL)DEV_PA_OPEN);
     }
     else
     {
-        hal_gpio_set(BOARD_PA_PWR, HAL_GPIO_LOW);
+        hal_gpio_set(BOARD_PA_PWR, (HAL_GPIO_VAL)DEV_PA_CLOSE);
     }
     OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "PAM8610 %s", (sw == true) ? "ON" : "OFF");
 }
@@ -68,7 +68,7 @@ static bool pam8610_init(void)
 {
     hal_rcc_enable(BOARD_PA_IO_RCC);
     hal_gpio_set_mode(BOARD_PA_PWR, HAL_GPIO_OUT_PP);
-    hal_gpio_set(BOARD_PA_PWR, HAL_GPIO_LOW);
+    hal_gpio_set(BOARD_PA_PWR, (HAL_GPIO_VAL)DEV_PA_CLOSE);
 
     return true;
 }
