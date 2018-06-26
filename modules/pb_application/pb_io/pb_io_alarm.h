@@ -26,7 +26,7 @@
 ******************************************************************************/
 #define PB_IO_PWR_ALARM_DEBOUNCE 3 // seconds
 #define PB_IO_PWR_ALARM_INTERVAL 60 // seconds
-#define PB_IO_SMOKE_AUDIO_INTERVAL 5 // seconds
+#define PB_IO_SMOKE_AUDIO_INTERVAL 4 // seconds
 
 /******************************************************************************
 * Enums

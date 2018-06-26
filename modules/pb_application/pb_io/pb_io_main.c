@@ -52,8 +52,6 @@ typedef struct
 {
     OS_TMR_TYPE close_door_tmr;
     OS_TMR_TYPE close_devbox_tmr;
-    bool needMonitorDoor;
-
 }PB_IO_CONTEXT_TYPE;
 
 static PB_IO_CONTEXT_TYPE pb_io_context;
@@ -146,7 +144,7 @@ uint8 pb_io_pwr_suply(void)
 uint8 pb_io_smoke_level(void)
 {
     if (HAL_GPIO_LOW == pb_io_drv_input_val(PB_IN_SMOKE_SENSOR1)
-            || HAL_GPIO_LOW == pb_io_drv_input_val(PB_IN_SMOKE_SENSOR1))
+            || HAL_GPIO_LOW == pb_io_drv_input_val(PB_IN_SMOKE_SENSOR2))
     {
         return 100;
     }
@@ -193,15 +191,13 @@ static void pb_io_door_monitor(void)
     static uint8 lastDoorStatus = PB_IO_DOOR_UNKNOWN;
     uint8 curDoorStatus = pb_io_door_status();
 
-    if (true == pb_io_context.needMonitorDoor
-        && lastDoorStatus != curDoorStatus)
+    if (lastDoorStatus != curDoorStatus)
     {
         uint8 operationType = PB_PROT_DSE_MONITOR;
 
         //Monitor door status to send real status
         pb_prot_send_rsp_param_req(PB_PROT_RSP_DSE, (uint8*)&operationType, sizeof(operationType));
         lastDoorStatus = curDoorStatus;
-        pb_io_context.needMonitorDoor = false;
     }
 }
 
@@ -220,8 +216,6 @@ void pb_io_door_lock_sw(uint8 sw, uint8 type)
 {
     pb_io_drv_gpo_set(PB_GPO_DOOR_LOCK, sw);
     pb_prot_send_rsp_param_req(PB_PROT_RSP_DSE, (uint8*)&type, sizeof(type));
-
-    pb_io_context.needMonitorDoor = true;
 
     if (sw == PB_IO_DOOR_OPEN)
     {
@@ -599,7 +593,6 @@ static void pb_io_main_init(void)
     pb_io_context.close_door_tmr = os_tmr_create(PB_IO_CLOSE_DOOR_DELAY, pb_io_door_delay_close, false);
     //init devicebox timer to delay close door
     pb_io_context.close_devbox_tmr = os_tmr_create(PB_IO_CLOSE_DEVBOX_DELAY, pb_io_devbox_delay_close, false);
-    pb_io_context.needMonitorDoor = false;
 }
 
 /******************************************************************************
