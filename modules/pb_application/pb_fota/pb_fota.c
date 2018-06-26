@@ -68,6 +68,22 @@ static void pb_fota_send_fota_rsp(uint8 status, uint8 cnt)
 }
 
 /******************************************************************************
+* Function    : pb_fota_erase_free_bank
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static bool pb_fota_erase_free_bank(PB_IMAGE_CONTEXT *imageContext)
+{
+    return PB_FLASH_HDLR.erasePages(imageContext->romBegin, imageContext->romEnd - imageContext->romBegin);
+}
+
+/******************************************************************************
 * Function    : pb_fota_write_firmware_to_free_bank
 * 
 * Author      : Chen Hao
@@ -87,7 +103,7 @@ static int32 pb_fota_write_firmware_to_free_bank(PB_IMAGE_CONTEXT *imageContext,
         return -1;
     }
 
-    return PB_FLASH_HDLR.write(writeAddr, (uint32*)pdata, len);
+    return PB_FLASH_HDLR.forceWrite(writeAddr, (uint32*)pdata, len);
 }
 
 /******************************************************************************
@@ -359,6 +375,12 @@ static bool pb_fota_save(FTP_CLIENT *ftp, PB_FOTA_CONTEXT *param, PB_IMAGE_CONTE
     bool ret = false;
     uint32 totalLen = 0;
     uint32 dataLen = 0;
+
+    if (!pb_fota_erase_free_bank(imageContext))
+    {
+        OS_DBG_ERR(DBG_MOD_PBFOTA, "FLASH ERASE ERR");
+        return ret;
+    }
 
     uint8 data[PB_FOTA_BLOCK_SIZE];
     do
