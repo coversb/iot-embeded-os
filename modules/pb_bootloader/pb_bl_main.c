@@ -117,7 +117,14 @@ static bool pb_bl_jump_app(void)
     ramAddr = *(__IO uint32*)APP_BEGIN;
     appAddr = *(__IO uint32*)(APP_BEGIN + 4);
 
+    #if defined(BOARD_STM32F1XX)
     if ((ramAddr & 0xFFFF0000) != 0x20000000)
+    #elif defined(BOARD_STM32F4XX)
+    if (((ramAddr & 0xFFFC0000) != 0x20000000)
+        && ((ramAddr & 0xFFFE0000) != 0x10000000))
+    #else
+    #error pb_bl_jump_app
+    #endif
     {
         BL_INFO("Bad ram addr %X", ramAddr);
         return false;
