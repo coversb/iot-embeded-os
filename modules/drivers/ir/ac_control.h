@@ -39,7 +39,6 @@ typedef enum
 
 typedef enum
 {
-    AC_MODE_CLOSE = 0,
     AC_MODE_COLD,
     AC_MODE_HOT,
     AC_MODE_WIND,
