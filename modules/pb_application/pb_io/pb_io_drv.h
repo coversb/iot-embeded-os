@@ -93,6 +93,27 @@ typedef enum
     PB_OUT_END,
 }PB_IO_OUTPUT_ENUM;
 
+#if defined(BOARD_STM32F4XX)
+typedef enum
+{
+    PB_LATCH_OE_BEGIN = 0,
+    PB_LATCH_OE1 = PB_LATCH_OE_BEGIN,
+    PB_LATCH_OE2,
+    PB_LATCH_OE3,
+    PB_LATCH_OE_END
+}PB_IO_LATCH_OE_ENUM;
+
+typedef enum
+{
+    PB_LATCH_LE_BEGIN = 0,
+    PB_LATCH_LE1 = PB_LATCH_LE_BEGIN,
+    PB_LATCH_LE2,
+    PB_LATCH_LE3,
+    PB_LATCH_LE_END,
+    PB_LATCH_LE_NONE = 0xFF
+}PB_IO_LATCH_LE_ENUM;
+#endif /*BOARD_STM32F4XX*/
+
 typedef enum
 {
     PB_GPO_BEGIN = 0,

@@ -56,6 +56,36 @@ const static PB_IO_PIN_TYPE PB_GPO_TABLE[PB_GPO_END] =
     {BOARD_GPO_DEV_LOCK},    {BOARD_GPO_DOOR_LOCK},    {BOARD_GPO_RESERVED2}
 };
 
+#if defined(BOARD_STM32F4XX)
+const static PB_IO_PIN_TYPE PB_LATCH_OE_TABLE[PB_LATCH_OE_END] = 
+{
+    {BOARD_LATCH_OE01},      {BOARD_LATCH_OE02},       {BOARD_LATCH_OE03}
+};
+
+const static PB_IO_PIN_TYPE PB_LATCH_LE_TABLE[PB_LATCH_LE_END] = 
+{
+    {BOARD_LATCH_LE01},       {BOARD_LATCH_LE02},      {BOARD_LATCH_LE03}
+};
+
+//LATCH LE for OUTPUT pin
+const static PB_IO_LATCH_LE_ENUM PB_PIN_LATCH_LE[PB_OUT_END] = 
+{
+    /*RESERVED*/
+    PB_LATCH_LE_NONE, PB_LATCH_LE_NONE, PB_LATCH_LE_NONE, PB_LATCH_LE_NONE,
+    /*LATCH1 OUT1 ~ OUT8*/
+    PB_LATCH_LE1, PB_LATCH_LE1, PB_LATCH_LE1, PB_LATCH_LE1,
+    PB_LATCH_LE1, PB_LATCH_LE1, PB_LATCH_LE1, PB_LATCH_LE1,
+    /*LATCH2 OUT9 ~ OUT16*/
+    PB_LATCH_LE2, PB_LATCH_LE2, PB_LATCH_LE2, PB_LATCH_LE2,
+    PB_LATCH_LE2, PB_LATCH_LE2, PB_LATCH_LE2, PB_LATCH_LE2,
+    /*LATCH3 OUT17 ~ OUT24*/
+    PB_LATCH_LE3, PB_LATCH_LE3, PB_LATCH_LE3, PB_LATCH_LE3,
+    PB_LATCH_LE3, PB_LATCH_LE3, PB_LATCH_LE3, PB_LATCH_LE3,
+    /*RESERVED*/
+    PB_LATCH_LE_NONE, PB_LATCH_LE_NONE, PB_LATCH_LE_NONE, PB_LATCH_LE_NONE
+};
+#endif /*BOARD_STM32F4XX*/
+
 /******************************************************************************
 * Local Functions
 ******************************************************************************/
@@ -147,9 +177,61 @@ void pb_io_drv_output_set(uint8 pin, uint8 val)
 
     if (PB_OUTPUT_TABLE[pin].group != NULL)
     {
+        #if defined(BOARD_STM32F1XX)
         hal_gpio_set(PB_OUTPUT_TABLE[pin].group, PB_OUTPUT_TABLE[pin].pin, (HAL_GPIO_VAL)val);
+        #elif defined(BOARD_STM32F4XX)
+        PB_IO_LATCH_LE_ENUM le = PB_PIN_LATCH_LE[pin];
+        if (PB_LATCH_LE_NONE == le)
+        {
+            return;
+        }
+        hal_gpio_set(PB_LATCH_LE_TABLE[le].group, PB_LATCH_LE_TABLE[le].pin, HAL_GPIO_HIGH);
+        hal_gpio_set(PB_OUTPUT_TABLE[pin].group, PB_OUTPUT_TABLE[pin].pin, (HAL_GPIO_VAL)val);
+        hal_gpio_set(PB_LATCH_LE_TABLE[le].group, PB_LATCH_LE_TABLE[le].pin, HAL_GPIO_LOW);
+        #else
+        #error pb_io_drv_output_set
+        #endif
     }
 }
+
+#if defined(BOARD_STM32F4XX)
+/******************************************************************************
+* Function    : pb_io_drv_latch_init
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : init latch
+******************************************************************************/
+static void pb_io_drv_latch_init(void)
+{
+    hal_rcc_enable(BOARD_LATCH_RCC);
+
+    //init latch OE
+    for (uint8 idx = PB_LATCH_OE_BEGIN; idx < PB_LATCH_OE_END; ++idx)
+    {
+        if (PB_LATCH_OE_TABLE[idx].group == NULL)
+        {
+            continue;
+        }
+        hal_gpio_set_mode(PB_LATCH_OE_TABLE[idx].group, PB_LATCH_OE_TABLE[idx].pin, HAL_GPIO_OUT_PP);
+        hal_gpio_set(PB_LATCH_OE_TABLE[idx].group, PB_LATCH_OE_TABLE[idx].pin, HAL_GPIO_LOW);
+    }
+
+    //init latch LE
+    for (uint8 idx = PB_LATCH_LE_BEGIN; idx < PB_LATCH_LE_END; ++idx)
+    {
+        if (PB_LATCH_LE_TABLE[idx].group == NULL)
+        {
+            continue;
+        }
+        hal_gpio_set_mode(PB_LATCH_LE_TABLE[idx].group, PB_LATCH_LE_TABLE[idx].pin, HAL_GPIO_OUT_PP);
+    }
+}
+#endif /*BOARD_STM32F4XX*/
 
 /******************************************************************************
 * Function    : pb_io_drv_output_init
@@ -261,6 +343,9 @@ void pb_io_drv_init(void)
 {
     pb_io_drv_gpo_init();
     pb_io_drv_output_init();
+    #if defined(BOARD_STM32F4XX)
+    pb_io_drv_latch_init();
+    #endif /*BOARD_STM32F4XX*/
     pb_io_drv_input_init();
 }
 
