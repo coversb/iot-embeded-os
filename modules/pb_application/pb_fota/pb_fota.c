@@ -515,6 +515,39 @@ err:
 }
 
 /******************************************************************************
+* Function    : pb_fota_version_check
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static bool pb_fota_version_check(uint32 addr)
+{
+    bool ret = false;
+    PB_IMAGE_INFO *pInfo = NULL;
+
+    pInfo = (PB_IMAGE_INFO*)(addr|FIRMWARE_IMAGE_INFO_OFFSET);
+    
+    if (pInfo->hwVersion == BOARD_HW_VERSION
+        && pInfo->imageType == PB_IMAGE_APP)
+    {
+        ret = true;
+    }
+    else
+    {
+        OS_DBG_ERR(DBG_MOD_PBFOTA, "Err ver, hw[%X]need[%X], type[%X]need[%X]", 
+                            pInfo->hwVersion, BOARD_HW_VERSION,
+                            pInfo->imageType, PB_IMAGE_APP);
+    }
+
+    return ret;
+}
+
+/******************************************************************************
 * Function    : pb_fota_process
 * 
 * Author      : Chen Hao
@@ -569,6 +602,12 @@ static uint8 pb_fota_process(PB_FOTA_CONTEXT *param)
                             md5Data[12], md5Data[13], md5Data[14], md5Data[15]);
 
         ret =  PB_FOTA_DOWNLOAD_MD5_ERR;
+        goto end;
+    }
+
+    if (!pb_fota_version_check(newImage.romBegin))
+    {
+        ret = PB_FOTA_DOWNLOAD_VER_ERR;
         goto end;
     }
 
