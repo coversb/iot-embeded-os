@@ -248,8 +248,16 @@ typedef struct
 /******************************************************************************
 * Security Configuration (SEC[0x01 0x07])
 ******************************************************************************/
-#define PB_SEC_CONTENT_LEN 33
+#define PB_SEC_CONTENT_LEN 49
 #define PB_SEC_KEY_LEN 32
+
+#define PB_SEC_KEY_DATA_LEN 48
+#define PB_SEC_KEY_HEADER_OFFSET 0
+#define PB_SEC_KEY_OFFSET 4
+#define PB_SEC_KEY_TAIL_OFFSET 36
+#define PB_SEC_KEY_CRC_OFFSET 40
+#define PB_SEC_KEY_HEADER {0xDE, 0xAD, 0xBE, 0xEF}
+#define PB_SEC_KEY_TAIL {0xBE, 0xEF, 0xDE, 0xAD}
 
 typedef enum
 {

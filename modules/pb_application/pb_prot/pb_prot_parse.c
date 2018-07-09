@@ -1262,14 +1262,54 @@ static bool pb_prot_parse_cmd_sec(PB_PROT_PARSED_CONTENT_TYPE *content,
         OS_DBG_ERR(DBG_MOD_PBPROT, "Length error %d", content->contentLen);
         return false;
     }
+
+    bool isEncrypt = true;
     
     //Key type
     uint8 keyType;
     pdata += pb_prot_parse_u8(pdata, &keyType);
-    frame->arg.sec.keyType = keyType;
+    if (0x0F == ((keyType >> 4) & 0x0F))
+    {
+        isEncrypt = false;
+        frame->arg.sec.keyType = (keyType & 0x0F);
+    }
+    else
+    {
+        frame->arg.sec.keyType = keyType;
+    }
+
+    //Key data
+    uint8 keyData[PB_SEC_KEY_DATA_LEN];
+    uint8 keyHeader[] = PB_SEC_KEY_HEADER;
+    uint8 keyTail[] = PB_SEC_KEY_TAIL;
+    memset(keyData, 0, sizeof(keyData));
+    pb_prot_parse_u8_array(pdata, keyData, PB_SEC_KEY_DATA_LEN);
+
+    if (isEncrypt)
+    {
+        //decrypt for keyData
+    }
+
+    //check header and tail
+    if (0 != memcmp(&keyData[PB_SEC_KEY_HEADER_OFFSET], keyHeader, 4)
+        || 0 != memcmp(&keyData[PB_SEC_KEY_TAIL_OFFSET], keyTail, 4))
+    {
+        OS_DBG_ERR(DBG_MOD_PBPROT, "Bad key data");
+        return false;
+    }
+
+    //check crc
+    uint16 crc;
+    pb_prot_parse_u16(&keyData[PB_SEC_KEY_CRC_OFFSET], &crc);
+    uint16 calCrc = pb_util_get_crc16(keyData, PB_SEC_KEY_CRC_OFFSET);
+    if (crc != calCrc)
+    {
+        OS_DBG_ERR(DBG_MOD_PBPROT, "KEY CRC err[%04X], need[%04X]", crc, calCrc);
+        return false;
+    }
 
     //Key
-    pdata += pb_prot_parse_u8_array(pdata, frame->arg.sec.key, PB_SEC_KEY_LEN);
+    pb_prot_parse_u8_array(&keyData[PB_SEC_KEY_OFFSET], frame->arg.sec.key, PB_SEC_KEY_LEN);
 
     char keyStr[PB_SEC_KEY_LEN * 2 + 1];
     os_trace_get_hex_str((uint8*)keyStr, sizeof(keyStr), frame->arg.sec.key, PB_SEC_KEY_LEN);

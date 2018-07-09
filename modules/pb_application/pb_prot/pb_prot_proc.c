@@ -813,7 +813,7 @@ static void pb_prot_proc_cmd_exec_sec(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
         if (needUpdatePwKey)
         {
             //update hotp key
-            //pb_hotp_set_update(true);
+            pb_order_hotp_key_change();
         }
         else
         if (needUpdateComKey)
