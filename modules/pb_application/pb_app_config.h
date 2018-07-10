@@ -36,7 +36,7 @@
 #define PB_CMDCFG_ADDR CMDCFG_BEGIN
 
 /*Versions*/
-#define PB_PROTOCOL_VERSION 0x0117  //1.23
+#define PB_PROTOCOL_VERSION 0x0118  //1.24
 #define PB_FIRMWARE_VERSION 0x2021  //2.02.01
 
 /******************************************************************************
