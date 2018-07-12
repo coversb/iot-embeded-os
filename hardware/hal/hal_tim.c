@@ -59,8 +59,8 @@ static void hal_tim1_pwm_init(void)
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
     TIM_OCInitStructure.TIM_Pulse = CCR1_Val;	  //设置电平跳变值，输出一个占空比的PWM
 
-    TIM_OC2Init(TIM1, &TIM_OCInitStructure);	  //使能通道2
-    TIM_OC2PreloadConfig(TIM1, TIM_OCPreload_Enable);
+    TIM_OC1Init(TIM1, &TIM_OCInitStructure);	  //使能通道2
+    TIM_OC1PreloadConfig(TIM1, TIM_OCPreload_Enable);
 
     TIM_ARRPreloadConfig(TIM1, ENABLE);  // 使能TIM3重载寄存器ARR
 
