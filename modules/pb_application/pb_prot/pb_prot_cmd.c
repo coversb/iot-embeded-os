@@ -493,7 +493,7 @@ static void pb_prot_cmd_ac(uint32 mode, char *para)
 {
     switch (mode)
     {
-        case 0:
+        case AC_MODE_NUM:
         {
             AC_REMOTE_CTRL.close();
             OS_INFO("AC CLOSE");
