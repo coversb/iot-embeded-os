@@ -163,7 +163,7 @@ static bool pb_io_aircon_has_order(void)
     {
         PB_CFG_ACW *pAcw = &(pb_cfg_proc_get_cmd()->acw);
         uint32 curTime = pb_util_get_timestamp();
-        uint32 nearestStartTime = pb_order_nearest_start_time();
+        uint32 nearestStartTime = pb_order_nearest_start_time() + PB_ORDER_START_ADJUST;
 
         if ((curTime < nearestStartTime)
             && (nearestStartTime - curTime <= (pAcw->duration * MIN2SEC)))
