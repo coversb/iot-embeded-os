@@ -407,6 +407,9 @@ static bool pb_io_aircon_need_close(void)
 static void pb_io_aircon_delay_set(OS_TMR_TYPE tmr)
 {
     pb_io_aircon_set(PB_IO_AIRCON_ON);
+    // send 3 times make sure the cmd send out
+    pb_io_aircon_set(PB_IO_AIRCON_ON);
+    pb_io_aircon_set(PB_IO_AIRCON_ON);
 }
 
 /******************************************************************************
@@ -446,6 +449,9 @@ static void pb_io_aircon_delay_pwroff(void)
     os_tmr_stop(delaySendCmdTmr);
 
     //close air conditioner by ir
+    pb_io_aircon_set(PB_IO_AIRCON_OFF);
+    // send 3 times make sure the cmd send out
+    pb_io_aircon_set(PB_IO_AIRCON_OFF);
     pb_io_aircon_set(PB_IO_AIRCON_OFF);
 
     //start delay power off timer
