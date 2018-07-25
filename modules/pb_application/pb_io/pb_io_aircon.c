@@ -28,8 +28,9 @@
 /******************************************************************************
 * Macros
 ******************************************************************************/
-#define PB_IO_ARICON_SNED_CMD_DELAY (15 * SEC2MSEC)
-#define PB_IO_ARICON_PWROFF_DELAY (5 * MIN2MSEC)
+#define PB_IO_AIRCON_SNED_CMD_DELAY (15 * SEC2MSEC)
+#define PB_IO_AIRCON_PWROFF_DELAY (5 * MIN2MSEC)
+#define PB_IO_AIRCON_SEND_RETRY 3
 
 /******************************************************************************
 * Variables (Extern, Global and Static)
@@ -37,6 +38,7 @@
 static OS_TMR_TYPE delaySendCmdTmr;
 static OS_TMR_TYPE delayPwroffTmr;
 static PB_IO_AIRCON_STAT pwrState = PB_IO_AIRCON_CLOSE;
+static uint8 airconSendCnt = 0;
 static uint16 airconState = 0;
 
 /******************************************************************************
@@ -407,9 +409,13 @@ static bool pb_io_aircon_need_close(void)
 static void pb_io_aircon_delay_set(OS_TMR_TYPE tmr)
 {
     pb_io_aircon_set(PB_IO_AIRCON_ON);
+    
     // send 3 times make sure the cmd send out
-    pb_io_aircon_set(PB_IO_AIRCON_ON);
-    pb_io_aircon_set(PB_IO_AIRCON_ON);
+    airconSendCnt++;
+    if (airconSendCnt < PB_IO_AIRCON_SEND_RETRY)
+    {
+        os_tmr_restart(delaySendCmdTmr);
+    }
 }
 
 /******************************************************************************
@@ -450,9 +456,6 @@ static void pb_io_aircon_delay_pwroff(void)
 
     //close air conditioner by ir
     pb_io_aircon_set(PB_IO_AIRCON_OFF);
-    // send 3 times make sure the cmd send out
-    pb_io_aircon_set(PB_IO_AIRCON_OFF);
-    pb_io_aircon_set(PB_IO_AIRCON_OFF);
 
     //start delay power off timer
     os_tmr_restart(delayPwroffTmr);
@@ -479,6 +482,7 @@ static void pb_io_aircon_pwron(void)
     pb_io_drv_output_set(PB_OUT_AIR_CON2, HAL_GPIO_HIGH);
 
     //start timer, and in the timer it will configurate by ir
+    airconSendCnt = 0;
     os_tmr_restart(delaySendCmdTmr);
 }
 
@@ -553,8 +557,8 @@ static void pb_io_aircon_process(void)
 ******************************************************************************/
 static void pb_io_aircon_init(void)
 {
-    delaySendCmdTmr = os_tmr_create(PB_IO_ARICON_SNED_CMD_DELAY, pb_io_aircon_delay_set, false);
-    delayPwroffTmr = os_tmr_create(PB_IO_ARICON_PWROFF_DELAY, pb_io_aircon_pwroff, false);
+    delaySendCmdTmr = os_tmr_create(PB_IO_AIRCON_SNED_CMD_DELAY, pb_io_aircon_delay_set, false);
+    delayPwroffTmr = os_tmr_create(PB_IO_AIRCON_PWROFF_DELAY, pb_io_aircon_pwroff, false);
 
     pb_io_aircon_set(PB_IO_AIRCON_OFF);
 }
