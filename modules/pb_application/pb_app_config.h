@@ -37,7 +37,7 @@
 
 /*Versions*/
 #define PB_PROTOCOL_VERSION 0x0118  //1.24
-#define PB_FIRMWARE_VERSION 0x2021  //2.02.01
+#define PB_FIRMWARE_VERSION 0x2022  //2.02.02
 
 /******************************************************************************
 * Device define
