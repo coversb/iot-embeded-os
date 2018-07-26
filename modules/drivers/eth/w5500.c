@@ -1401,12 +1401,24 @@ static bool w5500_net_connect(const char *domainName, uint16 port)
     uint16 localPort = 0;
     
     OS_DBG_TRACE(DBG_MOD_DEV, DBG_INFO, "Net connecting[%s:%d]", domainName, port);
-    
-    if (!w5500_dns((char*)domainName, serIP))
+
+    if (pb_util_check_is_ip(domainName, strlen(domainName)))
     {
-        ret = false;
-        OS_DBG_ERR(DBG_MOD_DEV, "Domain DNS err, use default server IP");
-        goto err;
+        int32 tmpIP[4];
+        sscanf(domainName, "%d.%d.%d.%d", &tmpIP[0], &tmpIP[1], &tmpIP[2], &tmpIP[3]);
+        serIP[0] = tmpIP[0];
+        serIP[1] = tmpIP[1];
+        serIP[2] = tmpIP[2];
+        serIP[3] = tmpIP[3];
+    }
+    else
+    {
+        if (!w5500_dns((char*)domainName, serIP))
+        {
+            ret = false;
+            OS_DBG_ERR(DBG_MOD_DEV, "Domain DNS err, use default server IP");
+            goto err;
+        }
     }
 
     localPort = w5500_random_port(COM_LOCAL_PORT);
