@@ -60,6 +60,16 @@ typedef enum
     PB_ORDER_KEYBOARD_BEEP_PASS
 } PB_ORDER_KEYBOARD_BEEP_TYPE;
 
+typedef enum
+{
+    PB_ORDER_CONSUMER_UNKNOWN = 0
+}PB_ORDER_CONSUMER_TYPE;
+
+typedef enum
+{
+    PB_ORDER_OPERATION_UNKNOWN = 0
+}PB_ORDER_OPERATION_TYPE;
+
 /******************************************************************************
 * Types
 ******************************************************************************/
@@ -67,6 +77,8 @@ typedef struct
 {
     uint8 type;
     uint32 data;
+    uint32 operationID;
+    uint32 consumerID;
 }PB_ORDER_VERIFY_PARAM;
 
 typedef struct
@@ -86,7 +98,7 @@ typedef struct
 ******************************************************************************/
 extern void pb_order_main(void *params);
 
-extern void pb_order_send_verify_req(uint8 type, uint32 data);
+extern void pb_order_send_verify_req(uint8 type, uint32 data, uint32 operationID, uint32 consumerID);
 extern void pb_order_booking(PB_PROT_ORDER_TYPE *pOrder);
 extern void pb_order_cancel(PB_PROT_ORDER_TYPE *pOrder);
 extern void pb_order_clear(void);

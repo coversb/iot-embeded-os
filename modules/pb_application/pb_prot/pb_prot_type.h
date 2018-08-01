@@ -104,6 +104,7 @@ typedef enum
     PB_PROT_RSP_UIE = 0x21, // 0x21 user input event
     PB_PROT_RSP_DSE = 0x22, // 0x22 door status event
     PB_PROT_RSP_PCE = 0x23, //0x23 person counter event
+    PB_PROT_RSP_COE = 0x24, //0x24 consumer operation event
     PB_PROT_RSP_SAE = 0x31, //0x31 sensor alarm event
     PB_PROT_RSP_MUE = 0x83, //0x83 Mutilmedia event
     PB_PROT_RSP_RTO = 0x84, //0x84 real time operation
@@ -180,7 +181,8 @@ typedef enum
     PB_CFG_EVENT_DSE,
     PB_CFG_EVENT_MUE,
     PB_CFG_EVENT_GEN,
-    PB_CFG_EVENT_PCE
+    PB_CFG_EVENT_PCE,
+    PB_CFG_EVENT_COE
 }PB_PROT_CFG_EVENT_MASK;
 
 typedef struct
@@ -564,6 +566,34 @@ typedef struct
     uint8 curNum;
     uint16 totalNum;
 }PB_PROT_RSP_PCE_PARAM;
+
+//Consumer operation event[0x03 0x24]
+#define PB_COE_INFO_LEN 255
+
+typedef enum
+{
+    PB_COE_CLOSE_DOOR = 0,
+    PB_COE_OPEN_DOOR
+}PB_PROT_COE_TYPE;
+
+typedef enum
+{
+    PB_COE_INFO_UNKNOWN = 0,
+    PB_COE_INFO_ENG_PWD,
+    PB_COE_INFO_OFFLINE_PWD,
+    PB_COE_INFO_PWD,
+    PB_COE_INFO_SERVER_OPEN,
+    PB_COE_INFO_ENG_SERVER_OPEN,
+    PB_COE_INFO_END
+}PB_PROT_COE_INFO_TYPE;
+
+typedef struct
+{
+    uint8 type;
+    uint32 operationID;
+    uint32 consumerID;
+    uint8 info[PB_COE_INFO_LEN];
+}PB_PROT_RSP_COE_PARAM;
 
 //Sensor alamr RSP[0x03 0x31]
 typedef enum

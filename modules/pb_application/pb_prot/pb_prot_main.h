@@ -73,6 +73,7 @@ extern bool pb_prot_check_event(uint8 subType);
 extern void pb_prot_send_dbg_info_req(uint8 *debugInfo, uint16 infoLen);
 extern void pb_prot_send_sae_req(uint8 alarmType, uint8 alarmLv);
 extern void pb_prot_send_uie_req(uint8 type, uint8 *data);
+extern void pb_prot_send_coe_req(uint8 type, uint32 operationID, uint32 consumerID, uint8 *info);
 
 #endif /* __PB_PROT_MAIN_H__ */
 

@@ -584,6 +584,40 @@ static uint16 pb_prot_assemble_rsp_pce(uint8 *buff, void *param)
 }
 
 /******************************************************************************
+* Function    : pb_prot_assemble_rsp_coe
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static uint16 pb_prot_assemble_rsp_coe(uint8 *buff, void *param)
+{
+    uint8* pbuff = buff;
+    PB_PROT_RSP_COE_PARAM *pParam = (PB_PROT_RSP_COE_PARAM*)param;
+
+    /*Operation type*/
+    pbuff += pb_prot_assemble_u16(pbuff, pParam->type);
+
+    /*Operation ID*/
+    pbuff += pb_prot_assemble_u32(pbuff, pParam->operationID);
+
+    /*Consumer ID*/
+    pbuff += pb_prot_assemble_u32(pbuff, pParam->consumerID);
+
+    /*Operation info length*/
+    pbuff += pb_prot_assemble_u8(pbuff, strlen((char*)pParam->info));
+
+    /*Operation info*/
+    pbuff += pb_prot_assemble_str(pbuff, pParam->info);
+    
+    return (pbuff - buff);
+}
+
+/******************************************************************************
 * Function    : pb_prot_assemble_rsp_sae
 * 
 * Author      : Chen Hao
@@ -1307,6 +1341,11 @@ uint16 pb_prot_assemble_rsp(PB_PROT_RSP_PACK_TYPE *rspPack)
         case PB_PROT_RSP_PCE:
         {
             pCipher += pb_prot_assemble_rsp_pce(pCipher, rspPack->msgParam);
+            break;
+        }
+        case PB_PROT_RSP_COE:
+        {
+            pCipher += pb_prot_assemble_rsp_coe(pCipher, rspPack->msgParam);
             break;
         }
         case PB_PROT_RSP_SAE:

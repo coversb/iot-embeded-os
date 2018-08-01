@@ -1304,7 +1304,10 @@ static void pb_prot_proc_cmd_exec_rto(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
         }
         case PB_RTO_DOOR_SW:
         {
-            pb_order_send_verify_req(PB_ORDER_VERIFY_SERVER, argRto->subCmd);
+            pb_order_send_verify_req(PB_ORDER_VERIFY_SERVER, 
+                                                     argRto->subCmd, 
+                                                     parsedFrame->serialNumber,
+                                                     PB_ORDER_CONSUMER_UNKNOWN);
             break;
         }
         case PB_RTO_LOCATION:

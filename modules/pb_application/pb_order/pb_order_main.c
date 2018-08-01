@@ -42,6 +42,16 @@
 /******************************************************************************
 * Variables (Extern, Global and Static)
 ******************************************************************************/
+const char *PB_COE_INFO_TYPE[PB_COE_INFO_END] = 
+{
+    "Unknown",
+    "EngPwd",
+    "OfflinePwd",
+    "Pwd",
+    "ServerOpen",
+    "EngServerOpen"
+};
+
 static OS_MSG_QUEUE_TYPE pb_order_msg_queue;
 static PB_ORDER_CONTEXT_TYPE pb_order_context;
 
@@ -330,9 +340,9 @@ static void pb_order_operation_state_update(void)
 * 
 * Description : check the pass's validity
 ******************************************************************************/
-static uint8 pb_order_verify_keyboard(uint32 password)
+static uint8 pb_order_verify_keyboard(uint32 password, uint32 *orderID)
 {
-    uint8 passwordType = PB_ORDER.verifyPassword(pb_util_get_timestamp(), password);
+    uint8 passwordType = PB_ORDER.verifyPassword(pb_util_get_timestamp(), password, orderID);
 
     switch (passwordType)
     {
@@ -343,7 +353,7 @@ static uint8 pb_order_verify_keyboard(uint32 password)
         }
         case PB_ORDER_VERIFY_PW_UNKNOWN:
         {
-            passwordType = pb_order_hotp_verify_password(password);
+            passwordType = pb_order_hotp_verify_password(password, orderID);
             break;
         }
         default:break;
@@ -431,7 +441,7 @@ static void pb_order_verify(PB_MSG_TYPE *pMsg)
         }
         case PB_ORDER_VERIFY_KEYBOARD:
         {
-            verifyRes = pb_order_verify_keyboard(pParam->data);
+            verifyRes = pb_order_verify_keyboard(pParam->data, &(pParam->consumerID));
             break;
         }
         default:return;
@@ -447,7 +457,8 @@ static void pb_order_verify(PB_MSG_TYPE *pMsg)
 
     bool needSendUIE = false;
     uint8 userInputType = PB_PROT_UIE_UNKNOWN;
-    char userInputData[PB_UIE_DATA_LEN];
+    char userInputData[PB_UIE_DATA_LEN] = {0};
+    uint8 coeInfoType = PB_COE_INFO_UNKNOWN;
 
     //check verify result
     switch (verifyRes)
@@ -465,6 +476,9 @@ static void pb_order_verify(PB_MSG_TYPE *pMsg)
             needSendUIE = true;
             userInputType = PB_PROT_UIE_ENG_PASS;
             sprintf(userInputData, "%08d", pParam->data);
+
+            //eng password
+            coeInfoType = PB_COE_INFO_ENG_PWD;
             break;
         }
         case PB_ORDER_VERIFY_PW_OFFLINE:
@@ -478,6 +492,9 @@ static void pb_order_verify(PB_MSG_TYPE *pMsg)
             needSendUIE = true;
             userInputType = PB_PROT_UIE_HOTP_PASS;
             sprintf(userInputData, "%04d", pParam->data);
+
+            // offline consumer password
+            coeInfoType = PB_COE_INFO_OFFLINE_PWD;
             break;
         }
         case PB_ORDER_VERIFY_PW_VALID:
@@ -491,6 +508,9 @@ static void pb_order_verify(PB_MSG_TYPE *pMsg)
             needSendUIE = true;
             userInputType = PB_PROT_UIE_KEYBOARD;
             sprintf(userInputData, "%04d", pParam->data);
+
+            // consumer password
+            coeInfoType = PB_COE_INFO_PWD;
             break;
         }
         case PB_ORDER_VERIFY_SER_OPEN:
@@ -501,6 +521,13 @@ static void pb_order_verify(PB_MSG_TYPE *pMsg)
             if (pb_order_operation_state() != PB_ORDER_OPSTAT_CLOSE)
             {
                 needPlayWelcome = true;
+                // consumer server open
+                coeInfoType = PB_COE_INFO_SERVER_OPEN;
+            }
+            else
+            {
+                // eng server open
+                coeInfoType = PB_COE_INFO_ENG_SERVER_OPEN;
             }
             needBlinkPass = true;
             break;
@@ -570,6 +597,27 @@ static void pb_order_verify(PB_MSG_TYPE *pMsg)
     if (needSendUIE)
     {
         pb_prot_send_uie_req(userInputType, (uint8*)userInputData);
+    }
+
+    if (coeInfoType != PB_COE_INFO_UNKNOWN)
+    {
+        char coeInfo[PB_COE_INFO_LEN] = {0};
+        snprintf(coeInfo, PB_COE_INFO_LEN, 
+                    "{"
+                    "\"type\":\"%s\","
+                    "\"pwd\":\"%s\","
+                    "\"oid\":\"%d\","
+                    "\"sn\":\"%d\""
+                    "}",
+                    PB_COE_INFO_TYPE[coeInfoType],
+                    userInputData,
+                    pParam->consumerID,
+                    pParam->operationID);
+        pb_prot_send_coe_req(PB_COE_OPEN_DOOR, 
+                                            pParam->operationID,
+                                            pParam->consumerID,
+                                            (uint8*)coeInfo);
+        OS_DBG_TRACE(DBG_MOD_PBORDER, DBG_INFO, "COE:%s", coeInfo);
     }
 }
 
@@ -648,7 +696,7 @@ static void pb_order_update_tmr_hdlr(OS_TMR_TYPE tmr)
 *
 * Description :
 ******************************************************************************/
-void pb_order_send_verify_req(uint8 type, uint32 data)
+void pb_order_send_verify_req(uint8 type, uint32 data, uint32 operationID, uint32 consumerID)
 {
     PB_MSG_TYPE msg;
     msg.msgID = PB_MSG_ORDER_VERIFY_REQ;
@@ -663,6 +711,8 @@ void pb_order_send_verify_req(uint8 type, uint32 data)
     PB_ORDER_VERIFY_PARAM *param = (PB_ORDER_VERIFY_PARAM *)msg.pMsgData;
     param->type = type;
     param->data = data;
+    param->operationID = operationID;
+    param->consumerID = consumerID;
 
     os_msg_queue_send(pb_order_msg_queue, ( void*)&msg, 0);
 

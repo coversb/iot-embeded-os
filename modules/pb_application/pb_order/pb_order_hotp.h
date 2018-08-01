@@ -70,6 +70,6 @@ extern void pb_order_hotp_update(void);
 extern void pb_order_hotp_try_to_send_buffer_order(void);
 extern PB_ORDER_OFFLINE_BUFF *pb_order_hotp_offline_order_buff(void);
 extern void pb_order_hotp_offline_password_print(void);
-extern uint8 pb_order_hotp_verify_password(uint32 password);
+extern uint8 pb_order_hotp_verify_password(uint32 password, uint32 *orderID);
 
 #endif /*__PB_HOTP_H__*/

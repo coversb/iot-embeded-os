@@ -719,7 +719,7 @@ static void pb_order_hotp_add_offline_order(uint8 type, uint32 pass)
 * 
 * Description : 
 ******************************************************************************/
-uint8 pb_order_hotp_verify_password(uint32 password)
+uint8 pb_order_hotp_verify_password(uint32 password, uint32 *orderID)
 {
     uint8 passType = PB_ORDER_VERIFY_PW_UNKNOWN;
     uint8 orderType = PB_ORDER_HOTP_UNKNOWN;
@@ -753,6 +753,11 @@ uint8 pb_order_hotp_verify_password(uint32 password)
     }
 
     pb_order_hotp_add_offline_order(orderType, password);
+
+    if (passType != PB_ORDER_VERIFY_PW_UNKNOWN)
+    {
+        *orderID = password;
+    }
 
     return passType;
 }

@@ -202,6 +202,35 @@ void pb_prot_send_uie_req(uint8 type, uint8 *data)
 }
 
 /******************************************************************************
+* Function    : pb_prot_send_coe_req
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_prot_send_coe_req(uint8 type, uint32 operationID, uint32 consumerID, uint8 *info)
+{
+    PB_PROT_RSP_COE_PARAM coeParam;
+    memset(&coeParam, 0, sizeof(coeParam));
+    coeParam.type = type;
+    coeParam.operationID = operationID;
+    coeParam.consumerID = consumerID;
+    memcpy(coeParam.info, info, MIN_VALUE(strlen((char*)info), PB_COE_INFO_LEN));
+
+    OS_INFO("COE type:%d, operationID:%d, consumerID:%d, info:%s", 
+                  coeParam.type,
+                  coeParam.operationID, 
+                  coeParam.consumerID,
+                  coeParam.info);
+
+    pb_prot_send_rsp_param_req(PB_PROT_RSP_COE, (uint8*)&coeParam, sizeof(coeParam));
+}
+
+/******************************************************************************
 * Function    : pb_prot_send_dbg_info_req
 * 
 * Author      : Chen Hao
@@ -624,42 +653,47 @@ bool pb_prot_check_event(uint8 subType)
     {
         case PB_PROT_RSP_PNE:
         {
-            ret = (bool)BIT_CHECK(eventMask, PB_CFG_EVENT_PNE);
+            ret = (bool)(0 != BIT_CHECK(eventMask, PB_CFG_EVENT_PNE));
             break;
         }
         case PB_PROT_RSP_PFE:
         {
-            ret = (bool)BIT_CHECK(eventMask, PB_CFG_EVENT_PFE);
+            ret = (bool)(0 != BIT_CHECK(eventMask, PB_CFG_EVENT_PFE));
             break;
         }
         case PB_PROT_RSP_UIE:
         {
-            ret = (bool)BIT_CHECK(eventMask, PB_CFG_EVENT_UIE);
+            ret = (bool)(0 != BIT_CHECK(eventMask, PB_CFG_EVENT_UIE));
             break;
         }
         case PB_PROT_RSP_PSE:
         {
-            ret = (bool)BIT_CHECK(eventMask, PB_CFG_EVENT_PSE);
+            ret = (bool)(0 != BIT_CHECK(eventMask, PB_CFG_EVENT_PSE));
             break;
         }
         case PB_PROT_RSP_DSE:
         {
-            ret = (bool)BIT_CHECK(eventMask, PB_CFG_EVENT_DSE);
+            ret = (bool)(0 != BIT_CHECK(eventMask, PB_CFG_EVENT_DSE));
             break;
         }
         case PB_PROT_RSP_MUE:
         {
-            ret = (bool)BIT_CHECK(eventMask, PB_CFG_EVENT_MUE);
+            ret = (bool)(0 != BIT_CHECK(eventMask, PB_CFG_EVENT_MUE));
             break;
         }
         case PB_PROT_RSP_PCE:
         {
-            ret = (bool)BIT_CHECK(eventMask, PB_CFG_EVENT_PCE);
+            ret = (bool)(0 != BIT_CHECK(eventMask, PB_CFG_EVENT_PCE));
+            break;
+        }
+        case PB_PROT_RSP_COE:
+        {
+            ret = (bool)(0 != BIT_CHECK(eventMask, PB_CFG_EVENT_COE));
             break;
         }
         case PB_PROT_ACK_GEN:
         {
-            ret = (bool)BIT_CHECK(eventMask, PB_CFG_EVENT_GEN);
+            ret = (bool)(0 != BIT_CHECK(eventMask, PB_CFG_EVENT_GEN));
             break;
         }
         default:

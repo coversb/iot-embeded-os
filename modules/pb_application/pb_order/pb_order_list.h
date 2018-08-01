@@ -55,7 +55,7 @@ typedef struct
     void (*update)(void);
     void (*clear)(void);
     void (*print)(void);
-    uint8 (*verifyPassword)(uint32 timestamp, uint32 password);
+    uint8 (*verifyPassword)(uint32 timestamp, uint32 password, uint32 *orderID);
     uint16 (*validNumByTime)(uint32 timestamp);
 }PB_ORDER_LIST_MANAGER;
 

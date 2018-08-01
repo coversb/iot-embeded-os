@@ -130,7 +130,10 @@ static void pb_io_monitor_keyboard(void)
                     memset(queryKey, 0, sizeof(queryKey));
                     memcpy(queryKey, keyBuff, keyOffset);
                     password = atoi((char*)queryKey);
-                    pb_order_send_verify_req(PB_ORDER_VERIFY_KEYBOARD, password);
+                    pb_order_send_verify_req(PB_ORDER_VERIFY_KEYBOARD, 
+                                                             password, 
+                                                             PB_ORDER_OPERATION_UNKNOWN, 
+                                                             PB_ORDER_CONSUMER_UNKNOWN);
 
                     OS_DBG_TRACE(DBG_MOD_PBIO_MONITOR, DBG_INFO, "eng pw:%d", password);
                 }
@@ -147,7 +150,10 @@ static void pb_io_monitor_keyboard(void)
                     memset(queryKey, 0, sizeof(queryKey));
                     memcpy(queryKey, &keyBuff[keyOffset - PB_ORDER_PW_LEN], PB_ORDER_PW_LEN);
                     password = atoi((char*)queryKey);
-                    pb_order_send_verify_req(PB_ORDER_VERIFY_KEYBOARD, password);
+                    pb_order_send_verify_req(PB_ORDER_VERIFY_KEYBOARD, 
+                                                             password, 
+                                                             PB_ORDER_OPERATION_UNKNOWN, 
+                                                             PB_ORDER_CONSUMER_UNKNOWN);
 
                     OS_DBG_TRACE(DBG_MOD_PBIO_MONITOR, DBG_INFO, "pw:%d", password);
 

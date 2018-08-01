@@ -172,7 +172,7 @@ static bool pb_order_list_is_canceled_pass(uint32 timestamp, uint32 password)
 *
 * Description : check password in order list
 ******************************************************************************/
-static uint8 pb_order_list_verify_password(uint32 timestamp, uint32 password)
+static uint8 pb_order_list_verify_password(uint32 timestamp, uint32 password, uint32 *orderID)
 {
     if (pb_order_list_is_canceled_pass(timestamp, password))
     {
@@ -198,7 +198,8 @@ static uint8 pb_order_list_verify_password(uint32 timestamp, uint32 password)
             && (timestamp <= p->order.expireTime))
         {
             OS_DBG_TRACE(DBG_MOD_PBORDER, DBG_INFO, "Valid ORDER");
-            
+
+            *orderID = p->order.id;
             if (password >= 10000000)
             {
                 return PB_ORDER_VERIFY_PW_ENG;
