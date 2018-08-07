@@ -756,7 +756,7 @@ uint8 pb_order_hotp_verify_password(uint32 password, uint32 *orderID)
 
     if (passType != PB_ORDER_VERIFY_PW_UNKNOWN)
     {
-        *orderID = password;
+        *orderID = 0;
     }
 
     return passType;
