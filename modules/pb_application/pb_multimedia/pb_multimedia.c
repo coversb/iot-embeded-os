@@ -174,15 +174,19 @@ static void pb_multimedia_play_bgm(bool isRandom)
     if (needGetFileNum)
     {
         bgmManager.fileNum = AUDIO.fileNumber(PB_MM_DIR_BGM);
-        if (bgmManager.fileNum != 0)
+
+        if (bgmManager.fileNum == 0)
         {
-            needGetFileNum = false;
+            OS_DBG_ERR(DBG_MOD_PBMM, "BGM file num[%d]", bgmManager.fileNum);
+            return;
         }
+        
+        needGetFileNum = false;
         OS_DBG_TRACE(DBG_MOD_PBMM, DBG_INFO, "BGM file num[%d]", bgmManager.fileNum);
     }
-
     //index start from 1 to fileNum
     uint16 playIdx = (bgmManager.lastPalyingIdx + 1) % (bgmManager.fileNum + 1);
+
 re_select:
     if (isRandom)
     {
