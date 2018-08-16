@@ -24,7 +24,6 @@
 #include "pb_app_config.h"
 #include "pb_util.h"
 #include "pb_order_main.h"
-#include "pb_order_list.h"
 #include "pb_prot_type.h"
 #include "pb_io_main.h"
 #include "pb_cfg_proc.h"
@@ -32,6 +31,13 @@
 #include "rgb_led_task.h"
 #include "pb_prot_main.h"
 #include "pb_order_hotp.h"
+#if (PB_ORDER_CONTAINER_LIST == 1)
+#include "pb_order_list.h"
+#elif (PB_ORDER_CONTAINER_DB == 1)
+#include "pb_order_db.h"
+#else
+#error Need order container
+#endif
 
 /******************************************************************************
 * Macros

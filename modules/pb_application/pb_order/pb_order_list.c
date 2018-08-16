@@ -25,6 +25,7 @@
 #include "pb_util.h"
 #include "pb_order_main.h"
 
+#if (PB_ORDER_CONTAINER_LIST == 1)
 /******************************************************************************
 * Macros
 ******************************************************************************/
@@ -496,4 +497,5 @@ const PB_ORDER_LIST_MANAGER PB_ORDER =
     pb_order_list_verify_password,
     pb_order_list_get_order_num_by_time
 };
+#endif /*PB_ORDER_CONTAINER_LIST*/
 

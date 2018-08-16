@@ -22,6 +22,7 @@
 #include "pb_app_config.h"
 #include "pb_prot_type.h"
 
+#if (PB_ORDER_CONTAINER_LIST == 1)
 /******************************************************************************
 * Macros
 ******************************************************************************/
@@ -63,6 +64,7 @@ typedef struct
 * Global Variables
 ******************************************************************************/
 extern const PB_ORDER_LIST_MANAGER PB_ORDER;
+#endif /*PB_ORDER_CONTAINER_LIST*/
 
 #endif /* __PB_ORDER_LIST_H__ */
 

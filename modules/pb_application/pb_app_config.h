@@ -91,6 +91,12 @@
 #define PB_TMA_AUTO_SET_DEBOUNCE 3 //count
 
 //pb order
+#if defined(BOARD_STM32F4XX)
+#define PB_ORDER_CONTAINER_DB 0
+#define PB_ORDER_CONTAINER_LIST 1
+#else 
+#define PB_ORDER_CONTAINER_LIST 1
+#endif
 #define PB_ORDER_START_ADJUST 300   // seconds
 #define PB_ORDER_OFFLINE_PW_NUM 30
 #define PB_ORDER_ENG_PW_NUM 5
