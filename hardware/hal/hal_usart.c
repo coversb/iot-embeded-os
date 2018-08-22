@@ -1064,6 +1064,255 @@ const HAL_USART_TYPE hwSerial5 =
 /*USART5 end*/
 #endif /*BOARD_USART5_ENABLE*/
 
+#if ( BOARD_UART7_ENABLE == 1 )
+/*UART7 begin*/
+static OS_DS_QUEUE_TYPE hal_uart7_rx_que;
+static uint8 HAL_UART7_RX_BUFF[BOARD_UART7_RX_BUFFSIZE];
+static OS_MUTEX_TYPE hal_usart7_mutex = NULL;
+
+/******************************************************************************
+* Function    : hal_uart7_begin
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : setup and enable uart7 with baundrate
+******************************************************************************/
+static void hal_uart7_begin(u32 baundrate)
+{
+    os_mutex_lock_init(&hal_usart7_mutex);
+    
+    memset(HAL_UART7_RX_BUFF, 0x00, sizeof(HAL_UART7_RX_BUFF));
+    os_ds_que_create(&hal_uart7_rx_que, HAL_UART7_RX_BUFF, sizeof(HAL_UART7_RX_BUFF));
+
+    /*RCC config*/
+    hal_rcc_enable(BOARD_UART7_RCC);
+    hal_rcc_enable(BOARD_UART7_IO_RCC);
+
+    /*GPIO config*/
+    #if defined(BOARD_STM32F1XX)
+    #error hal_uart7_begin
+    #elif defined(BOARD_STM32F4XX)
+    hal_gpio_af_config(BOARD_UART7_TX_AF);
+    hal_gpio_af_config(BOARD_UART7_RX_AF);
+    hal_gpio_set_mode(BOARD_UART7_TX, HAL_GPIO_AF_PP_UP);
+    hal_gpio_set_mode(BOARD_UART7_RX, HAL_GPIO_AF_PP_UP);
+    #else
+    #error hal_uart7_begin
+    #endif /*BOARD_STM32F4XX*/
+
+    /*Uart7 config*/
+    hal_usart_config(UART7, baundrate);
+    //enable idle irq
+    USART_ITConfig(UART7, USART_IT_RXNE, ENABLE);
+    USART_ITConfig(UART7, USART_IT_TXE, DISABLE);
+    //enable uasrt7
+    USART_Cmd(UART7, ENABLE);
+    //clear send flag
+    USART_ClearFlag(UART7, USART_FLAG_TC);
+
+    /*irq priority config*/
+    hal_board_nvic_set_irq(UART7_IRQn, BOARD_IQR_PRIO_UART7, BOARD_IQR_SUB_PRIO_UART7, ENABLE);
+}
+
+/******************************************************************************
+* Function    : hal_uart7_end
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : disable uart7
+******************************************************************************/
+static void hal_uart7_end(void)
+{
+    USART_Cmd(UART7, DISABLE);
+    os_ds_que_destroy(&hal_uart7_rx_que);
+    memset(HAL_UART7_RX_BUFF, 0x00, sizeof(HAL_UART7_RX_BUFF));
+    
+    os_mutex_lock_deinit(&hal_usart7_mutex);
+}
+
+/******************************************************************************
+* Function    : hal_uart7_available
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get queue vaild data size
+******************************************************************************/
+static uint16 hal_uart7_available(void)
+{
+    return os_ds_que_size(&hal_uart7_rx_que);
+}
+
+/******************************************************************************
+* Function    : hal_uart7_write
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : wtire one byte to uart7
+******************************************************************************/
+static void hal_uart7_write(uint8 byte)
+{
+    os_mutex_lock(&hal_usart7_mutex);
+
+    USART_ClearFlag(UART7, USART_FLAG_TC);
+    USART_SendData(UART7, byte);
+    while (USART_GetFlagStatus(UART7, USART_FLAG_TC) == RESET) {};
+
+    os_mutex_unlock(&hal_usart7_mutex);
+}
+
+/******************************************************************************
+* Function    : hal_uart7_write_bytes
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : write bytes to UART7
+******************************************************************************/
+static uint16 hal_uart7_write_bytes(uint8 *buff, uint16 length)
+{
+    uint16 i = 0;
+
+    os_mutex_lock(&hal_usart7_mutex);
+
+    USART_ClearFlag(UART7, USART_FLAG_TC);
+    for (i = 0; i < length; i++)
+    {
+        USART_SendData(UART7, buff[i]);
+        while(USART_GetFlagStatus(UART7, USART_FLAG_TC) == RESET){};
+    }
+
+    os_mutex_unlock(&hal_usart7_mutex);
+
+    return length;
+}
+
+/******************************************************************************
+* Function    : hal_uart7_read
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : read one byte from uart7
+******************************************************************************/
+static uint8 hal_uart7_read(void)
+{
+    uint8 byte;
+    
+    os_mutex_lock(&hal_usart7_mutex);
+
+    byte = os_ds_que_pop(&hal_uart7_rx_que);
+
+    os_mutex_unlock(&hal_usart7_mutex);
+
+    return byte;
+}
+
+/******************************************************************************
+* Function    : hal_uart7_read_bytes
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : read bytes to buffer
+******************************************************************************/
+static uint16 hal_uart7_read_bytes(uint8 *buff, uint16 length)
+{
+    uint16 len = 0;
+    
+    os_mutex_lock(&hal_usart7_mutex);
+    
+    len = os_ds_que_packet_out(&hal_uart7_rx_que, (uint8*)buff, length);
+    
+    os_mutex_unlock(&hal_usart7_mutex);
+    
+    return len;
+}
+
+/******************************************************************************
+* Function    : hal_uart7_print
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void hal_uart7_print(char* str)
+{
+    uint16 i = 0;
+    uint16 length = strlen(str);
+
+    os_mutex_lock(&hal_usart7_mutex);
+
+    USART_ClearFlag(UART7, USART_FLAG_TC);
+    for (i = 0; i < length; i++)
+    {
+        USART_SendData(UART7, str[i]);
+        while (USART_GetFlagStatus(UART7, USART_FLAG_TC) == RESET) {};
+    }
+    
+    os_mutex_unlock(&hal_usart7_mutex);
+}
+
+/******************************************************************************
+* Function    : hal_uart7_println
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void hal_uart7_println(char* str)
+{
+    hal_uart7_print(str);
+    hal_uart7_print("\r\n");
+}
+
+const HAL_USART_TYPE hwSerial7 = 
+{
+    hal_uart7_begin,
+    hal_uart7_end,
+    hal_uart7_available,
+    hal_uart7_write,
+    hal_uart7_write_bytes,
+    hal_uart7_read,
+    hal_uart7_read_bytes,
+    hal_uart7_print,
+    hal_uart7_println
+};
+/*USART5 end*/
+#endif /*BOARD_UART7_ENABLE*/
+
 /******************************************************************************
 * Function    : USART1_IRQHandler
 * 
@@ -1154,5 +1403,28 @@ void UART5_IRQHandler(void)
         os_ds_que_push(&hal_uart5_rx_que, res);
     }
     #endif /*BOARD_USART5_ENABLE*/
+}
+
+/******************************************************************************
+* Function    : UART7_IRQHandler
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : UART7 irq handler
+******************************************************************************/
+void UART7_IRQHandler(void)
+{
+    #if ( BOARD_UART7_ENABLE == 1 )
+    uint8 res = 0;
+    if (USART_GetITStatus(UART7, USART_IT_RXNE) != RESET)
+    {
+        res = USART_ReceiveData(UART7);
+        os_ds_que_push(&hal_uart7_rx_que, res);
+    }
+    #endif /*BOARD_USART7_ENABLE*/
 }
 

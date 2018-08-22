@@ -48,6 +48,9 @@
 #define PB_PROT_CFGCMD_AC_L "+pbac="
 #define PB_PROT_CFGCMD_AC_U "+PBAC="
 
+#define PB_PROT_CFGCMD_BLE_L "+pbble="
+#define PB_PROT_CFGCMD_BLE_U "+PBBLE="
+
 #define PB_PROT_CMD_ASCII_MIN_LEN 6
 
 /******************************************************************************

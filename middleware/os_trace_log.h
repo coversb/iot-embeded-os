@@ -62,6 +62,7 @@ typedef enum
     DBG_MOD_PBIO_MONITOR, //0x0400
     DBG_MOD_PBGUI,  //0x0800
     DBG_MOD_PBMM,   //0x1000
+    DBG_MOD_PBBLE,  //0x2000
     DBG_MOD_END
 }DBG_TRACE_MOD;
 

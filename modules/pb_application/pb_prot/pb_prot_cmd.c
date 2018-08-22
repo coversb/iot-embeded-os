@@ -34,6 +34,9 @@
 #include "pb_io_drv.h"
 #include "pb_order_main.h"
 #include "pb_order_hotp.h"
+#if (PB_BLE_ENABLE == 1)
+#include "pb_ble_main.h"
+#endif /*PB_BLE_ENABLE*/
 
 /******************************************************************************
 * Macros
@@ -695,6 +698,23 @@ bool pb_prot_cmd_parse_ascii(PB_PROT_RAW_PACKET_TYPE *rawPack)
         if (0 != pb_prot_cmd_find_param(pRawData, ac, sizeof(ac)))
         {
             pb_prot_cmd_ac(atoi(ac), ac);
+        }
+        return true;
+    }
+    //+PBBLE=
+    else
+    if ((0 == strncmp(pRawData, PB_PROT_CFGCMD_BLE_L, strlen(PB_PROT_CFGCMD_BLE_L)))
+             || (0 == strncmp(pRawData, PB_PROT_CFGCMD_BLE_U, strlen(PB_PROT_CFGCMD_BLE_U))))
+    {
+        char bleCmd[128] = {0};
+        if (0 != pb_prot_cmd_find_param(pRawData, bleCmd, sizeof(bleCmd)))
+        {
+            OS_INFO("%s", bleCmd);
+            #if (PB_BLE_ENABLE == 1)
+            pb_ble_tramsmit(bleCmd);
+            #else 
+            OS_INFO("%s", bleCmd);
+            #endif /*PB_BLE_ENABLE*/
         }
         return true;
     }

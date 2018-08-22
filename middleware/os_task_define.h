@@ -20,6 +20,7 @@
 ******************************************************************************/
 #include "basetype.h"
 #include "os_middleware.h"
+#include "pb_app_config.h"
 
 /******************************************************************************
 * Macros
@@ -37,6 +38,9 @@ typedef enum
     OS_TASK_ITEM_PB_FOTA,
     OS_TASK_ITEM_PB_IO,
     OS_TASK_ITEM_PB_IOMONITOR,
+    #if (PB_BLE_ENABLE == 1)
+    OS_TASK_ITEM_PB_BLE,
+    #endif /*PB_BLE_ENABLE*/
     OS_TASK_ITEM_PB_GUI,
     OS_TASK_ITEM_PB_MULTIMEDIA,
     OS_TASK_ITEM_PB_FUNCPOLLING,

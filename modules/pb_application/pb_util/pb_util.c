@@ -328,7 +328,11 @@ void pb_util_get_time(uint8 *hour, uint8 *minute, uint8 *sec)
 ******************************************************************************/
 uint8 pb_util_get_indoor_temperature(void)
 {
+    #if (PB_BLE_ENABLE == 1)
+    return pb_ble_get_temperature();
+    #else
     return 0;
+    #endif /*PB_BLE_ENABLE*/
 }
 
 /******************************************************************************
@@ -344,7 +348,11 @@ uint8 pb_util_get_indoor_temperature(void)
 ******************************************************************************/
 uint8 pb_util_get_indoor_humidity(void)
 {
+    #if (PB_BLE_ENABLE == 1)
+    return pb_ble_get_humidity();
+    #else
     return 0;
+    #endif /*PB_BLE_ENABLE*/
 }
 
 /******************************************************************************

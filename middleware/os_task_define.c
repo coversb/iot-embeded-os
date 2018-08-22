@@ -28,6 +28,9 @@
 #include "rgb_led_task.h"
 #include "pb_io_main.h"
 #include "pb_order_main.h"
+#if (PB_BLE_ENABLE == 1)
+#include "pb_ble_main.h"
+#endif /*PB_BLE_ENABLE*/
 
 /******************************************************************************
 * Macros
@@ -60,6 +63,11 @@ static OS_TASK_INFO_TYPE os_task_info[OS_TASK_ITEM_END] =
     {
         pb_io_monitor_main,          NULL,    "pbIOMonitor", (OS_STACK_1K*2), (tskIDLE_PRIORITY+2), NULL
     },
+    #if (PB_BLE_ENABLE == 1)
+    {
+        pb_ble_main,          NULL,    "pbBLE", (OS_STACK_1K*6), (tskIDLE_PRIORITY+2), NULL
+    },
+    #endif /*PB_BLE_ENABLE*/
     {
         pb_gui_main,                 NULL,    "pbGUI",       (OS_STACK_1K),   (tskIDLE_PRIORITY+1), NULL
     },

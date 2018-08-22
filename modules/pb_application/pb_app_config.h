@@ -61,6 +61,15 @@
 /*Password keyboard*/
 #define PB_KEYBOARD hwSerial5
 
+/*BLE module*/
+#define BLE_COM_BAUDRATE 115200
+#define BLE_NAME "parkbox"
+
+#if defined(BOARD_STM32F4XX)
+#define BLE_COM hwSerial7
+#define PB_BLE_ENABLE 0
+#endif /*BOARD_STM32F4XX*/
+
 /*Tasks marco define*/
 #define PB_IO_MONITOR_INTERVAL (DELAY_1_MS*10)
 

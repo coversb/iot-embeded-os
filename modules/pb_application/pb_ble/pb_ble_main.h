@@ -1,54 +1,71 @@
 /******************************************************************************
 *        
-*     Open source
+*     Copyright (c) 2018 ParkBox Ltd.   
 *        
 *******************************************************************************
-*  file name:          hal_usart.h
+*  file name:          pb_ble_main.h
 *  author:              Chen Hao
 *  version:             1.00
-*  file description:   usart driver
+*  file description:   ble management
 *******************************************************************************
 *  revision history:    date               version                  author
 *
-*  change summary:   2018-4-12      1.00                    Chen Hao
+*  change summary:   2018-8-16      1.00                    Chen Hao
 *
 ******************************************************************************/
-#ifndef __HAL_USART_H__
-#define __HAL_USART_H__
+#ifndef __PB_BLE_MAIN_H__
+#define __PB_BLE_MAIN_H__
 /******************************************************************************
 * Include Files
 ******************************************************************************/
 #include "basetype.h"
-#include "board_config.h"
+#include "pb_util.h"
 
 /******************************************************************************
 * Macros
 ******************************************************************************/
 
 /******************************************************************************
+* Enums
+******************************************************************************/
+typedef enum
+{
+    BLE_STATE_INIT = 0,
+    BLE_STATE_CONFIG,
+    BLE_STATE_WORKING,
+    BLE_STATE_RESET
+}PB_BLE_STATE_TYPE;
+
+/******************************************************************************
 * Types
 ******************************************************************************/
 typedef struct
 {
-    void (*begin)(uint32 baundrate);
-    void (*end)(void);
-    uint16 (*available)(void);
-    void (*write)(uint8 byte);
-    uint16 (*writeBytes)(uint8 *buff, uint16 len);
-    uint8 (*read)(void);
-    uint16 (*readBytes)(uint8 *buff, uint16 len);
-    void (*print)(char* str);
-    void (*println)(char* str);
-}HAL_USART_TYPE;
+    uint8 mac[6];
+    int8 rssi;
+    uint8 battery;
+    float humidity;
+    float temperature;
+}PB_BLE_HT_DATA;
+
+typedef struct
+{
+    uint8 bleState;
+    uint16 bleProcInterval;
+    uint8 bleMode;
+}PB_BLE_CONTEXT_TYPE;
 
 /******************************************************************************
-* Extern variable
+* Global Variables
 ******************************************************************************/
-extern const HAL_USART_TYPE hwSerial1;
-extern const HAL_USART_TYPE hwSerial2;
-extern const HAL_USART_TYPE hwSerial3;
-extern const HAL_USART_TYPE hwSerial5;
-extern const HAL_USART_TYPE hwSerial7;
 
-#endif /*__HAL_USART_H__*/
+/******************************************************************************
+* Global Functions
+******************************************************************************/
+extern void pb_ble_main(void *pvParameters);
+extern void pb_ble_tramsmit(char *data);
+extern uint8 pb_ble_get_temperature(void);
+extern uint8 pb_ble_get_humidity(void);
+
+#endif /* __PB_BLE_MAIN_H__ */
 
