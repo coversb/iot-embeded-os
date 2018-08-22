@@ -33,8 +33,6 @@
 #include "pb_order_hotp.h"
 #if (PB_ORDER_CONTAINER_LIST == 1)
 #include "pb_order_list.h"
-#elif (PB_ORDER_CONTAINER_DB == 1)
-#include "pb_order_db.h"
 #else
 #error Need order container
 #endif
