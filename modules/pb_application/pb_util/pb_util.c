@@ -22,6 +22,9 @@
 #include <time.h>
 #include "pb_util.h"
 #include "hal_rtc.h"
+#if (PB_BLE_ENABLE == 1)
+#include "pb_ble_main.h"
+#endif /*PB_BLE_ENABLE*/
 
 /******************************************************************************
 * Macros
