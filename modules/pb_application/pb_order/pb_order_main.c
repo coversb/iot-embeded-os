@@ -31,6 +31,7 @@
 #include "rgb_led_task.h"
 #include "pb_prot_main.h"
 #include "pb_order_hotp.h"
+#include "hal_bkp.h"
 #if (PB_ORDER_CONTAINER_LIST == 1)
 #include "pb_order_list.h"
 #else
@@ -42,6 +43,9 @@
 ******************************************************************************/
 #define PB_ORDER_UPDATE_INTERVAL (1*SEC2MSEC)
 #define PB_ORDER_OVER_DELAY (5*MIN2MSEC)
+#define PB_ORDER_OP_ID (0)
+#define PB_ORDER_OP_DURATION (60*90)    // 1.5 hours
+#define PB_ORDER_OP_PWD (98760123)
 
 /******************************************************************************
 * Variables (Extern, Global and Static)
@@ -64,6 +68,169 @@ static void pb_order_operation_state_update(void);
 * Local Functions
 ******************************************************************************/
 /******************************************************************************
+* Function    : pb_order_save_expire
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_order_save_expire(PB_PROT_ORDER_TYPE *pOrder)
+{
+    uint32 curTime = pb_util_get_timestamp();
+    //init operation order
+    if (pOrder->id == PB_ORDER_OP_ID)
+    {
+        return;
+    }
+    if (pOrder->expireTime <= curTime)
+    {
+        return;
+    }
+
+    uint32 expire = 0;
+    
+    #if defined(BOARD_STM32F4XX)
+    expire = hal_bkp_read(BOARD_BKP_ORDER_EXPIRE_ADDR);
+    #elif defined(BOARD_STM32F1XX)
+    expire = (hal_bkp_read(BOARD_BKP_ORDER_EXPIREH_ADDR) << 16) & 0xFFFF0000;
+    expire |= hal_bkp_read(BOARD_BKP_ORDER_EXPIREL_ADDR);
+    #else
+    #error undefined BOARD type
+    #endif
+
+    //filter smaller than saved expire time and bigger than now 1.5 hours 
+    if (pOrder->expireTime <= expire
+        || (pOrder->expireTime - curTime > PB_ORDER_OP_DURATION))
+    {
+        return;
+    }
+    expire = pOrder->expireTime;
+
+    uint16 crc = pb_util_get_crc16((uint8*)&expire, sizeof(expire));
+
+    #if defined(BOARD_STM32F4XX)
+    hal_bkp_write(BOARD_BKP_ORDER_EXPIRE_ADDR, expire);
+    #elif defined(BOARD_STM32F1XX)
+    hal_bkp_write(BOARD_BKP_ORDER_EXPIREH_ADDR, ((expire >> 16) & 0xFFFF));
+    hal_bkp_write(BOARD_BKP_ORDER_EXPIREL_ADDR, (expire & 0xFFFF));
+    #else
+    #error undefined BOARD type
+    #endif
+    
+    hal_bkp_write(BOARD_BKP_ORDER_EXPIRE_CRC_ADDR, crc);
+
+    OS_DBG_TRACE(DBG_MOD_PBORDER, DBG_INFO, "Save expire[%u], crc[%04X]", expire, crc);
+}
+
+/******************************************************************************
+* Function    : pb_order_load_expire
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static uint32 pb_order_load_expire(void)
+{
+    uint32 expire = 0;
+    uint16 crc = hal_bkp_read(BOARD_BKP_ORDER_EXPIRE_CRC_ADDR);
+    
+    #if defined(BOARD_STM32F4XX)
+    expire = hal_bkp_read(BOARD_BKP_ORDER_EXPIRE_ADDR);
+    #elif defined(BOARD_STM32F1XX)
+    expire = (hal_bkp_read(BOARD_BKP_ORDER_EXPIREH_ADDR) << 16) & 0xFFFF0000;
+    expire |= hal_bkp_read(BOARD_BKP_ORDER_EXPIREL_ADDR);
+    #else
+    #error undefined BOARD type
+    #endif
+
+    uint16 calCrc = pb_util_get_crc16((uint8*)&expire, sizeof(expire));
+
+    if (calCrc != crc)
+    {
+        OS_DBG_ERR(DBG_MOD_PBORDER, "expire crc[%04X] err, need[%04X]", calCrc, crc);
+        return 0;
+    }
+
+    OS_DBG_TRACE(DBG_MOD_PBORDER, DBG_INFO, "Get expire[%u], crc[%04X]", expire, crc);
+
+    return expire;
+}
+
+/******************************************************************************
+* Function    : pb_order_init_operation
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_order_init_operation(void)
+{
+    uint32 expireTime = pb_order_load_expire();
+
+    if (0 == expireTime)
+    {
+        return;
+    }
+
+    PB_PROT_ORDER_TYPE opOrder;
+    opOrder.id = PB_ORDER_OP_ID;
+    opOrder.startTime = pb_util_get_timestamp();
+    opOrder.expireTime = expireTime;
+    opOrder.passwd = PB_ORDER_OP_PWD;
+    opOrder.personNum = 0;
+    opOrder.passwdValidCnt = 1;
+
+    pb_order_booking(&opOrder);
+}
+
+/******************************************************************************
+* Function    : pb_order_clear_init_operation
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_order_clear_init_operation(PB_PROT_ORDER_TYPE *pOrder)
+{
+    static bool b_hasClear = false;
+
+    if (b_hasClear)
+    {
+        return;
+    }
+    if (pOrder->id == PB_ORDER_OP_ID)
+    {
+        return;
+    }
+    
+    PB_PROT_ORDER_TYPE opOrder;
+    memset(&opOrder, 0, sizeof(opOrder));
+
+    opOrder.id = PB_ORDER_OP_ID;
+    PB_ORDER.remove(&opOrder);
+    
+    b_hasClear = true;
+
+    OS_DBG_ERR(DBG_MOD_PBORDER, "Clear init operation order");
+}
+
+/******************************************************************************
 * Function    : pb_order_booking
 * 
 * Author      : Chen Hao
@@ -81,7 +248,11 @@ void pb_order_booking(PB_PROT_ORDER_TYPE *pOrder)
     //advance 5 minutes
     pOrder->startTime -= PB_ORDER_START_ADJUST;
 
-    PB_ORDER.add(pOrder);
+    if (PB_ORDER.add(pOrder))
+    {
+        pb_order_save_expire(pOrder);
+        pb_order_clear_init_operation(pOrder);
+    }
 
     //check operate state
     pb_order_operation_state_update();
@@ -745,6 +916,8 @@ static void pb_order_main_init(void)
     pb_order_context.orderOverDelayTmr = os_tmr_create(PB_ORDER_OVER_DELAY, pb_order_over_delay_tmr_hdlr, false);
 
     pb_order_hotp_init();
+    //load order state from BKP register
+    pb_order_init_operation();
 }
 
 /******************************************************************************
