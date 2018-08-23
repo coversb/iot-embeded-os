@@ -52,7 +52,7 @@ static bool bSerNeedUpdate = false;
 //global config
 static bool bCfgNeedUpdate = false;
 //sack check count
-static uint8 unAckHBPCnt = 0;
+static uint8 unAckHBPCnt = PB_PROT_SACK_CNTOUT; // init offline password is enable before first to connect server
 
 static PB_PROT_RSP_GSMINFO_PARAM pb_gsm_info;
 static PB_PROT_RSP_LOC_PARAM pb_location;
