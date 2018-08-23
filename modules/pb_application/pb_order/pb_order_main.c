@@ -916,8 +916,6 @@ static void pb_order_main_init(void)
     pb_order_context.orderOverDelayTmr = os_tmr_create(PB_ORDER_OVER_DELAY, pb_order_over_delay_tmr_hdlr, false);
 
     pb_order_hotp_init();
-    //load order state from BKP register
-    pb_order_init_operation();
 }
 
 /******************************************************************************
@@ -937,6 +935,9 @@ void pb_order_main(void *pvParameters)
 
     os_set_task_init(OS_TASK_ITEM_PB_ORDER);
     os_wait_task_init_sync();
+
+    //load order state from BKP register
+    pb_order_init_operation();
 
     //start order check
     os_tmr_start(pb_order_context.orderUpdateTmr);
