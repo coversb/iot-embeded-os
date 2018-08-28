@@ -39,7 +39,8 @@
 * Macros
 ******************************************************************************/
 #define PB_IO_CLOSE_DOOR_DELAY (6 * SEC2MSEC)
-#define PB_IO_CLOSE_DEVBOX_DELAY (300 * SEC2MSEC)
+#define PB_IO_CLOSE_DEVBOX_DELAY (5*MIN2MSEC)   // 5 mins
+#define PB_IO_REBOOT_TV_DELAY (3*MIN2MSEC)  // 3 mins
 
 /******************************************************************************
 * Local Functions define
@@ -52,6 +53,7 @@ typedef struct
 {
     OS_TMR_TYPE close_door_tmr;
     OS_TMR_TYPE close_devbox_tmr;
+    OS_TMR_TYPE reboot_tv_tmr;
 }PB_IO_CONTEXT_TYPE;
 
 static PB_IO_CONTEXT_TYPE pb_io_context;
@@ -384,10 +386,60 @@ static uint32 pb_io_get_output(void)
 ******************************************************************************/
 static void pb_io_send_omc_rsp(void)
 {
-    if (pb_cfg_proc_get_cmd()->omc.mode == 2)
+    if (pb_cfg_proc_get_cmd()->omc.mode == PB_OMC_MODE_SPECIAL_TIME_WITH_RSP)
     {
         pb_prot_send_rsp_req(PB_PROT_RSP_OMC);
     }
+}
+
+/******************************************************************************
+* Function    : pb_io_tv_delay_reboot
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_io_tv_delay_reboot(OS_TMR_TYPE tmr)
+{
+    pb_io_drv_output_set(PB_OUT_INDOOR_TV, HAL_GPIO_HIGH);
+    pb_io_send_omc_rsp();
+    OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "Reboot tv open");
+}
+
+/******************************************************************************
+* Function    : pb_io_check_tv_output
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : check tv pwr supply to reboot tv, make sure tv app works fine
+******************************************************************************/
+static void pb_io_check_tv_output(uint32 lastOutput, uint32 output)
+{
+    static bool lastInService = false;
+    bool inService = (bool)(PB_ORDER_OPSTAT_CLOSE != pb_order_operation_state());
+
+    // in-service to close
+    if ((true == lastInService) && (false == inService))
+    {
+        // tv from open to open
+        if ((0 != BIT_CHECK(lastOutput, PB_OUT_INDOOR_TV)) 
+            && (0 != BIT_CHECK(output, PB_OUT_INDOOR_TV)))
+        {
+            pb_io_drv_output_set(PB_OUT_INDOOR_TV, HAL_GPIO_LOW);
+            os_tmr_restart(pb_io_context.reboot_tv_tmr);
+            pb_io_send_omc_rsp();
+            OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "tv reboot, [%d--->%d]", lastInService, inService);
+        }
+    }
+    lastInService = inService;
 }
 
 /******************************************************************************
@@ -409,6 +461,8 @@ static void pb_io_check_output(void)
     if (lastOutput != output)
     {
         pb_io_output_set(output);
+        pb_io_check_tv_output(lastOutput, output);
+
         OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "output [%08X]--->[%08X]", lastOutput, output);
         lastOutput = output;
     }
@@ -593,6 +647,8 @@ static void pb_io_main_init(void)
     pb_io_context.close_door_tmr = os_tmr_create(PB_IO_CLOSE_DOOR_DELAY, pb_io_door_delay_close, false);
     //init devicebox timer to delay close door
     pb_io_context.close_devbox_tmr = os_tmr_create(PB_IO_CLOSE_DEVBOX_DELAY, pb_io_devbox_delay_close, false);
+    //init tv reboot timer to delay open tv
+    pb_io_context.reboot_tv_tmr = os_tmr_create(PB_IO_REBOOT_TV_DELAY, pb_io_tv_delay_reboot, false);
 }
 
 /******************************************************************************
