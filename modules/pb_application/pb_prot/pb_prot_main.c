@@ -221,11 +221,13 @@ void pb_prot_send_coe_req(uint8 type, uint32 operationID, uint32 consumerID, uin
     coeParam.consumerID = consumerID;
     memcpy(coeParam.info, info, MIN_VALUE(strlen((char*)info), PB_COE_INFO_LEN));
 
+    #if 0
     OS_INFO("COE type:%d, operationID:%d, consumerID:%d, info:%s", 
                   coeParam.type,
                   coeParam.operationID, 
                   coeParam.consumerID,
                   coeParam.info);
+    #endif
 
     pb_prot_send_rsp_param_req(PB_PROT_RSP_COE, (uint8*)&coeParam, sizeof(coeParam));
 }
