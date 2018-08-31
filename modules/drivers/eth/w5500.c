@@ -1689,7 +1689,7 @@ static bool w5500_ftp_disconnect(void)
     if (bFtpcOpen)
     {
         //send rest command
-        w5500_socket_send(SOCKET_FTPC, FTP_REST_CMD, strlen(FTP_REST_CMD));
+        w5500_socket_send(SOCKET_FTPC, (uint8*)FTP_REST_CMD, strlen(FTP_REST_CMD));
         w5500_socket_check_rsp(SOCKET_FTPC, FTP_CONNECT_OK);
         //disconnect 
         w5500_disconnect(SOCKET_FTPC);

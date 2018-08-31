@@ -1536,7 +1536,7 @@ static bool m26_ftp_connect(const char* server, const uint16 port, const char *u
 
     //set ftp user
     snprintf(cmd, M26_AT_CMD_MAX_LEN, "AT+QFTPUSER=\"%s\"", user);
-     if (!m26_at_cmd_wait_rsp(cmd, M26_RSP_OK, M26_CONF_TIMEOUT))
+    if (!m26_at_cmd_wait_rsp(cmd, M26_RSP_OK, M26_CONF_TIMEOUT))
     {
         OS_DBG_ERR(DBG_MOD_DEV, "ftp set user[%s] err", user);
         goto err;
@@ -1544,7 +1544,7 @@ static bool m26_ftp_connect(const char* server, const uint16 port, const char *u
 
     //set ftp password
     snprintf(cmd, M26_AT_CMD_MAX_LEN, "AT+QFTPPASS=\"%s\"", password);
-     if (!m26_at_cmd_wait_rsp(cmd, M26_RSP_OK, M26_CONF_TIMEOUT))
+    if (!m26_at_cmd_wait_rsp(cmd, M26_RSP_OK, M26_CONF_TIMEOUT))
     {
         OS_DBG_ERR(DBG_MOD_DEV, "ftp set password[%s] err", password);
         goto err;
@@ -1552,7 +1552,7 @@ static bool m26_ftp_connect(const char* server, const uint16 port, const char *u
 
     //open ftp server
     snprintf(cmd, M26_AT_CMD_MAX_LEN, "AT+QFTPOPEN=\"%s\",%d", server, port);
-     if (!m26_at_cmd_wait_rsp(cmd, M26_RSP_OK, M26_CONF_TIMEOUT))
+    if (!m26_at_cmd_wait_rsp(cmd, M26_RSP_OK, M26_CONF_TIMEOUT))
     {
         OS_DBG_ERR(DBG_MOD_DEV, "ftp open [%s:%d] err", server, port);
         goto err;

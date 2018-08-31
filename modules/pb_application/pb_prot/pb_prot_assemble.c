@@ -871,7 +871,9 @@ static uint16 pb_prot_assemble_rsp_cfg_item(uint8 *buff, uint8 idx)
             uint16 rebootTime = 0;
             rebootTime |= (cfgDog->rstMinute & 0x003F);
             rebootTime |= ((cfgDog->rstHour << 6) & 0x07C0);
+            #if 0 //useless, comment it
             rebootTime |= ((0 << 11) & 0xF800);
+            #endif
             pbuff += pb_prot_assemble_u16(pbuff, rebootTime);
 
             /*Max random time*/
@@ -891,7 +893,9 @@ static uint16 pb_prot_assemble_rsp_cfg_item(uint8 *buff, uint8 idx)
             mode |= (cfgAco->pwrMode & 0x03);
             mode |= ((cfgAco->workMode << 2) & 0x0C);
             mode |= ((cfgAco->windLevel << 4) & 0x30);
+            #if 0 //useless, comment it
             mode |= ((0 << 6) & 0xC0);
+            #endif
             pbuff += pb_prot_assemble_u8(pbuff, mode);
             /*Interval*/
             pbuff += pb_prot_assemble_u8(pbuff, cfgAco->interval);
@@ -921,7 +925,9 @@ static uint16 pb_prot_assemble_rsp_cfg_item(uint8 *buff, uint8 idx)
             validTime |= ((cfgOmc->startMin << 5) & 0x000007E0);
             validTime |= ((cfgOmc->stopHour << 11) & 0x0000F800);
             validTime |= ((cfgOmc->stopMin << 16) & 0x001F0000);
-            validTime |= ((0 << 21) & 0xFFE00000);            
+            #if 0 //useless, comment it
+            validTime |= ((0 << 21) & 0xFFE00000);
+            #endif
             pbuff += pb_prot_assemble_u32(pbuff, validTime);
             /*Valid time idle output*/
             pbuff += pb_prot_assemble_u32(pbuff, cfgOmc->validIdleOutput);

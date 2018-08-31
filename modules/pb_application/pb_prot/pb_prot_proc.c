@@ -44,7 +44,7 @@
 /******************************************************************************
 * Variables (Extern, Global and Static)
 ******************************************************************************/
-static uint16 pbProtReportCnt;
+static uint16 pbProtReportCnt = 0;
 //protocol watch dog
 static bool bDogNeedUpdate = false;
 //server config

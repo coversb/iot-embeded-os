@@ -111,6 +111,7 @@ static void pb_io_aircon_set(uint8 cmd)
     {
         default:
         {
+            // go through
             OS_DBG_ERR(DBG_MOD_PBIO, "bad aircon cmd %d, close it", cmd);
         }
         case PB_IO_AIRCON_OFF:

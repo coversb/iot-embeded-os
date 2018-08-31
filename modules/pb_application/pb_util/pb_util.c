@@ -120,11 +120,11 @@ uint8 pb_util_char_to_int(uint8 character)
     }
     else if (character >= 'A' && character <= 'F')
     {
-        i = character - 'A' + 10;
+        i = (character - 'A') + 10;
     }
     else if (character >= 'a' && character <= 'f')
     {
-        i = character - 'a' + 10;
+        i = (character - 'a') + 10;
     }
 
     return i;

@@ -279,7 +279,7 @@ void pb_prot_send_dbg_info_req(uint8 *debugInfo, uint16 infoLen)
 ******************************************************************************/
 void pb_prot_input_available_set(uint8 id, bool available)
 {
-    if (id > PB_PORT_SRC_NUM)
+    if (id >= PB_PORT_SRC_NUM)
     {
         return;
     }

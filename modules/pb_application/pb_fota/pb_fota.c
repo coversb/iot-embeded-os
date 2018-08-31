@@ -330,7 +330,7 @@ static bool pb_fota_parse_url(char *src, uint16 maxLen, char *addr, char *path, 
     // find ip path in url
     if (NULL != (pPath = (strchr(p, '/'))))//find first '/'
     {
-        len = pFname - pPath + 1;
+        len = (pFname - pPath) + 1;
         if (len > maxLen)
         {
             OS_DBG_ERR(DBG_MOD_PBFOTA, "Bad path[%d]", len);

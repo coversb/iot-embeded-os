@@ -151,7 +151,7 @@ void os_trace_info(const char *fmt, ...)
 *
 * Description : print system debug log
 ******************************************************************************/
-void os_trace_debug(const uint8 idx, const uint8 level, const char *file, const uint32 line, const char *fmt, ...)
+void os_trace_debug(const DBG_TRACE_MOD idx, const DBG_TRACE_LEVEL level, const char *file, const uint32 line, const char *fmt, ...)
 {
     if (idx >= DBG_MOD_END)
     {
@@ -186,7 +186,7 @@ void os_trace_debug(const uint8 idx, const uint8 level, const char *file, const 
     
     //add file name and line
     char *pFileName = NULL;
-    pFileName = strrchr (file, '\\');   //find the last '\' to get file name without path
+    pFileName = strrchr(file, '\\');   //find the last '\' to get file name without path
     if (pFileName == NULL)
     {
         pFileName = (char*)file;

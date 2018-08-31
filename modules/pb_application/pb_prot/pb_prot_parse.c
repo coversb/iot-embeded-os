@@ -404,7 +404,9 @@ static bool pb_prot_parse_check_cmd_device_type(uint8 id)
 {
     uint8 devType = pb_prot_rawbuff_get_byte(id, PB_PROT_PARSE_CMD_DEVICETYPE_POS);
 
+    #if 0 // server is not available for device type, disabled it now
     //(bool)(pb_util_get_device_type() == devType)
+    #endif
     return true;
 }
 

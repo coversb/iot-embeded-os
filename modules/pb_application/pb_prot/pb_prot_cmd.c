@@ -356,11 +356,11 @@ static void pb_prot_cmd_fct(uint8 cmd, char *para)
         }
         case PB_PROT_FCT_AUDIO_CTRL:
         {
-            uint8 cmd;
-            if (pb_prot_cmd_find_single_param(para, &cmd))
+            uint8 audioCmd;
+            if (pb_prot_cmd_find_single_param(para, &audioCmd))
             {
-                pb_multimedia_send_audio_msg(cmd, 0);
-                OS_INFO("Audio cmd[%d]", cmd);
+                pb_multimedia_send_audio_msg(audioCmd, 0);
+                OS_INFO("Audio cmd[%d]", audioCmd);
             }
             break;
         }

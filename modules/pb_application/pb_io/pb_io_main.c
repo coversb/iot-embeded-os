@@ -343,6 +343,11 @@ static uint32 pb_io_get_output(void)
     
     switch (pb_io_get_output_mode())
     {
+        default:
+        {
+            //go through to PB_IO_OUTPUT_OUT_OF_VALIDTIME
+            OS_DBG_ERR(DBG_MOD_PBIO, "OUTPUT MODE ERROR!");
+        }
         case PB_IO_OUTPUT_OUT_OF_VALIDTIME:
         {
             if (inService)
@@ -365,9 +370,8 @@ static uint32 pb_io_get_output(void)
             {
                 output = pOmc->validIdleOutput;
             }
-
             break;
-        }        
+        }
     }
 
     return output;

@@ -88,7 +88,7 @@ typedef enum
 ******************************************************************************/
 extern void os_trace_log_set_mod(const uint32 mod, const uint32 level);
 extern void os_trace_info(const char *fmt, ...);
-extern void os_trace_debug(const uint8 idx, const uint8 level, const char *file, const uint32 line, const char *fmt, ...);
+extern void os_trace_debug(const DBG_TRACE_MOD idx, const DBG_TRACE_LEVEL level, const char *file, const uint32 line, const char *fmt, ...);
 extern uint16 os_trace_get_hex_str(uint8 *str, uint16 strLen, uint8 *hex, uint16 hexLen);
 
 #endif /* __OS_TRACE_LOG_H__ */

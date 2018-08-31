@@ -278,6 +278,11 @@ static void pb_gui_show_upgrade(bool update)
             sprintf(temp, "rebooting ...");
             break;
         }
+        default:
+        {
+            sprintf(temp, "sth. wrong!!!");
+            break;
+        }
     }
     devSH1106.show(DEFAULT_COL, UP_STAGE_ROW, temp);
 

@@ -50,7 +50,7 @@ typedef struct
     void (*init)(void);
     void (*process)(void);
     void (*set)(uint8 cmd);
-    void (*setState)(uint8 state);
+    void (*setState)(PB_IO_AIRCON_STAT state);
 }PB_IO_AIRCON;
 
 typedef struct
