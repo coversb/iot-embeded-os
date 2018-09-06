@@ -164,6 +164,7 @@ const PB_CFG_DOA PB_CFG_DOA_DEFAULT =
     60,                        //alarm msg send interval
     0,                          //align
     {0},                       //pending
+    0,                          //door status reverse
     0                           //crc
 };
 

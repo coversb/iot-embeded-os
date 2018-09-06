@@ -349,6 +349,14 @@ typedef struct
 ******************************************************************************/
 #define PB_DOA_CONTENT_LEN 4
 
+typedef enum
+{
+    PB_DOA_OFF = 0,
+    PB_DOA_ON,
+    PB_DOA_REPEAT_REPORT,
+    PB_DOA_REVERSE = 0xF0
+}PB_DOA_MODE;
+
 typedef struct
 {
     uint8 mode;

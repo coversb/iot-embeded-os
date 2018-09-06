@@ -1022,32 +1022,52 @@ static void pb_prot_proc_cmd_exec_doa(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
     PB_PROT_CMD_DOA_ARG *argDoa = &(parsedFrame->arg.doa);
     PB_CFG_DOA *cfgDoa = &(pb_cfg_proc_get_cmd()->doa);
 
-    //Mode
-    if (argDoa->mode != cfgDoa->mode)
+    switch (argDoa->mode)
     {
-        cfgDoa->mode = argDoa->mode;
-        needSave = true;
-    }
+        case PB_DOA_OFF:
+        case PB_DOA_ON:
+        case PB_DOA_REPEAT_REPORT:
+        {
+            //Mode
+            if (argDoa->mode != cfgDoa->mode)
+            {
+                cfgDoa->mode = argDoa->mode;
+                needSave = true;
+            }
 
-    //Trigger type
-    if (argDoa->triggerType != cfgDoa->triggerType)
-    {
-        cfgDoa->triggerType = argDoa->triggerType;
-        needSave = true;
-    }
+            //Trigger type
+            if (argDoa->triggerType != cfgDoa->triggerType)
+            {
+                cfgDoa->triggerType = argDoa->triggerType;
+                needSave = true;
+            }
 
-    //Duration
-    if (argDoa->duration != cfgDoa->duration)
-    {
-        cfgDoa->duration = argDoa->duration;
-        needSave = true;
-    }
+            //Duration
+            if (argDoa->duration != cfgDoa->duration)
+            {
+                cfgDoa->duration = argDoa->duration;
+                needSave = true;
+            }
 
-    //Send interval
-    if (argDoa->interval != cfgDoa->interval)
-    {
-        cfgDoa->interval = argDoa->interval;
-        needSave = true;
+            //Send interval
+            if (argDoa->interval != cfgDoa->interval)
+            {
+                cfgDoa->interval = argDoa->interval;
+                needSave = true;
+            }
+            break;
+        }
+        case PB_DOA_REVERSE:
+        {
+            //Mode
+            if (argDoa->triggerType != cfgDoa->reverse)
+            {
+                cfgDoa->reverse = argDoa->triggerType;
+                needSave = true;
+            }
+            break;
+        }
+        default:break;
     }
 
     if (needSave)

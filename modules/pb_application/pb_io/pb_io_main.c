@@ -167,7 +167,13 @@ uint8 pb_io_smoke_level(void)
 ******************************************************************************/
 uint8 pb_io_door_status(void)
 {
-    if (HAL_GPIO_HIGH == pb_io_drv_input_val(PB_IN_DOOR_STATUS))
+    uint8 openState = HAL_GPIO_HIGH;
+    if (pb_cfg_proc_get_cmd()->doa.reverse)
+    {
+        openState = HAL_GPIO_LOW;
+    }
+    
+    if (openState == pb_io_drv_input_val(PB_IN_DOOR_STATUS))
     {
         return PB_IO_DOOR_OPEN;
     }
