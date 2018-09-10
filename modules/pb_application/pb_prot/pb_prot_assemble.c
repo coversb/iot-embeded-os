@@ -951,6 +951,8 @@ static uint16 pb_prot_assemble_rsp_cfg_item(uint8 *buff, uint8 idx)
             pbuff += pb_prot_assemble_u8(pbuff, cfgDoa->duration);
             /*Send Interval*/
             pbuff += pb_prot_assemble_u8(pbuff, cfgDoa->interval);
+            /*Door Reverse*/
+            pbuff += pb_prot_assemble_u8(pbuff, cfgDoa->reverse);
             break;
         }
         case PB_PROT_CMD_SMA:
