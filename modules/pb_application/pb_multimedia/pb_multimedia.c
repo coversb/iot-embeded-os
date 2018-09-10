@@ -37,6 +37,11 @@
 #define PB_MM_FILE_WELCOME 1
 #define PB_MM_FILE_ORDER_OVER 2
 #define PB_MM_FILE_SMOKE_ALARM 3
+#define PB_MM_FILE_ALERT_BAD_PEOPLE 4
+#define PB_MM_FILE_WARNING_TAKE_UNPAID 5
+#define PB_MM_FILE_WARNING_BAD_PEOPLE 6
+#define PB_MM_FILE_WARNING_UNPAID 7
+
 //audio dir index
 #define PB_MM_DIR_INT 1
 #define PB_MM_DIR_BGM 2
@@ -284,6 +289,26 @@ static void pb_multimedia_audio_ctrl_hdlr(PB_MSG_TYPE *pMsg)
         case PB_MM_PLAY_SMOKE_ALARM:
         {
             AUDIO.interruptPlayFile(PB_MM_DIR_INT, PB_MM_FILE_SMOKE_ALARM);
+            break;
+        }
+        case PB_MM_PLAY_ALERT_BAD_PEOPLE:
+        {
+            AUDIO.interruptPlayFile(PB_MM_DIR_INT, PB_MM_FILE_ALERT_BAD_PEOPLE);
+            break;
+        }
+        case PB_MM_PLAY_WARNING_TAKE_UNPAID:
+        {
+            AUDIO.interruptPlayFile(PB_MM_DIR_INT, PB_MM_FILE_WARNING_TAKE_UNPAID);
+            break;
+        }
+        case PB_MM_PLAY_WARNING_BAD_PEOPLE:
+        {
+            AUDIO.interruptPlayFile(PB_MM_DIR_INT, PB_MM_FILE_WARNING_BAD_PEOPLE);
+            break;
+        }
+        case PB_MM_PLAY_WARNING_UNPAID:
+        {
+            AUDIO.interruptPlayFile(PB_MM_DIR_INT, PB_MM_FILE_WARNING_UNPAID);
             break;
         }
         case PB_MM_PLAY_BGM:

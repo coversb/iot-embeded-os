@@ -1220,6 +1220,26 @@ static void pb_prot_proc_cmd_exec_muo(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
                     audioCmd = PB_MM_PLAY_SMOKE_ALARM;
                     break;
                 }
+                case PB_MUO_FILE_ALERT_BAD_PEOPLE:
+                {
+                    audioCmd = PB_MM_PLAY_ALERT_BAD_PEOPLE;
+                    break;
+                }
+                case PB_MUO_FILE_WARNING_TAKE_UNPAID:
+                {
+                    audioCmd = PB_MM_PLAY_WARNING_TAKE_UNPAID;
+                    break;
+                }
+                case PB_MUO_FILE_WARNING_BAD_PEOPLE:
+                {
+                    audioCmd = PB_MM_PLAY_WARNING_BAD_PEOPLE;
+                    break;
+                }
+                case PB_MUO_FILE_WARNING_UNPAID:
+                {
+                    audioCmd = PB_MM_PLAY_WARNING_UNPAID;
+                    break;
+                }
                 case PB_MUO_FILE_BGM:
                 {
                     audioCmd = PB_MM_PLAY_BGM;
