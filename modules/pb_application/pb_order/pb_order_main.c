@@ -606,9 +606,15 @@ static void pb_order_verify(PB_MSG_TYPE *pMsg)
 {
     PB_ORDER_VERIFY_PARAM *pParam = (PB_ORDER_VERIFY_PARAM *)pMsg->pMsgData;
     uint8 verifyRes = PB_ORDER_VERIFY_PW_UNKNOWN;
+    bool isWithoutAudio = false;
     
     switch (pParam->type)
     {
+        case PB_ORDER_VERIFY_SERVER_WITHOUT_AUDIO:
+        {
+            isWithoutAudio = true;
+            // without break, go through down
+        }
         case PB_ORDER_VERIFY_SERVER:
         {
             verifyRes = pb_order_verify_server(pParam->data);
@@ -752,12 +758,12 @@ static void pb_order_verify(PB_MSG_TYPE *pMsg)
         pb_io_door_lock_sw(PB_IO_DOOR_CLOSE, doorOperateType);
     }
     //play welcome media
-    if (needPlayWelcome)
+    if (!isWithoutAudio && needPlayWelcome)
     {
         pb_multimedia_send_audio_msg(PB_MM_PLAY_WELCOME, 0);
     }
     //blink green RGB and beep pass
-    if (needBlinkPass)
+    if (!isWithoutAudio && needBlinkPass)
     {
         rgbled_send_act_req(RGBLED_BLINK_GREEN);
         pb_order_keyboard_beep(PB_ORDER_KEYBOARD_BEEP_PASS);

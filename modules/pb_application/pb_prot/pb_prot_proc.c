@@ -1350,6 +1350,14 @@ static void pb_prot_proc_cmd_exec_rto(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
                                                      PB_ORDER_CONSUMER_UNKNOWN);
             break;
         }
+        case PB_RTO_DOOW_SW_WITHOUT_AUDIO:
+        {
+            pb_order_send_verify_req(PB_ORDER_VERIFY_SERVER_WITHOUT_AUDIO, 
+                                                     argRto->subCmd, 
+                                                     parsedFrame->serialNumber,
+                                                     PB_ORDER_CONSUMER_UNKNOWN);
+            break;
+        }
         case PB_RTO_LOCATION:
         {
             pb_prot_send_rsp_req(PB_PROT_RSP_LOC);
