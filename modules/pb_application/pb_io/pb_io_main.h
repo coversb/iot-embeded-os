@@ -73,6 +73,8 @@ extern uint32 pb_io_input_mask(void);
 extern void pb_io_door_lock_sw(uint8 sw, uint8 type);
 extern void pb_io_dev_lock_sw(uint8 sw);
 
+extern void pb_io_tv_reboot_sw(uint8 sw);
+
 extern void pb_io_aircon_update(void);
 extern uint16 pb_io_aircon_state(void);
 extern uint8 pb_io_pwr_suply(void);

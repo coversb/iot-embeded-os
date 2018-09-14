@@ -136,6 +136,7 @@ const PB_CFG_OMC PB_CFG_OMC_DEFAULT =
     0xFFFFFFEF,             //Valid time in-service output
     0,                            //align
     {0},                         //pending
+    0,                            //tv reboot check
     0                             //crc
 };
 

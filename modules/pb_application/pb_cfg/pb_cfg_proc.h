@@ -56,7 +56,7 @@
 #define PB_CFG_ACO_PENDING 50
 #define PB_CFG_INS_PENDING 50
 #define PB_CFG_SEC_PENDING 50
-#define PB_CFG_OMC_PENDING 50
+#define PB_CFG_OMC_PENDING (50-1)
 #define PB_CFG_ACW_PENDING 50
 #define PB_CFG_DOA_PENDING (50-1)
 #define PB_CFG_SMA_PENDING 50
@@ -201,6 +201,7 @@ typedef struct
 
     uint32 align;
     uint8 pending[PB_CFG_OMC_PENDING];
+    uint8 tvRebootSw;
     uint16 crc;
 }PB_CFG_OMC;
 

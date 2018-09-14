@@ -1389,10 +1389,15 @@ static void pb_prot_proc_cmd_exec_rto(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
             //pb_dev_pc_calibrate(argRto->subCmd);
             break;
         }
+        case PB_RTO_TV_REBOOT:
+        {
+            pb_io_tv_reboot_sw(argRto->subCmd);
+            break;
+        }
         case PB_RTO_HOTP_SW:
         {
             pb_prot_proc_save_hotp_mode(argRto->subCmd);
-            break;            
+            break;
         }
         default:break;
     }

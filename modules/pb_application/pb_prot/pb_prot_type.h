@@ -472,7 +472,8 @@ typedef enum
     PB_RTO_DEV_CFG_REQ,
     PB_RTO_DEV_PC_CAL, //10 person counter calibration
     PB_RTO_DOOW_SW_WITHOUT_AUDIO,
-    PB_RTO_HOTP_SW = 0xF0,
+    PB_RTO_TV_REBOOT = 100,
+    PB_RTO_HOTP_SW = 240,
 }PB_PROT_RTO_TYPE;
 
 typedef struct

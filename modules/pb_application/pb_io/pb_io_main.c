@@ -434,6 +434,11 @@ static void pb_io_tv_delay_reboot(OS_TMR_TYPE tmr)
 static void pb_io_check_tv_output(uint32 lastOutput, uint32 output)
 {
     static bool lastInService = false;
+    
+    if (!pb_cfg_proc_get_cmd()->omc.tvRebootSw)
+    {
+        return;
+    }
     bool inService = (bool)(PB_ORDER_OPSTAT_CLOSE != pb_order_operation_state());
 
     // in-service to close
@@ -450,6 +455,29 @@ static void pb_io_check_tv_output(uint32 lastOutput, uint32 output)
         }
     }
     lastInService = inService;
+}
+
+/******************************************************************************
+* Function    : pb_io_tv_reboot_sw
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_io_tv_reboot_sw(uint8 sw)
+{
+    PB_CFG_OMC *cfgOmc = &(pb_cfg_proc_get_cmd()->omc);
+
+    if (sw != cfgOmc->tvRebootSw)
+    {
+        cfgOmc->tvRebootSw = sw;
+        pb_cfg_proc_save_cmd(PB_PROT_CMD_OMC, cfgOmc, sizeof(PB_CFG_OMC));
+        OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "Save TV reboot[%d]", cfgOmc->tvRebootSw);
+    }
 }
 
 /******************************************************************************
