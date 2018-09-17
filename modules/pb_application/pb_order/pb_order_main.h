@@ -110,5 +110,7 @@ extern uint32 pb_order_nearest_start_time(void);
 extern PB_ORDER_OPSTAT_TYPE pb_order_operation_state(void);
 extern void pb_order_control_bgm(void);
 
+extern void pb_order_send_coe(uint8 coeInfoType, char *userInputData, uint32 operationID, uint32 consumerID);
+
 #endif /* __PB_ORDER_MAIN_H__ */
 

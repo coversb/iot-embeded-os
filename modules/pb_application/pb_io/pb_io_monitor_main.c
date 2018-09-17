@@ -190,6 +190,7 @@ static void pb_io_monitor_action(uint8 type)
         {
             OS_DBG_TRACE(DBG_MOD_PBIO_MONITOR, DBG_INFO, "EMERGENCY btn triggered");
             pb_io_door_lock_sw(PB_IO_DOOR_OPEN, PB_PROT_DSE_EMERGNCY);
+            pb_order_send_coe(PB_COE_INFO_EMERGENCY_BTN, "", 0, 0);
             break;
         }
         case PB_IO_MONITOR_REVERSE:

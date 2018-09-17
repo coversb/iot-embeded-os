@@ -57,7 +57,8 @@ const char *PB_COE_INFO_TYPE[PB_COE_INFO_END] =
     "OfflinePwd",
     "Pwd",
     "ServerOpen",
-    "EngServerOpen"
+    "EngServerOpen",
+    "EmergencyBtnOpen"
 };
 
 static OS_MSG_QUEUE_TYPE pb_order_msg_queue;
@@ -782,24 +783,37 @@ static void pb_order_verify(PB_MSG_TYPE *pMsg)
 
     if (coeInfoType != PB_COE_INFO_UNKNOWN)
     {
-        char coeInfo[PB_COE_INFO_LEN] = {0};
-        snprintf(coeInfo, PB_COE_INFO_LEN, 
-                    "{"
-                    "\"type\":\"%s\","
-                    "\"pwd\":\"%s\","
-                    "\"oid\":\"%d\","
-                    "\"sn\":\"%d\""
-                    "}",
-                    PB_COE_INFO_TYPE[coeInfoType],
-                    userInputData,
-                    pParam->consumerID,
-                    pParam->operationID);
-        pb_prot_send_coe_req(PB_COE_OPEN_DOOR, 
-                                            pParam->operationID,
-                                            pParam->consumerID,
-                                            (uint8*)coeInfo);
-        OS_DBG_TRACE(DBG_MOD_PBORDER, DBG_INFO, "COE:%s", coeInfo);
+        pb_order_send_coe(coeInfoType, userInputData, pParam->consumerID, pParam->operationID);
     }
+}
+
+/******************************************************************************
+* Function    : pb_order_send_coe
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_order_send_coe(uint8 coeInfoType, char *userInputData, uint32 operationID, uint32 consumerID)
+{
+    char coeInfo[PB_COE_INFO_LEN] = {0};
+    snprintf(coeInfo, PB_COE_INFO_LEN, 
+                "{"
+                "\"type\":\"%s\","
+                "\"pwd\":\"%s\","
+                "\"oid\":\"%d\","
+                "\"sn\":\"%d\""
+                "}",
+                PB_COE_INFO_TYPE[coeInfoType],
+                userInputData,
+                operationID,
+                consumerID);
+    pb_prot_send_coe_req(PB_COE_OPEN_DOOR, operationID, consumerID, (uint8*)coeInfo);
+    OS_DBG_TRACE(DBG_MOD_PBORDER, DBG_INFO, "COE:%s", coeInfo);
 }
 
 /******************************************************************************
