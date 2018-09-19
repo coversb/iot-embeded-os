@@ -42,6 +42,10 @@
 #define PB_IO_CLOSE_DEVBOX_DELAY (5*MIN2MSEC)   // 5 mins
 #define PB_IO_REBOOT_TV_DELAY (3*MIN2MSEC)  // 3 mins
 
+#define PB_IO_EXHAUST_FORCE_MODE1_OPEN_DURATION (10*MIN2SEC) // 10 mins
+#define PB_IO_EXHAUST_FORCE_MODE2_OPEN_DURATION (5*MIN2SEC) // 5mins
+#define PB_IO_EXHAUST_FORCE_MODE2_CLOSE_DURATION (15*MIN2SEC) // 15mins
+
 /******************************************************************************
 * Local Functions define
 ******************************************************************************/
@@ -481,6 +485,186 @@ void pb_io_tv_reboot_sw(uint8 sw)
 }
 
 /******************************************************************************
+* Function    : pb_io_exhaust_force_mode1
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_io_exhaust_force_mode1(bool *isOpen, uint32 *curTimestamp, uint32 *lastTimestamp)
+{
+    bool isSwitch = false;
+    
+    if (*isOpen)
+    {
+        if (*curTimestamp - *lastTimestamp >= PB_IO_EXHAUST_FORCE_MODE1_OPEN_DURATION)
+        {
+            // need close
+            pb_io_drv_output_set(PB_OUT_EXHAUST, HAL_GPIO_LOW);
+            *isOpen = false;
+            isSwitch = true;
+            OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "exhaust force1 close");
+        }
+    }
+    else
+    {
+        uint8 h;
+        uint8 m;
+        uint8 s;
+        pb_util_timestamp_to_time(*curTimestamp, &h, &m, &s);
+        if (m >= 50) //HH:50 ~ HH:00
+        {
+            // need open
+            pb_io_drv_output_set(PB_OUT_EXHAUST, HAL_GPIO_HIGH);
+            *isOpen = true;
+            isSwitch = true;
+            OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "exhaust force1 open");
+        }
+    }
+
+    if (isSwitch)
+    {
+        *lastTimestamp = *curTimestamp;
+        pb_io_send_omc_rsp();
+    }
+}
+
+/******************************************************************************
+* Function    : pb_io_exhaust_force_mode2
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_io_exhaust_force_mode2(bool *isOpen, uint32 *curTimestamp, uint32 *lastTimestamp)
+{
+    bool isSwitch = false;
+
+    if (*isOpen)
+    {
+        if (*curTimestamp - *lastTimestamp >= PB_IO_EXHAUST_FORCE_MODE2_OPEN_DURATION)
+        {
+            // need close
+            pb_io_drv_output_set(PB_OUT_EXHAUST, HAL_GPIO_LOW);
+            *isOpen = false;
+            isSwitch = true;
+            OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "exhaust force2 close");
+        }
+    }
+    else
+    {
+        if (*curTimestamp - *lastTimestamp >= PB_IO_EXHAUST_FORCE_MODE2_CLOSE_DURATION)
+        {
+            // need open
+            pb_io_drv_output_set(PB_OUT_EXHAUST, HAL_GPIO_HIGH);
+            *isOpen = true;
+            isSwitch = true;
+            OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "exhaust force2 open");
+        }
+    }
+
+    if (isSwitch)
+    {
+        *lastTimestamp = *curTimestamp;
+        pb_io_send_omc_rsp();
+    }
+}
+
+/******************************************************************************
+* Function    : pb_io_exhaust_force_mode_check
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_io_exhaust_force_mode_check(uint32 curOutput, uint32 lastOutput)
+{
+    static uint32 lastUpdateTimestamp = 0;
+    static bool isExhaustOpen = false;
+    
+    bool inService = (bool)(PB_ORDER_OPSTAT_CLOSE != pb_order_operation_state());
+    uint8 exhaustForceMode = pb_cfg_proc_get_cmd()->omc.exhaustForceMode;
+    
+    if (PB_OMC_EXHAUST_FORCE_MODE_OFF == exhaustForceMode)
+    {
+        return;
+    }
+
+    uint32 curTimestamp = pb_util_get_timestamp();
+
+    // record state when the output switch
+    if (lastOutput != curOutput)
+    {
+        if (0 != BIT_CHECK(curOutput, PB_OUT_EXHAUST))
+        {
+            isExhaustOpen = true;
+        }
+        else
+        {
+            isExhaustOpen = false;
+        }
+        lastUpdateTimestamp = curTimestamp;
+    }
+
+    if (false == inService
+        || (0 != BIT_CHECK(pb_cfg_proc_get_cmd()->omc.inServiceOutput, PB_OUT_EXHAUST))
+        || (0 != BIT_CHECK(pb_cfg_proc_get_cmd()->omc.validInServiceOutput, PB_OUT_EXHAUST)))
+    {
+        return;
+    }
+
+    switch (exhaustForceMode)
+    {
+        case PB_OMC_EXHAUST_FORCE_MODE1:
+        {
+            pb_io_exhaust_force_mode1(&isExhaustOpen, &curTimestamp, &lastUpdateTimestamp);
+            break;
+        }
+        case PB_OMC_EXHAUST_FORCE_MODE2:
+        {
+            pb_io_exhaust_force_mode2(&isExhaustOpen, &curTimestamp, &lastUpdateTimestamp);
+            break;
+        }
+        default:break;
+    }
+}
+
+/******************************************************************************
+* Function    : pb_io_exhaust_mode
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_io_exhaust_mode(uint8 mode)
+{
+    PB_CFG_OMC *cfgOmc = &(pb_cfg_proc_get_cmd()->omc);
+
+    if (mode != cfgOmc->exhaustForceMode)
+    {
+        cfgOmc->exhaustForceMode = mode;
+        pb_cfg_proc_save_cmd(PB_PROT_CMD_OMC, cfgOmc, sizeof(PB_CFG_OMC));
+        OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "Save exhaust force mode[%d]", cfgOmc->exhaustForceMode);
+    }
+}
+
+/******************************************************************************
 * Function    : pb_io_check_output
 * 
 * Author      : Chen Hao
@@ -500,9 +684,14 @@ static void pb_io_check_output(void)
     {
         pb_io_output_set(output);
         pb_io_check_tv_output(lastOutput, output);
+    }
+    pb_io_exhaust_force_mode_check(output, lastOutput);
 
-        OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "output [%08X]--->[%08X]", lastOutput, output);
+    // update here, in case make the output set order above wrong
+    if (lastOutput != output)
+    {
         lastOutput = output;
+        OS_DBG_TRACE(DBG_MOD_PBIO, DBG_INFO, "output [%08X]--->[%08X]", lastOutput, output);
     }
 }
 

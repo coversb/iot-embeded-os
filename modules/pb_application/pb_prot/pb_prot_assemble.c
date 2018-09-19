@@ -935,6 +935,8 @@ static uint16 pb_prot_assemble_rsp_cfg_item(uint8 *buff, uint8 idx)
             pbuff += pb_prot_assemble_u32(pbuff, cfgOmc->validInServiceOutput);
             /*TV reboot switch*/
             pbuff += pb_prot_assemble_u8(pbuff, cfgOmc->tvRebootSw);
+            /*Exhaust force mode*/
+            pbuff += pb_prot_assemble_u8(pbuff, cfgOmc->exhaustForceMode);
             break;
         }
         case PB_PROT_CMD_DOA:

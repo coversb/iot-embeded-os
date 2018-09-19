@@ -51,6 +51,7 @@ extern void pb_util_set_timestamp(uint32 timestamp);
 extern void pb_util_timestamp_to_datetime(char *pdata, uint16 len, uint32 timestamp);
 extern void pb_util_get_datetime(char *pdata, uint16 len);
 extern void pb_util_get_time(uint8 *hour, uint8 *minute, uint8 *sec);
+extern void pb_util_timestamp_to_time(uint32 timestamp, uint8 *hour, uint8 *minute, uint8 *sec);
 
 extern uint8 pb_util_get_indoor_temperature(void);
 extern uint8 pb_util_get_indoor_humidity(void);

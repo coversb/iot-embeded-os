@@ -287,6 +287,13 @@ typedef struct
 
 typedef enum
 {
+    PB_OMC_EXHAUST_FORCE_MODE_OFF = 0,
+    PB_OMC_EXHAUST_FORCE_MODE1,
+    PB_OMC_EXHAUST_FORCE_MODE2
+}PB_OMC_EXHAUST_TYPE;
+
+typedef enum
+{
     PB_OMC_MODE_NORMAL = 0,
     PB_OMC_MODE_SPECIAL_TIME,
     PB_OMC_MODE_SPECIAL_TIME_WITH_RSP
@@ -473,6 +480,7 @@ typedef enum
     PB_RTO_DEV_PC_CAL, //10 person counter calibration
     PB_RTO_DOOW_SW_WITHOUT_AUDIO,
     PB_RTO_TV_REBOOT = 100,
+    PB_RTO_EXHAUST_FORCE_MODE,  // 101
     PB_RTO_HOTP_SW = 240,
 }PB_PROT_RTO_TYPE;
 

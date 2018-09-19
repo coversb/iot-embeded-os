@@ -74,6 +74,7 @@ extern void pb_io_door_lock_sw(uint8 sw, uint8 type);
 extern void pb_io_dev_lock_sw(uint8 sw);
 
 extern void pb_io_tv_reboot_sw(uint8 sw);
+extern void pb_io_exhaust_mode(uint8 mode);
 
 extern void pb_io_aircon_update(void);
 extern uint16 pb_io_aircon_state(void);

@@ -137,6 +137,7 @@ const PB_CFG_OMC PB_CFG_OMC_DEFAULT =
     0,                            //align
     {0},                         //pending
     0,                            //tv reboot check
+    0,                            //exhaust Force Mode
     0                             //crc
 };
 

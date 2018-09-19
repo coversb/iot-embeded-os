@@ -319,6 +319,28 @@ void pb_util_get_time(uint8 *hour, uint8 *minute, uint8 *sec)
 }
 
 /******************************************************************************
+* Function    : pb_util_timestamp_to_time
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+void pb_util_timestamp_to_time(uint32 timestamp, uint8 *hour, uint8 *minute, uint8 *sec)
+{
+    time_t t = timestamp;
+    struct tm *lt;
+    lt = localtime(&t);
+
+    *hour = lt->tm_hour;
+    *minute = lt->tm_min;
+    *sec = lt->tm_sec;
+}
+
+/******************************************************************************
 * Function    : pb_util_get_indoor_temperature
 * 
 * Author      : Chen Hao

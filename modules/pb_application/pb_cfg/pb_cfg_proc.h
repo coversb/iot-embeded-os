@@ -202,6 +202,7 @@ typedef struct
     uint32 align;
     uint8 pending[PB_CFG_OMC_PENDING];
     uint8 tvRebootSw;
+    uint8 exhaustForceMode;
     uint16 crc;
 }PB_CFG_OMC;
 

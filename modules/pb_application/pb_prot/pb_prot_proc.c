@@ -1394,6 +1394,11 @@ static void pb_prot_proc_cmd_exec_rto(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
             pb_io_tv_reboot_sw(argRto->subCmd);
             break;
         }
+        case PB_RTO_EXHAUST_FORCE_MODE:
+        {
+            pb_io_exhaust_mode(argRto->subCmd);
+            break;
+        }
         case PB_RTO_HOTP_SW:
         {
             pb_prot_proc_save_hotp_mode(argRto->subCmd);
