@@ -157,6 +157,80 @@ const PB_CFG_ACW PB_CFG_ACW_DEFAULT =
     0                             //crc
 };
 
+//Output working Configuration
+const PB_CFG_OWC PB_CFG_OWC_DEFAULT = 
+{
+    {
+        //PB_OWC_OUTDOOR_TV1
+        {
+            0,              //mode
+            0,              //Valid time start hour
+            0,              //Valid time start minute
+            0,              //Valid time stop hour
+            0               //Valid time stop minute
+        },
+        //PB_OWC_OUTDOOR_TV2
+        {
+            0,              //mode
+            0,              //Valid time start hour
+            0,              //Valid time start minute
+            0,              //Valid time stop hour
+            0               //Valid time stop minute
+        },
+        //PB_OWC_RESERVED2
+        {
+            0,              //mode
+            0,              //Valid time start hour
+            0,              //Valid time start minute
+            0,              //Valid time stop hour
+            0               //Valid time stop minute
+        },
+        //PB_OWC_RESERVED3
+        {
+            0,              //mode
+            0,              //Valid time start hour
+            0,              //Valid time start minute
+            0,              //Valid time stop hour
+            0               //Valid time stop minute
+        },
+        //PB_OWC_RESERVED4
+        {
+            0,              //mode
+            0,              //Valid time start hour
+            0,              //Valid time start minute
+            0,              //Valid time stop hour
+            0               //Valid time stop minute
+        },
+        //PB_OWC_RESERVED5
+        {
+            0,              //mode
+            0,              //Valid time start hour
+            0,              //Valid time start minute
+            0,              //Valid time stop hour
+            0               //Valid time stop minute
+        },
+        //PB_OWC_RESERVED6
+        {
+            0,              //mode
+            0,              //Valid time start hour
+            0,              //Valid time start minute
+            0,              //Valid time stop hour
+            0               //Valid time stop minute
+        },
+        //PB_OWC_RESERVED7
+        {
+            0,              //mode
+            0,              //Valid time start hour
+            0,              //Valid time start minute
+            0,              //Valid time stop hour
+            0               //Valid time stop minute
+        }
+    },
+    0,                            //align
+    {0},                         //pending
+    0                             //crc
+};
+
 //Door Alarm
 const PB_CFG_DOA PB_CFG_DOA_DEFAULT = 
 {

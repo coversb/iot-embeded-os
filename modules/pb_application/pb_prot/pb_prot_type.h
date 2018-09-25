@@ -71,6 +71,7 @@ typedef enum
     PB_PROT_CMD_SEC = 0x07,                                 //0x07 Security Configuration
     PB_PROT_CMD_OMC = 0x08,                                //0x08 Output Mode Configuration
     PB_PROT_CMD_ACW = 0x09,                                //0x09 Air Conditioner Working Configuration
+    PB_PROT_CMD_OWC = 0x0A,                                //0x0A Output Working Configuration
     /*alarm configuration command*/
     PB_PROT_CMD_DOA = 0x31,                                //0x31 Door Alarm
     PB_PROT_CMD_SMA = 0x32,                                 //0x32 Smoke Alarm
@@ -350,6 +351,40 @@ typedef struct
     uint8 stopHour;
     uint8 stopMin;
 }PB_PROT_CMD_ACW_ARG;
+
+/******************************************************************************
+* Output working config (OWC[0x01 0x0A])
+******************************************************************************/
+#define PB_OWC_CONTENT_LEN 6
+
+typedef enum
+{
+    PB_OWC_OFF = 0,
+    PB_OWC_ON
+}PB_OWC_MODE;
+
+typedef enum
+{
+    PB_OWC_OUTDOOR_TV1 = 0,
+    PB_OWC_OUTDOOR_TV2,
+    PB_OWC_RESERVED2,
+    PB_OWC_RESERVED3,
+    PB_OWC_RESERVED4,
+    PB_OWC_RESERVED5,
+    PB_OWC_RESERVED6,
+    PB_OWC_RESERVED7,
+    PB_OWC_SIZE
+}PB_OWC_ITEM_TYPE;
+
+typedef struct
+{
+    uint8 item;
+    uint8 mode;
+    uint8 startHour;
+    uint8 startMin;
+    uint8 stopHour;
+    uint8 stopMin;
+}PB_PROT_CMD_OWC_ARG;
 
 /******************************************************************************
 * Door Alarm (DOA[0x01 0x31])
@@ -694,6 +729,7 @@ typedef union
     PB_PROT_CMD_SEC_ARG sec;
     PB_PROT_CMD_OMC_ARG omc;
     PB_PROT_CMD_ACW_ARG acw;
+    PB_PROT_CMD_OWC_ARG owc;
     PB_PROT_CMD_DOA_ARG doa;
     PB_PROT_CMD_SMA_ARG sma;
     PB_PROT_CMD_OUT_ARG out;

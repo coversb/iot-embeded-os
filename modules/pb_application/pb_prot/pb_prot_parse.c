@@ -1433,6 +1433,59 @@ static bool pb_prot_parse_cmd_acw(PB_PROT_PARSED_CONTENT_TYPE *content,
 }
 
 /******************************************************************************
+* Function    : pb_prot_parse_cmd_owc
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static bool pb_prot_parse_cmd_owc(PB_PROT_PARSED_CONTENT_TYPE *content,
+                                  PB_PROT_CMD_PARSED_FRAME_TYPE *frame)
+{
+    uint8 *pdata = content->content;
+
+    if (content->contentLen < PB_OWC_CONTENT_LEN)
+    {
+        OS_DBG_ERR(DBG_MOD_PBPROT, "Length error %d", content->contentLen);
+        return false;
+    }
+
+    //Output pin number
+    pdata += pb_prot_parse_u8(pdata, &frame->arg.owc.item);
+    if (frame->arg.owc.item >= PB_OWC_SIZE)
+    {
+        OS_DBG_ERR(DBG_MOD_PBPROT, "Item idx exceed %d", frame->arg.owc.item);
+        return false;
+    }
+
+    //mode
+    pdata += pb_prot_parse_u8(pdata, &frame->arg.owc.mode);
+
+    //Valid time
+    uint32 validTime;
+    pdata += pb_prot_parse_u32(pdata, &validTime);
+
+    frame->arg.owc.startHour= (validTime & 0x1F);
+    frame->arg.owc.startMin = ((validTime >> 5)  & 0x3F);
+    frame->arg.owc.stopHour = ((validTime >> 11) & 0x1F);
+    frame->arg.owc.stopMin = ((validTime >> 16)  & 0x3F);
+
+    OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO,
+                            "OWC---item[%d], mode[%d], vaild time[%02d:%02d-%02d:%02d]",
+                            frame->arg.owc.item,
+                            frame->arg.owc.mode,
+                            frame->arg.owc.startHour, frame->arg.owc.startMin,
+                            frame->arg.owc.stopHour, frame->arg.owc.stopMin);
+
+    return true;
+}
+
+
+/******************************************************************************
 * Function    : pb_prot_parse_cmd_doa
 *
 * Author      : Chen Hao
@@ -1971,6 +2024,14 @@ static bool pb_prot_parse_cmd_content(PB_PROT_PARSED_CONTENT_TYPE *content,
         case PB_PROT_CMD_ACW:
         {
             if (!pb_prot_parse_cmd_acw(content, frame))
+            {
+                return false;
+            }
+            break;
+        }
+        case PB_PROT_CMD_OWC:
+        {
+            if (!pb_prot_parse_cmd_owc(content, frame))
             {
                 return false;
             }

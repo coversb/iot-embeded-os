@@ -1006,6 +1006,62 @@ static void pb_prot_proc_cmd_exec_acw(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame
 }
 
 /******************************************************************************
+* Function    : pb_prot_proc_cmd_exec_owc
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_prot_proc_cmd_exec_owc(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame)
+{
+    bool needSave = false;
+    PB_PROT_CMD_OWC_ARG *argOwc = &(parsedFrame->arg.owc);
+    PB_CFG_OWC *cfgOwc = &(pb_cfg_proc_get_cmd()->owc);
+
+    uint8 idx = argOwc->item;
+
+    //mode
+    if (argOwc->mode != cfgOwc->item[idx].mode)
+    {
+        cfgOwc->item[idx].mode = argOwc->mode;
+        needSave = true;
+    }
+
+    //Valid time
+    if (argOwc->startHour != cfgOwc->item[idx].startHour)
+    {
+        cfgOwc->item[idx].startHour = argOwc->startHour;
+        needSave = true;
+    }
+    if (argOwc->startMin != cfgOwc->item[idx].startMin)
+    {
+        cfgOwc->item[idx].startMin = argOwc->startMin;
+        needSave = true;
+    }
+    if (argOwc->stopHour != cfgOwc->item[idx].stopHour)
+    {
+        cfgOwc->item[idx].stopHour = argOwc->stopHour;
+        needSave = true;
+    }
+    if (argOwc->stopMin != cfgOwc->item[idx].stopMin)
+    {
+        cfgOwc->item[idx].stopMin = argOwc->stopMin;
+        needSave = true;
+    }
+
+    if (needSave)
+    {
+        //save command
+        pb_cfg_proc_save_cmd(parsedFrame->msgSubType, cfgOwc, sizeof(PB_CFG_OWC));
+        OS_DBG_TRACE(DBG_MOD_PBPROT, DBG_INFO, "Save OWC[%02X]", parsedFrame->msgSubType);
+    }
+}
+
+/******************************************************************************
 * Function    : pb_prot_proc_cmd_exec_doa
 *
 * Author      : Chen Hao
@@ -1516,6 +1572,11 @@ void pb_prot_proc_cmd_exec(PB_PROT_CMD_PARSED_FRAME_TYPE *parsedFrame)
             case PB_PROT_CMD_ACW:
             {
                 pb_prot_proc_cmd_exec_acw(parsedFrame);
+                break;
+            }
+            case PB_PROT_CMD_OWC:
+            {
+                pb_prot_proc_cmd_exec_owc(parsedFrame);
                 break;
             }
             case PB_PROT_CMD_DOA:

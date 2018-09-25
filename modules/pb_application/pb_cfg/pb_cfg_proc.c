@@ -350,6 +350,11 @@ static uint8 pb_cfg_proc_cmd_valid_check(uint8 type)
             ret = pb_cfg_proc_cmd_crc_check((void*) & (g_pb_cfg_cmd.acw), (void*) & (g_pb_cfg_cmd.acw.crc));
             break;
         }
+        case PB_PROT_CMD_OWC:
+        {
+            ret = pb_cfg_proc_cmd_crc_check((void*) & (g_pb_cfg_cmd.owc), (void*) & (g_pb_cfg_cmd.owc.crc));
+            break;
+        }
         case PB_PROT_CMD_DOA:
         {
             ret = pb_cfg_proc_cmd_crc_check((void*) & (g_pb_cfg_cmd.doa), (void*) & (g_pb_cfg_cmd.doa.crc));
@@ -475,9 +480,17 @@ bool pb_cfg_proc_save_cmd(uint8 type, void *arg, uint32 size)
         case PB_PROT_CMD_ACW:
         {
             PB_CFG_ACW *pAcw = (PB_CFG_ACW*)arg;
-            calCRC = pb_util_get_crc16((uint8*)pAcw , ((uint8*) & (pAcw ->crc) - (uint8*)pAcw ));
-            pAcw ->crc = calCRC;
-            memcpy(&(g_pb_cfg_cmd.acw), pAcw , size);
+            calCRC = pb_util_get_crc16((uint8*)pAcw, ((uint8*) & (pAcw->crc) - (uint8*)pAcw));
+            pAcw->crc = calCRC;
+            memcpy(&(g_pb_cfg_cmd.acw), pAcw, size);
+            break;
+        }
+        case PB_PROT_CMD_OWC:
+        {
+            PB_CFG_OWC *pOwc = (PB_CFG_OWC*)arg;
+            calCRC = pb_util_get_crc16((uint8*)pOwc, ((uint8*) & (pOwc->crc) - (uint8*)pOwc));
+            pOwc->crc = calCRC;
+            memcpy(&(g_pb_cfg_cmd.owc), pOwc, size);
             break;
         }
         case PB_PROT_CMD_DOA:
@@ -585,6 +598,12 @@ static bool pb_cfg_proc_load_default_cmd(uint8 type)
         {
             memcpy(&(g_pb_cfg_cmd.acw), &PB_CFG_ACW_DEFAULT, sizeof(PB_CFG_ACW));
             pb_cfg_proc_save_cmd(type, &(g_pb_cfg_cmd.acw), sizeof(PB_CFG_ACW));
+            break;
+        }
+        case PB_PROT_CMD_OWC:
+        {
+            memcpy(&(g_pb_cfg_cmd.owc), &PB_CFG_OWC_DEFAULT, sizeof(PB_CFG_OWC));
+            pb_cfg_proc_save_cmd(type, &(g_pb_cfg_cmd.owc), sizeof(PB_CFG_OWC));
             break;
         }
         case PB_PROT_CMD_DOA:
@@ -725,6 +744,19 @@ static void pb_cfg_proc_print_cmd(uint8 type)
                                     g_pb_cfg_cmd.acw.stopHour, g_pb_cfg_cmd.acw.stopMin);
             break;
         }
+        case PB_PROT_CMD_OWC:
+        {
+            for (uint8 idx = 0; idx < PB_OWC_SIZE; ++idx)
+            {
+                OS_DBG_TRACE(DBG_MOD_PBCFG, DBG_INFO, 
+                                        "OWC:item[%d], mode[%d], vaild time[%02d:%02d-%02d:%02d]",
+                                        idx, g_pb_cfg_cmd.owc.item[idx].mode,
+                                        g_pb_cfg_cmd.owc.item[idx].startHour, g_pb_cfg_cmd.owc.item[idx].startMin,
+                                        g_pb_cfg_cmd.owc.item[idx].stopHour, g_pb_cfg_cmd.owc.item[idx].stopMin);
+            }
+            break;
+        }
+
         case PB_PROT_CMD_DOA:
         {
             OS_DBG_TRACE(DBG_MOD_PBCFG, DBG_INFO,

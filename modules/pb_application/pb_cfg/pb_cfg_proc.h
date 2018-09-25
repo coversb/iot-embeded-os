@@ -58,6 +58,7 @@
 #define PB_CFG_SEC_PENDING 50
 #define PB_CFG_OMC_PENDING (50-1)
 #define PB_CFG_ACW_PENDING 50
+#define PB_CFG_OWC_PENDING 50
 #define PB_CFG_DOA_PENDING (50-1)
 #define PB_CFG_SMA_PENDING 50
 #define PB_CFG_MUO_PENDING 50 
@@ -223,6 +224,24 @@ typedef struct
     uint16 crc;
 }PB_CFG_ACW;
 
+//Output working config
+typedef struct
+{
+    uint8 mode;
+    uint8 startHour;
+    uint8 startMin;
+    uint8 stopHour;
+    uint8 stopMin;
+}PB_CFG_OWC_ITEM;
+
+typedef struct
+{
+    PB_CFG_OWC_ITEM item[PB_OWC_SIZE];
+    uint32 align;
+    uint8 pending[PB_CFG_OWC_PENDING];
+    uint16 crc;
+}PB_CFG_OWC;
+
 //Door Alarm
 typedef struct
 {
@@ -275,6 +294,7 @@ typedef struct
     PB_CFG_MUO muo;
     PB_CFG_OMC omc;
     PB_CFG_ACW acw;
+    PB_CFG_OWC owc;
 }PB_CFG_CMD;
 
 /******************************************************************************
