@@ -58,6 +58,7 @@ typedef struct
     OS_TMR_TYPE close_door_tmr;
     OS_TMR_TYPE close_devbox_tmr;
     OS_TMR_TYPE reboot_tv_tmr;
+    bool owcIsOpen[PB_OWC_SIZE];
 }PB_IO_CONTEXT_TYPE;
 
 static PB_IO_CONTEXT_TYPE pb_io_context;
@@ -665,6 +666,170 @@ void pb_io_exhaust_mode(uint8 mode)
 }
 
 /******************************************************************************
+* Function    : pb_io_owc_filter
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static bool pb_io_owc_filter(uint8 pin)
+{
+    uint8 itemIdx = 0xFF;
+
+    switch (pin)
+    {
+        case PB_OUT_ADV_MACHINE1:
+        {
+            itemIdx = PB_OWC_OUTDOOR_TV1;
+            break;
+        }
+        case PB_OUT_ADV_MACHINE2:
+        {
+            itemIdx = PB_OWC_OUTDOOR_TV2;
+            break;
+        }
+        default:
+        {
+            return false;
+        }
+    }    
+
+    PB_CFG_OWC *pOwc = &(pb_cfg_proc_get_cmd()->owc);
+    return (bool)(pOwc->item[itemIdx].mode == PB_OWC_ON);
+}
+
+/******************************************************************************
+* Function    : pb_io_owc_in_validtime
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static bool pb_io_owc_in_validtime(PB_CFG_OWC_ITEM *item)
+{    
+    bool bInValidTime = false;
+    uint8 hour;
+    uint8 min;
+    uint8 sec;
+    pb_util_get_time(&hour, &min, &sec);
+    
+    uint16 startMinuteStamp = item->startHour * 60 + item->startMin;
+    uint16 stopMinuteStamp = item->stopHour * 60 + item->stopMin;
+
+    if (startMinuteStamp != stopMinuteStamp)
+    {
+        uint16 curMinuteStamp = hour * 60 + min;
+        
+        //in one day
+        if (startMinuteStamp < stopMinuteStamp)
+        {
+            if (curMinuteStamp >= startMinuteStamp && curMinuteStamp < stopMinuteStamp)
+            {
+                bInValidTime = true;
+            }
+        }
+        //go through 00:00
+        else
+        {
+            if (curMinuteStamp >= startMinuteStamp || curMinuteStamp < stopMinuteStamp)
+            {
+                bInValidTime = true;
+            }
+        }
+    }
+
+    return bInValidTime;
+}
+
+/******************************************************************************
+* Function    : pb_io_owc_switch
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_io_owc_switch(uint8 idx, uint8 val)
+{
+    uint8 pin = 0;
+
+    switch (idx)
+    {
+        case PB_OWC_OUTDOOR_TV1:
+        {
+            pin = PB_OUT_ADV_MACHINE1;
+            break;
+        }
+        case PB_OWC_OUTDOOR_TV2:
+        {
+            pin = PB_OUT_ADV_MACHINE2;
+            break;
+        }
+        default:
+        {
+            return;
+        }
+    }
+
+    pb_io_drv_output_set(pin, val);
+}
+
+/******************************************************************************
+* Function    : pb_io_owc_process
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_io_owc_process(void)
+{
+    PB_CFG_OWC *pOwc = &(pb_cfg_proc_get_cmd()->owc);
+
+    for (uint8 idx = 0; idx < PB_OWC_SIZE; ++idx)
+    {
+        // disable, don't need check
+        if (pOwc->item[idx].mode == PB_OWC_OFF)
+        {
+            continue;
+        }
+
+        if (pb_io_owc_in_validtime(&pOwc->item[idx]))
+        {
+            if (!pb_io_context.owcIsOpen[idx])
+            {
+                //need open
+                pb_io_owc_switch(idx, HAL_GPIO_HIGH);
+                pb_io_context.owcIsOpen[idx] = true;
+            }
+        }
+        else
+        {
+            if (pb_io_context.owcIsOpen[idx])
+            {
+                //need close
+                pb_io_owc_switch(idx, HAL_GPIO_LOW);
+                pb_io_context.owcIsOpen[idx] = false;
+            }
+        }
+    }
+}
+
+/******************************************************************************
 * Function    : pb_io_check_output
 * 
 * Author      : Chen Hao
@@ -793,6 +958,11 @@ static bool pb_io_output_set_filter(uint8 pin)
         return true;
     }
 
+    if (pb_io_owc_filter(pin))
+    {
+        return true;
+    }
+
     return false;
 }
 
@@ -870,6 +1040,9 @@ static void pb_io_main_init(void)
     pb_io_drv_gpo_set(PB_GPO_DEV_LOCK, !PB_IO_DEVBOX_CLOSE);
     // set output
 
+    //init owc open state
+    memset(pb_io_context.owcIsOpen, 0, sizeof(pb_io_context.owcIsOpen));
+
     //init door timer to delay close door
     pb_io_context.close_door_tmr = os_tmr_create(PB_IO_CLOSE_DOOR_DELAY, pb_io_door_delay_close, false);
     //init devicebox timer to delay close door
@@ -911,6 +1084,8 @@ void pb_io_main(void *param)
         pb_io_check_output();
         //check air conditioner switch 
         AIRCON.process();
+        //OWC process
+        pb_io_owc_process();
         
         os_scheduler_delay(DELAY_1_S);
     }

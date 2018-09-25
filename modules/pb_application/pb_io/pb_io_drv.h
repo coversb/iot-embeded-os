@@ -72,8 +72,8 @@ typedef enum
     PB_OUT_FRESH_AIR,                      // 11
     PB_OUT_VENDING_MACHINE,                // 12
     PB_OUT_EMERGENCY_LIGHT,                // 13
-    PB_OUT_RESERVED14,                     // 14
-    PB_OUT_RESERVED15,                     // 15
+    PB_OUT_ADV_MACHINE1,                     // 14
+    PB_OUT_ADV_MACHINE2,                     // 15
     PB_OUT_RESERVED16,                     // 16
     PB_OUT_RESERVED17,                     // 17
     PB_OUT_RESERVED18,                     // 18
