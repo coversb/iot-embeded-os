@@ -36,8 +36,8 @@
 #define PB_CMDCFG_ADDR CMDCFG_BEGIN
 
 /*Versions*/
-#define PB_PROTOCOL_VERSION 0x011D  //1.29
-#define PB_FIRMWARE_VERSION 0x2081  //2.08.01
+#define PB_PROTOCOL_VERSION 0x011E  //1.30
+#define PB_FIRMWARE_VERSION 0x2090  //2.09.00
 
 /******************************************************************************
 * Device define
