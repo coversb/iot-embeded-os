@@ -89,7 +89,7 @@ static void pb_gui_show_version(bool update)
     //firmware version
     memset(temp, 0x00, sizeof(temp));
     uint16 fmVer = PB_FIRMWARE_VERSION;
-    sprintf(temp, "ParkBox V%d.%02d.%02d", (fmVer >> 12), ((fmVer >> 4) & 0xFF), (fmVer & 0x000F));
+    sprintf(temp, "ParkBox %02d.%02d.%02d", (fmVer >> 12), ((fmVer >> 4) & 0xFF), (fmVer & 0x000F));
     devSH1106.show(DEFAULT_COL, VERSION_ROW, temp);
 
     //SYS date time
