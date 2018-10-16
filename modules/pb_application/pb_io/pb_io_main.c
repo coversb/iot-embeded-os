@@ -692,6 +692,11 @@ static bool pb_io_owc_filter(uint8 pin)
             itemIdx = PB_OWC_OUTDOOR_TV2;
             break;
         }
+        case PB_OUT_OUTDOOR_LIGHTBOX:
+        {
+            itemIdx = PB_OWC_OUTDOOR_LIGHTBOX;
+            break;
+        }
         default:
         {
             return false;
@@ -774,6 +779,11 @@ static void pb_io_owc_switch(uint8 idx, uint8 val)
         case PB_OWC_OUTDOOR_TV2:
         {
             pin = PB_OUT_ADV_MACHINE2;
+            break;
+        }
+        case PB_OWC_OUTDOOR_LIGHTBOX:
+        {
+            pin = PB_OUT_OUTDOOR_LIGHTBOX;
             break;
         }
         default:
