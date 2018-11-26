@@ -680,9 +680,17 @@ static void pb_order_verify(PB_MSG_TYPE *pMsg)
             break;
         }
         case PB_ORDER_VERIFY_PW_VALID:
+        case PB_ORDER_VERIFY_PW_CLEANER:
         {
             needOpenDoor = true;
-            doorOperateType = PB_PROT_DSE_PASSWD;
+            if (PB_ORDER_VERIFY_PW_CLEANER == verifyRes)
+            {
+                doorOperateType = PB_PROT_DSE_CLEANER;
+            }
+            else
+            {
+                doorOperateType = PB_PROT_DSE_PASSWD;
+            }
 
             needPlayWelcome = true;
             needBlinkPass = true;

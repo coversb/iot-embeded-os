@@ -611,7 +611,8 @@ typedef enum
     PB_PROT_DSE_SERVER,   //server
     PB_PROT_DSE_EMERGNCY, //emergncy button
     PB_PROT_DSE_SMA,  //smoke alarm
-    PB_PROT_DSE_MONITOR
+    PB_PROT_DSE_MONITOR,
+    PB_PROT_DSE_CLEANER
 } PB_PROT_DSE_TYPE;
 
 //Person count event[0x03 0x23]

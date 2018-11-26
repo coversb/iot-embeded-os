@@ -39,6 +39,7 @@
 * Macros
 ******************************************************************************/
 #define PB_IO_CLOSE_DOOR_DELAY (6 * SEC2MSEC)
+#define PB_IO_CLOSE_DOOR_DELAY_CLEANER (30*MIN2MSEC)
 #define PB_IO_CLOSE_DEVBOX_DELAY (5*MIN2MSEC)   // 5 mins
 #define PB_IO_REBOOT_TV_DELAY (3*MIN2MSEC)  // 3 mins
 
@@ -56,6 +57,7 @@
 typedef struct
 {
     OS_TMR_TYPE close_door_tmr;
+    OS_TMR_TYPE close_door_cleaner_tmr;
     OS_TMR_TYPE close_devbox_tmr;
     OS_TMR_TYPE reboot_tv_tmr;
     bool owcIsOpen[PB_OWC_SIZE];
@@ -240,6 +242,12 @@ void pb_io_door_lock_sw(uint8 sw, uint8 type)
             {
                 // restart door close delay timer
                 os_tmr_restart(pb_io_context.close_door_tmr);
+                break;
+            }
+            case PB_PROT_DSE_CLEANER:
+            {
+                // restart door close delay timer
+                os_tmr_restart(pb_io_context.close_door_cleaner_tmr);
                 break;
             }
             default:break;
@@ -1063,6 +1071,8 @@ static void pb_io_main_init(void)
     //init owc open state
     memset(pb_io_context.owcIsOpen, 0, sizeof(pb_io_context.owcIsOpen));
 
+    //init door timer to delay close door for cleaner
+    pb_io_context.close_door_cleaner_tmr = os_tmr_create(PB_IO_CLOSE_DOOR_DELAY_CLEANER, pb_io_door_delay_close, false);
     //init door timer to delay close door
     pb_io_context.close_door_tmr = os_tmr_create(PB_IO_CLOSE_DOOR_DELAY, pb_io_door_delay_close, false);
     //init devicebox timer to delay close door
