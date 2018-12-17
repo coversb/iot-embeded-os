@@ -43,6 +43,7 @@ typedef enum
     PB_IO_ALARM_PWR_SUPPLY = PB_IO_ALARM_BEGIN,
     PB_IO_ALARM_SMOKE,
     PB_IO_ALARM_DOOR,
+    PB_IO_ALARM_STAY,
     PB_IO_ALARM_END
 }PB_IO_ALARM_ITEM;
 
@@ -50,7 +51,8 @@ typedef enum
 {
     PB_IO_ALARM_STATE_PWR = 0,
     PB_IO_ALARM_STATE_SMOKE,
-    PB_IO_ALARM_STATE_DOOR
+    PB_IO_ALARM_STATE_DOOR,
+    PB_IO_ALARM_STATE_STAY
 }PB_IO_ALARM_STATE_ITEM;
 
 /******************************************************************************

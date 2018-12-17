@@ -162,6 +162,28 @@ uint8 pb_io_smoke_level(void)
 }
 
 /******************************************************************************
+* Function    : pb_io_ir_status
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+uint8 pb_io_ir_status(void)
+{
+    if (HAL_GPIO_LOW == pb_io_drv_input_val(PB_IN_IR_DETECTOR1)
+        || HAL_GPIO_LOW == pb_io_drv_input_val(PB_IN_IR_DETECTOR2))
+    {
+        return PB_IO_IR_TRIGGERED;
+    }
+
+    return PB_IO_IR_IDLE;
+}
+
+/******************************************************************************
 * Function    : pb_io_door_status
 * 
 * Author      : Chen Hao

@@ -43,6 +43,12 @@ typedef enum
 
 typedef enum
 {
+    PB_IO_IR_IDLE = 0,
+    PB_IO_IR_TRIGGERED = 1
+}PB_IO_IR_DETECTION_TYPE;
+
+typedef enum
+{
     PB_IO_DEVBOX_CLOSE = 0,
     PB_IO_DEVBOX_OPEN = 1
 } PB_IO_DEVBOX_SW_TYPE;
@@ -81,6 +87,7 @@ extern uint16 pb_io_aircon_state(void);
 extern uint8 pb_io_pwr_suply(void);
 extern uint8 pb_io_smoke_level(void);
 extern uint8 pb_io_door_status(void);
+extern uint8 pb_io_ir_status(void);
 
 #endif /* __PB_IO_MAIN_H__ */
 

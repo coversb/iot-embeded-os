@@ -415,6 +415,115 @@ static void pb_io_door_alarm_relieve_handler(void)
     pb_prot_send_sae_req(PB_SENSOR_ALARM_DOOR, pb_io_door_status());
 }
 
+/*stay alarm*/
+/******************************************************************************
+* Function    : pb_io_stay_alarm_need_check
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : check if need check stay alarm
+******************************************************************************/
+static bool pb_io_stay_alarm_need_check(void)
+{
+    return true;
+}
+
+/******************************************************************************
+* Function    : pb_io_stay_alarm_get_debounce_duration
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : get stay alarm debounce
+******************************************************************************/
+static uint32 pb_io_stay_alarm_get_debounce_duration(void)
+{
+    return 1;// * MIN2SEC;
+}
+
+/******************************************************************************
+* Function    : pb_io_stay_alarm_is_detected
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : check is stay alarm detected
+******************************************************************************/
+static bool pb_io_stay_alarm_is_detected(void)
+{
+    return (bool)(pb_io_ir_status() == PB_IO_IR_TRIGGERED);
+}
+
+/******************************************************************************
+* Function    : pb_io_stay_alarm_trigger_handler
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_io_stay_alarm_trigger_handler(void)
+{
+    //send alarm RSP
+    pb_prot_send_sae_req(PB_SENSOR_ALARM_STAY, pb_io_ir_status());
+}
+
+/******************************************************************************
+* Function    : pb_io_stay_alarm_triggering_handler
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_io_stay_alarm_triggering_handler(uint32 *lastRecordTime, uint32 curTime)
+{  
+    //in mode 2 need send alarm RSP in interval
+    //if (pb_cfg_proc_get_cmd()->doa.mode == 2 && pb_cfg_proc_get_cmd()->doa.interval != 0)
+    {
+        if ((curTime - *lastRecordTime) >= 60)//pb_cfg_proc_get_cmd()->doa.interval)
+        {
+            *lastRecordTime = curTime;
+            
+            //send alarm RSP
+            pb_prot_send_sae_req(PB_SENSOR_ALARM_STAY, pb_io_ir_status());
+        }
+    }
+}
+
+/******************************************************************************
+* Function    : pb_io_stay_alarm_relieve_handler
+* 
+* Author      : Chen Hao
+* 
+* Parameters  : 
+* 
+* Return      : 
+* 
+* Description : 
+******************************************************************************/
+static void pb_io_stay_alarm_relieve_handler(void)
+{
+    //send alarm RSP
+    pb_prot_send_sae_req(PB_SENSOR_ALARM_STAY, pb_io_ir_status());
+}
+
 /*alarm item define*/
 PB_IO_ALARM pb_io_alarm_item[PB_IO_ALARM_END] = 
 {
@@ -444,6 +553,15 @@ PB_IO_ALARM pb_io_alarm_item[PB_IO_ALARM_END] =
         pb_io_door_alarm_trigger_handler,
         pb_io_door_alarm_triggering_handler,
         pb_io_door_alarm_relieve_handler
+    },
+    {
+        "STA", PB_IO_ALARM_STATE_STAY, PB_IO_ALARM_RELIEVED, 0, 
+        pb_io_stay_alarm_need_check,
+        pb_io_stay_alarm_get_debounce_duration,
+        pb_io_stay_alarm_is_detected,
+        pb_io_stay_alarm_trigger_handler,
+        pb_io_stay_alarm_triggering_handler,
+        pb_io_stay_alarm_relieve_handler
     }
 };
 
